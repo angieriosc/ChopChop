@@ -1,0 +1,110 @@
+{
+  "name": "com.unity.inputsystem",
+  "displayName": "Input System",
+  "version": "1.14.1",
+  "unity": "2021.3",
+  "description": "A new input system which can be used as a more extensible and customizable alternative to Unity's classic input system in UnityEngine.Input.",
+  "keywords": [
+    "input",
+    "events",
+    "keyboard",
+    "mouse",
+    "gamepad",
+    "touch",
+    "vr",
+    "xr"
+  ],
+  "dependencies": {
+    "com.unity.modules.uielements": "1.0.0"
+  },
+  "_upm": {
+    "changelog": "### Added\n\n- Support for Xbox controllers over USB on macOS, using macOS's default driver. [ISXB-1548]\n\n### Fixed\n- Fixed an analytics event being invoked twice when the Save button in the Actions view was pressed. [ISXB-1378](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1378)\n- Fixed an issue causing a number of errors to be displayed when using `InputTestFixture` in playmode tests with domain reloading disabled on playmode entry. [ISXB-1446](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1446)\n- Fixed issue where user was not prompted to save changes when loading a second input actions asset into an already opened editor. [ISXB-1343](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1343)\n- Fixed the on hover behaviour of the two plus buttons in the Input Actions Editor window [ISXB-1327](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1327)\n- Fixed an issue on macOS which didn't detect up-left DPAD presses for Xbox controllers. [ISXB-810](https://issuetracker.unity3d.com/issues/macos-d-pad-upper-left-corner-is-not-logged-with-the-xbox-controller)\n- Fixed Input Actions code generation overwriting user files when the names happened to match. [ISXB-1257](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1257)\n- Fixed Input Actions code generation using locale-dependent rules when lowercasing and uppercasing strings. [ISXB-1406]\n- Fixed an issue when providing JoinPlayer with a specific split screen index. [ISXB-897](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-897)\n- Fixed Inspector Window being refreshed all the time when a PlayerInput component is present with Invoke Unity Events nofication mode chosen [ISXB-1448](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1448)\n- Fixed an issue where an action with a name containing a slash \"/\" could not be found via `InputActionAsset.FindAction(string,bool)`. [ISXB-1306](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1306).\n- Fixed Gamepad stick up/down inputs that were not recognized in WebGL. [ISXB-1090](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1090)\n- Fixed reenabling the VirtualMouseInput component may sometimes lead to NullReferenceException. [ISXB-1096](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1096)\n- Fixed the default button press point not being respected in Editor (as well as some other Touchscreen properties). [ISXB-1152](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1152)\n- Fixed the TreeView compilation warnings when used with Unity 6.2 beta (ISX-2320)\n- Fixed actions being reset when disabling the InputSystemUIInputModule component [ISXB-1493](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1493)\n- Fixed a memory leak when disabling and enabling the InputSystemUIInputModule component at runtime [ISXB-1573](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1573)\n- Fixed all InputControls being changed at once when you change just one by reverting `2a37caac288ac09bc9122234339dc5df8d3a0ca6`, which was an attempt at fixing [ISXB-1221] that introduced this regression [ISXB-1531] (https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1493)\n- Fixed PlayerInput component automatically switching away from the default ActionMap set to 'None'.\n- Fixed a console error being shown when targeting visionOS builds in 2022.3.\n- Fixed a Tap Interaction issue with analog controls. The Tap interaction would keep re-starting after timeout. [ISXB-627](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-627)\n- Fixed the defaultActionMap dropdown in the PlayerInput component defaulting to <None> instead of the first ActionMap.\n- Fixed TrackedPoseDriver stops updating position and rotation when device is added after its initialization. [ISXB-1555](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1555)\n- Fixed PlayerInput component not working with C# Wrappers (ISXB-1535). This reverted changes done to fix [ISXB-920](https://issuetra"
+  },
+  "upmCi": {
+    "footprint": "bff49b413a99b101c67af473d67ebd25b579b12c"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.inputsystem@1.14/manual/index.html",
+  "repository": {
+    "url": "https://github.com/Unity-Technologies/InputSystem.git",
+    "type": "git",
+    "revision": "5f79385f7037a45b3871a30c4bacfbfa0aedb978"
+  },
+  "samples": [
+    {
+      "displayName": "Custom Binding Composite",
+      "description": "Shows how to implement a custom composite binding.",
+      "path": "Samples~/CustomComposite"
+    },
+    {
+      "displayName": "Custom Device",
+      "description": "Shows how to implement a custom input device.",
+      "path": "Samples~/CustomDevice"
+    },
+    {
+      "displayName": "Custom Device Usages",
+      "description": "Shows how to tag devices with custom usage strings that can be used, for example, to distinguish multiple instances of the same type of device (e.g. 'Gamepad') based on how the device is used (e.g. 'Player1' vs 'Player2' or 'LeftHand' vs 'RightHand').",
+      "path": "Samples~/CustomDeviceUsages"
+    },
+    {
+      "displayName": "Gamepad Mouse Cursor",
+      "description": "An example that shows how to use the gamepad for driving a mouse cursor for use with UIs.",
+      "path": "Samples~/GamepadMouseCursor"
+    },
+    {
+      "displayName": "In-Game Hints",
+      "description": "Demonstrates how to create in-game hints in the UI which reflect current bindings and active control schemes.",
+      "path": "Samples~/InGameHints"
+    },
+    {
+      "displayName": "InputDeviceTester",
+      "description": "A scene containing UI to visualize the controls on various supported input devices.",
+      "path": "Samples~/InputDeviceTester"
+    },
+    {
+      "displayName": "Input Recorder",
+      "description": "Shows how to capture and replay input events. Also useful by itself to debug input event sequences.",
+      "path": "Samples~/InputRecorder"
+    },
+    {
+      "displayName": "On-Screen Controls",
+      "description": "Demonstrates a simple setup for an on-screen joystick.",
+      "path": "Samples~/OnScreenControls"
+    },
+    {
+      "displayName": "Rebinding UI",
+      "description": "An example UI component that demonstrates how to create UI for rebinding actions.",
+      "path": "Samples~/RebindingUI"
+    },
+    {
+      "displayName": "Simple Demo",
+      "description": "A walkthrough of a simple character controller that demonstrates several techniques for working with the input system. See the README.md file in the sample for details.",
+      "path": "Samples~/SimpleDemo"
+    },
+    {
+      "displayName": "Simple Multiplayer",
+      "description": "Demonstrates how to set up a simple local multiplayer scenario.",
+      "path": "Samples~/SimpleMultiplayer"
+    },
+    {
+      "displayName": "Touch Samples",
+      "description": "A series of sample scenes for using touch input with the Input System package. This sample is not actually part of the package, but needs to be downloaded.",
+      "path": "Samples~/TouchSamples"
+    },
+    {
+      "displayName": "UI vs. Game Input",
+      "description": "An example that shows how to deal with ambiguities that may arrise when overlaying interactive UI elements on top of a game scene.",
+      "path": "Samples~/UIvsGameInput"
+    },
+    {
+      "displayName": "Unity Remote",
+      "description": "An example with a simple scene for trying out the Unity Remote app.",
+      "path": "Samples~/UnityRemote"
+    },
+    {
+      "displayName": "Visualizers",
+      "description": "Several example visualizations of input controls/devices and input actions.",
+      "path": "Samples~/Visualizers"
+    }
+  ],
+  "_fingerprint": "978211393e28699aba338ed157cef347ac565bbf"
+}
