@@ -1,45 +1,48 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections;
 
 /// <summary>
-/// Controla la UI del menú de ingredientes, spawn de prefabs y salida del menú.
+/// Controla el menú de selección y spawn de ingredientes con scroll.
 /// </summary>
 public class IngredientMenu : MonoBehaviour
 {
-    // 1. Variables públicas y serializadas
-    [Header("Lista de prefabs de ingredientes")]
+    [Header("Prefabs de ingredientes")]
     [SerializeField] private GameObject[] ingredientPrefabs;
 
-    [Header("Punto de spawn en la escena")]
+    [Header("Punto de aparición")]
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Botones de ingredientes")]
+    [Header("UI")]
     [SerializeField] private Button[] ingredientButtons;
-
-    [Header("Botón de salida")]
     [SerializeField] private Button exitButton;
+    [SerializeField] private ScrollRect scrollRect;
 
-    [Header("Referencias al jugador y estación")]
+    [Header("Referencias del jugador")]
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private FollowPlayer cameraFollow;
     [SerializeField] private PouringStation pouringStation;
 
-    // 3. Métodos de Unity
+    // Internos
+    private GameObject currentIngredient;
+
+    private Button selectedButton;
+    
     private void Start()
     {
         AssignButtonListeners();
     }
 
-    // 6. Métodos privados auxiliares
     /// <summary>
-    /// Asigna los eventos de clic a los botones de ingredientes y de salida.
+    /// Asigna eventos a los botones de ingredientes y al de salida.
     /// </summary>
     private void AssignButtonListeners()
     {
         for (int i = 0; i < ingredientButtons.Length; i++)
         {
             int index = i;
-            ingredientButtons[i].onClick.AddListener(() => SpawnIngredient(index));
+            ingredientButtons[i].onClick.AddListener(() => OnIngredientSelected(index));
         }
 
         if (exitButton != null)
@@ -47,35 +50,51 @@ public class IngredientMenu : MonoBehaviour
     }
 
     /// <summary>
-    /// Genera el prefab del ingrediente correspondiente al índice.
+    /// Maneja la selección de un ingrediente desde el menú.
     /// </summary>
-    /// <param name="index">Índice del ingrediente en el array</param>
-    private void SpawnIngredient(int index)
+    private void OnIngredientSelected(int index)
     {
-        if (index < 0 || index >= ingredientPrefabs.Length) return;
+        if (index < 0 || index >= ingredientPrefabs.Length)
+            return;
 
+        // Destruir ingrediente actual si existe
+        if (currentIngredient != null)
+            Destroy(currentIngredient);
+
+        // Instanciar nuevo ingrediente
         GameObject prefab = ingredientPrefabs[index];
-        Instantiate(prefab, spawnPoint.position, Quaternion.identity);
+        currentIngredient = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
 
-        Debug.Log($"Se generó {prefab.name} en la escena");
+        Debug.Log($"Ingrediente generado: {prefab.name}");
+
+        // Centrar el scroll en el botón seleccionado
+        HighlightSelectedButton(ingredientButtons[index]);
     }
 
     /// <summary>
-    /// Cierra el menú de ingredientes y desbloquea al jugador y cámara.
+    /// Resalta el botón seleccionado y deselecciona el anterior.
+    /// </summary>
+    private void HighlightSelectedButton(Button newButton)
+    {
+        if (selectedButton != null)
+            selectedButton.transform.localScale = Vector3.one;
+
+        selectedButton = newButton;
+        selectedButton.transform.localScale = Vector3.one * 1.2f;
+    }
+
+
+    /// <summary>
+    /// Cierra el menú y desbloquea jugador y cámara.
     /// </summary>
     private void ExitMenu()
     {
         gameObject.SetActive(false);
 
-        if (pouringStation != null)
-            pouringStation.UnlockPlayer();
+        pouringStation?.UnlockPlayer();
+        if (playerMovement != null) playerMovement.enabled = true;
+        if (cameraFollow != null) cameraFollow.enabled = true;
 
-        if (playerMovement != null)
-            playerMovement.enabled = true;
-
-        if (cameraFollow != null)
-            cameraFollow.enabled = true;
-
-        Debug.Log("Menú de ingredientes cerrado. Jugador desbloqueado.");
+        Debug.Log("Menú cerrado. Jugador desbloqueado.");
     }
 }
