@@ -1,41 +1,58 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Controla la estación de corte donde el jugador puede interactuar con objetos
+/// para iniciar la mecánica de corte.
+/// </summary>
 [RequireComponent(typeof(Collider))]
 public class CuttingStation : MonoBehaviour
 {
     [Header("Cámara de estación de corte")]
+    [Tooltip("Cámara que se activa al entrar en la estación de corte.")]
     public Camera stationCamera;
 
     [Header("Jugador y controladores")]
+    [Tooltip("Referencia al jugador.")]
     public GameObject player;
+
+    [Tooltip("Script de movimiento del jugador.")]
     public PlayerMovement playerMovement;
+
+    [Tooltip("Script para seguir al jugador con la cámara.")]
     public FollowPlayer cameraFollow;
+
+    [Tooltip("Controlador de cámaras para cambiar la cámara activa.")]
     public CameraController cameraController;
 
     [Header("Paneles de UI opcionales")]
+    [Tooltip("Panel de UI que se muestra al entrar a la estación de corte.")]
     public GameObject cuttingPanel;
 
     [Header("Sistema de corte")]
-    public ObjectGrabbing objectGrabbing; // Script que activa el cuchillo
+    [Tooltip("Script ObjectGrabbing que se activa para cortar.")]
+    public ObjectGrabbing objectGrabbing;
 
-    private bool playerNearby = false;
-    private bool playerLocked = false;
+    private bool playerNearby = false;     // Indica si el jugador está cerca
+    private bool playerLocked = false;     // Indica si el jugador está bloqueado en la estación
+    private Camera previousCamera;         // Guarda la cámara previa para restaurarla al salir
 
-    private Camera previousCamera;
-
-
+    /// <summary>
+    /// Detecta la entrada del jugador a la estación y presionar E para bloquearlo.
+    /// </summary>
     private void Update()
     {
-        if (!playerNearby || playerLocked) return;
-
-        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        if (playerNearby && !playerLocked &&
+            Keyboard.current.eKey.wasPressedThisFrame)
         {
-            Debug.Log("Presionaste E: entrando a la estación de corte");
             LockPlayer();
         }
     }
 
+    /// <summary>
+    /// Detecta cuando el jugador entra al área de la estación.
+    /// </summary>
+    /// <param name="other">Collider que entró.</param>
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject == player)
@@ -45,42 +62,54 @@ public class CuttingStation : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Detecta cuando el jugador sale del área de la estación.
+    /// </summary>
+    /// <param name="other">Collider que salió.</param>
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject == player)
         {
             playerNearby = false;
             if (playerLocked)
-                UnlockPlayer(); // Al salir, desbloquea al jugador
+                UnlockPlayer();
         }
     }
 
+    /// <summary>
+    /// Bloquea al jugador en la estación, cambia cámara y activa el sistema de corte.
+    /// </summary>
     public void LockPlayer()
     {
         if (playerLocked) return;
         playerLocked = true;
 
         cuttingPanel?.SetActive(true);
-
         if (playerMovement != null) playerMovement.enabled = false;
         if (cameraFollow != null) cameraFollow.enabled = false;
 
+        // Cambiar a cámara de estación
         if (cameraController != null && stationCamera != null)
+        {
             previousCamera = cameraController.GetActiveCamera();
             cameraController.ActivateCamera(stationCamera);
-
-        if (objectGrabbing != null)
-        {
-            objectGrabbing.enabled = true;
-            Debug.Log("Modo corte activado.");
         }
+
+        // Activar ObjectGrabbing mientras estamos en la estación
+        if (objectGrabbing != null)
+            objectGrabbing.enabled = true;
+
+        Debug.Log("Jugador bloqueado en estación de corte.");
     }
 
+    /// <summary>
+    /// Desbloquea al jugador, restaura cámara y desactiva el sistema de corte.
+    /// </summary>
     public void UnlockPlayer()
     {
         if (!playerLocked) return;
         playerLocked = false;
-        
+
         cuttingPanel?.SetActive(false);
         if (playerMovement != null) playerMovement.enabled = true;
         if (cameraFollow != null) cameraFollow.enabled = true;
@@ -89,35 +118,13 @@ public class CuttingStation : MonoBehaviour
         if (cameraController != null && previousCamera != null)
             cameraController.ActivateCamera(previousCamera);
 
-        // Soltar el cuchillo en la escena, pero no destruirlo
-        if (objectGrabbing != null && objectGrabbing.scriptToEnable != null)
+        // Desactivar ObjectGrabbing y resetear estado
+        if (objectGrabbing != null)
         {
-            // Limpiar las piezas cortadas
-            foreach (var piece in GameObject.FindGameObjectsWithTag("CutPiece"))
-                Destroy(piece);
-
-            // Soltar el cutterInstance
-            if (objectGrabbing.scriptToEnable.cutterInstance != null)
-            {
-                objectGrabbing.scriptToEnable.cutterInstance.transform.parent = null;
-                // Opcional: activar physics para que caiga suavemente
-                Rigidbody rb = objectGrabbing.scriptToEnable.cutterInstance.GetComponent<Rigidbody>();
-                if (rb != null) rb.isKinematic = false;
-            }
-            if (objectGrabbing != null)
-            {
-                objectGrabbing.HandleReset(); // Suelta el cuchillo y destruye piezas
-            }
-
-            // Desactivar solo el modo de corte, no el cuchillo
             objectGrabbing.enabled = false;
-            objectGrabbing.scriptToEnable.enabled = false;
+            objectGrabbing.HandleReset();
         }
 
-        Debug.Log("Modo corte desactivado. Jugador desbloqueado y cuchillo suelto.");
+        Debug.Log("Jugador desbloqueado y estación liberada.");
     }
-
 }
-    
-    
-

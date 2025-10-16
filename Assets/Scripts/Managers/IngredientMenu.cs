@@ -65,8 +65,17 @@ public class IngredientMenu : MonoBehaviour
         GameObject prefab = ingredientPrefabs[index];
         currentIngredient = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
 
-        Debug.Log($"Ingrediente generado: {prefab.name}");
-
+        // Buscar componente PouringContainer y asignar el recipiente de la estación
+        PouringContainer pouring = currentIngredient.GetComponent<PouringContainer>();
+        if (pouring != null)
+        {
+            pouring.targetContainer = pouringStation.CurrentReceiving;
+            Debug.Log($"Asignado targetContainer: {pouring.targetContainer.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"{prefab.name} no tiene componente PouringContainer.");
+        }
         // Centrar el scroll en el botón seleccionado
         HighlightSelectedButton(ingredientButtons[index]);
     }
