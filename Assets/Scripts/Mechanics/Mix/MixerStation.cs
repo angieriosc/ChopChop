@@ -229,7 +229,7 @@ public class MixerStation : MonoBehaviour
     private void AnimateBlade()
     {
         if (mixerBlade != null && currentStage == MixingStage.Mixing)
-            mixerBlade.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+            mixerBlade.Rotate(Vector3.up, rotationSpeed * Time.deltaTime, Space.World);
     }
 
     private void OnDrawGizmos()
