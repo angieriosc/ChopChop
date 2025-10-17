@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 941d51253894967489155db311c24c63, type: 3}
+  m_Name: Recipe_Classic
+  m_EditorClassIdentifier: 
+  recipeName: "Pizza Cl\xE1sica"
+  recipeScrollImage: {fileID: 21300000, guid: c1effc54f8a478046b86dee8a04f6df3, type: 3}
+  numberOfCustomers: 4
+  ingredients:
+  - ingredientName: Bola de Masa
+    ingredientIcon: {fileID: 0}
+  - ingredientName: "Caja de Pur\xE9 de Tomate"
+    ingredientIcon: {fileID: 0}
+  - ingredientName: Taza de Queso Rallado
+    ingredientIcon: {fileID: 0}
+  dishIcon: {fileID: 0}
