@@ -64,6 +64,9 @@ public class RecipeUIManager : MonoBehaviour
                 buttonRectTransform = toggleButton.GetComponent<RectTransform>();
                 Debug.Log("✅ Button RectTransform auto-asignado");
             }
+            
+            // Obtener el componente Image del botón
+            buttonImage = toggleButton.GetComponent<Image>();
         }
         else
         {
@@ -116,7 +119,7 @@ public class RecipeUIManager : MonoBehaviour
         Debug.Log("=== FIN VERIFICACIÓN ===");
     }
     
-    public void DisplayRecipe(RecipeData recipe)
+    public void DisplayRecipe(RecipeDataMenu recipe)
     {
         if (recipePanel == null)
         {
@@ -159,107 +162,124 @@ public class RecipeUIManager : MonoBehaviour
             Debug.Log("🔘 Botón movido a posición EXTENDIDA: " + buttonPositionExpanded);
         }
         
+        // Actualizar ícono del botón si está configurado
+        UpdateButtonIcon();
+        
         // Actualizar nombre de la receta
         if (recipeNameText != null)
         {
-            recipeNameText.text = recipe.recipeName + " (Para " + recipe.numberOfCustomers + ")";
+            recipeNameText.text = recipe.recipeName;
             recipeNameText.enabled = true;
             Debug.Log("✅ Nombre de receta actualizado: " + recipeNameText.text);
         }
         
         // Verificar que hay ingredientes
-        if (recipe.ingredients == null || recipe.ingredients.Count == 0)
+        if (recipe.ingredientSteps == null || recipe.ingredientSteps.Count == 0)
         {
             Debug.LogWarning("⚠️ La receta no tiene ingredientes!");
             return;
         }
         
-        Debug.Log("📝 Creando " + recipe.ingredients.Count + " ingredientes...");
+        Debug.Log("📝 Creando " + recipe.ingredientSteps.Count + " ingredientes...");
         
         // Crear elementos de ingredientes
         int index = 0;
-        foreach (Ingredient ingredient in recipe.ingredients)
+        foreach (IngredientStep step in recipe.ingredientSteps)
         {
-            if (ingredient != null)
+            if (step != null && step.ingredient != null)
             {
-                CreateIngredientItem(ingredient, index);
+                CreateIngredientItem(step, index);
                 index++;
             }
         }
         
+        // AGREGAR PIZZA FINAL AL FINAL
+        CreateFinalPizzaItem(recipe);
+        
         Debug.Log("✅ Receta mostrada completamente - Estado: EXTENDIDA");
     }
     
-    void CreateIngredientItem(Ingredient ingredient, int index)
+    void CreateIngredientItem(IngredientStep step, int index)
+{
+    if (ingredientItemPrefab == null || ingredientsContainer == null)
     {
-        if (ingredientItemPrefab == null || ingredientsContainer == null)
-        {
-            Debug.LogError("❌ Ingredient Item Prefab o Container es NULL!");
-            return;
-        }
-        
-        Debug.Log("  Creando ingrediente " + (index + 1) + ": " + ingredient.ingredientName);
-        
-        GameObject item = Instantiate(ingredientItemPrefab, ingredientsContainer);
-        item.SetActive(true);
-        currentIngredientItems.Add(item);
-        
-        // Buscar componentes hijos
-        Transform iconTransform = item.transform.Find("Icon");
-        Transform nameTransform = item.transform.Find("Name");
-        
-        // CONFIGURAR EL ÍCONO
-        if (iconTransform != null)
-        {
-            iconTransform.gameObject.SetActive(true);
-            
-            Image icon = iconTransform.GetComponent<Image>();
-            if (icon != null)
-            {
-                icon.enabled = true;
-                
-                if (ingredient.ingredientIcon != null)
-                {
-                    icon.sprite = ingredient.ingredientIcon;
-                    icon.color = new Color(1f, 1f, 1f, 1f);
-                    Debug.Log("    ✅ Ícono asignado: " + ingredient.ingredientIcon.name);
-                }
-                else
-                {
-                    Debug.LogWarning("    ⚠️ Ingredient Icon es NULL");
-                }
-            }
-        }
-        
-        // CONFIGURAR EL TEXTO
-        if (nameTransform != null)
-        {
-            nameTransform.gameObject.SetActive(true);
-            
-            Text nameText = nameTransform.GetComponent<Text>();
-            if (nameText != null)
-            {
-                nameText.enabled = true;
-                nameText.text = ingredient.ingredientName;
-                nameText.color = new Color(0f, 0f, 0f, 1f);
-                Debug.Log("    ✅ Texto asignado: " + ingredient.ingredientName);
-            }
-            else
-            {
-                TMPro.TextMeshProUGUI tmpText = nameTransform.GetComponent<TMPro.TextMeshProUGUI>();
-                if (tmpText != null)
-                {
-                    tmpText.enabled = true;
-                    tmpText.text = ingredient.ingredientName;
-                    tmpText.color = new Color(0f, 0f, 0f, 1f);
-                    tmpText.ForceMeshUpdate();
-                    Debug.Log("    ✅ Texto (TMP) asignado: " + ingredient.ingredientName);
-                }
-            }
-        }
-        
-        Canvas.ForceUpdateCanvases();
+        Debug.LogError("❌ Ingredient Item Prefab o Container es NULL!");
+        return;
     }
+    
+    Debug.Log("  Creando ingrediente " + (index + 1) + ": " + step.ingredient.ingredientName);
+    
+    GameObject item = Instantiate(ingredientItemPrefab, ingredientsContainer);
+    item.SetActive(true);
+    currentIngredientItems.Add(item);
+    
+    // Obtener el componente IngredientItemUI
+    IngredientItemUI itemUI = item.GetComponent<IngredientItemUI>();
+    if (itemUI != null)
+    {
+        // IMPORTANTE: Pasar false porque NO es pizza final
+        itemUI.Initialize(step, false);
+        
+        // Agregar listener al botón para toggle
+        Button button = item.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(() => itemUI.ToggleCompletion());
+            Debug.Log("    ✅ Listener de toggle agregado");
+        }
+    }
+    else
+    {
+        Debug.LogError("    ❌ El prefab no tiene IngredientItemUI!");
+    }
+    
+    Canvas.ForceUpdateCanvases();
+}
+
+void CreateFinalPizzaItem(RecipeDataMenu recipe)
+{
+    if (ingredientItemPrefab == null || ingredientsContainer == null)
+    {
+        Debug.LogError("❌ No se puede crear pizza final - Prefab o Container es NULL");
+        return;
+    }
+    
+    Debug.Log("🍕 Agregando pizza final al final de la lista...");
+    
+    GameObject item = Instantiate(ingredientItemPrefab, ingredientsContainer);
+    item.SetActive(true);
+    currentIngredientItems.Add(item);
+    
+    // Configurar el ítem como pizza final
+    IngredientItemUI itemUI = item.GetComponent<IngredientItemUI>();
+    if (itemUI != null)
+    {
+        // Crear un step temporal para la pizza final
+        IngredientStep pizzaStep = new IngredientStep();
+        pizzaStep.ingredient = new Ingredient("Pizza Completa", recipe.dishIcon);
+        pizzaStep.requiresCutting = true;
+        pizzaStep.cutPieces = recipe.pizzaSlices;
+        pizzaStep.cutIconOverride = recipe.slicedPizzaIcon; // Este será el número de rebanadas
+        pizzaStep.isCompleted = false;
+        
+        // IMPORTANTE: Pasar true porque ES la pizza final
+        itemUI.Initialize(pizzaStep, true);
+        
+        // Agregar listener para marcar como completo
+        Button button = item.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(() => itemUI.ToggleCompletion());
+            Debug.Log("    ✅ Pizza final agregada con " + recipe.pizzaSlices + " rebanadas");
+        }
+    }
+    else
+    {
+        Debug.LogError("    ❌ El prefab no tiene IngredientItemUI para la pizza final!");
+    }
+    
+    Canvas.ForceUpdateCanvases();
+}
     
     void ClearIngredients()
     {
@@ -271,6 +291,7 @@ public class RecipeUIManager : MonoBehaviour
             }
         }
         currentIngredientItems.Clear();
+        Debug.Log("🗑️ Ingredientes anteriores limpiados");
     }
     
     public void ToggleRecipeVisibility()
@@ -333,11 +354,30 @@ public class RecipeUIManager : MonoBehaviour
             Debug.Log("📜 Pergamino ENROLLADO");
         }
         
+        // Actualizar ícono del botón
+        UpdateButtonIcon();
+        
         // VERIFICAR que el botón sigue activo después del cambio
         if (toggleButton != null && !toggleButton.gameObject.activeSelf)
         {
             Debug.LogError("❌ ¡El botón se desactivó! Reactivándolo...");
             toggleButton.gameObject.SetActive(true);
+        }
+    }
+    
+    void UpdateButtonIcon()
+    {
+        if (buttonImage == null) return;
+        
+        if (isExpanded && buttonIconExpanded != null)
+        {
+            buttonImage.sprite = buttonIconExpanded;
+            Debug.Log("🔽 Ícono cambiado a EXTENDIDO");
+        }
+        else if (!isExpanded && buttonIconCollapsed != null)
+        {
+            buttonImage.sprite = buttonIconCollapsed;
+            Debug.Log("🔼 Ícono cambiado a ENROLLADO");
         }
     }
     
@@ -362,5 +402,43 @@ public class RecipeUIManager : MonoBehaviour
         
         ClearIngredients();
         Debug.Log("❌ Receta ocultada completamente");
+    }
+    
+    // Método útil para verificar si todos los ingredientes están completos
+    public bool AreAllIngredientsCompleted()
+    {
+        foreach (GameObject item in currentIngredientItems)
+        {
+            if (item != null)
+            {
+                IngredientItemUI itemUI = item.GetComponent<IngredientItemUI>();
+                if (itemUI != null && !itemUI.IsCompleted())
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    // Método para obtener el progreso de la receta
+    public float GetRecipeProgress()
+    {
+        if (currentIngredientItems.Count == 0) return 0f;
+        
+        int completedCount = 0;
+        foreach (GameObject item in currentIngredientItems)
+        {
+            if (item != null)
+            {
+                IngredientItemUI itemUI = item.GetComponent<IngredientItemUI>();
+                if (itemUI != null && itemUI.IsCompleted())
+                {
+                    completedCount++;
+                }
+            }
+        }
+        
+        return (float)completedCount / currentIngredientItems.Count;
     }
 }

@@ -12,7 +12,7 @@ public class Customer : MonoBehaviour
     public Transform counterPoint;
     public Transform spawnPoint;
     
-    private RecipeData currentRecipe;
+    private RecipeDataMenu currentRecipe;
     private CustomerManager manager;
     private Animator animator; // Si tienes animaciones
     private bool hasReachedCounter = false;
@@ -22,7 +22,7 @@ public class Customer : MonoBehaviour
         animator = GetComponent<Animator>();
     }
     
-    public void Initialize(Transform counter, Transform spawn, RecipeData recipe, CustomerManager mgr)
+    public void Initialize(Transform counter, Transform spawn, RecipeDataMenu recipe, CustomerManager mgr)
     {
         counterPoint = counter;
         spawnPoint = spawn;
@@ -137,7 +137,7 @@ public class Customer : MonoBehaviour
         Destroy(gameObject);
     }
     
-    public RecipeData GetCurrentRecipe()
+    public RecipeDataMenu GetCurrentRecipe()
     {
         return currentRecipe;
     }

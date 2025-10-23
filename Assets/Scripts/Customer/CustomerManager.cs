@@ -13,17 +13,18 @@ public class CustomerManager : MonoBehaviour
     public List<Transform> tableSpawnPoints; // Puntos en las mesas
     
     [Header("Recipes")]
-    public List<RecipeData> levelRecipes;
+    public List<RecipeDataMenu> levelRecipes;
     public bool randomOrderInLevel = false; // False para orden secuencial, True para aleatorio
     
     [Header("UI References")]
-    public GameObject recipeScrollUI; // Pergamino que aparece sobre el cliente
+    public GameObject recipeScrollUI; // Canvas completo del pergamino
+    public RecipeScrollDisplay recipeScrollDisplay; // Script que maneja el contenido
     public RecipeUIManager recipeUIManager; // UI en la esquina superior derecha
     
     private int currentRecipeIndex = 0;
     private Customer currentCounterCustomer;
     private List<GameObject> spawnedTableCustomers = new List<GameObject>();
-    private RecipeData activeRecipe;
+    private RecipeDataMenu activeRecipe;
     
     void Start()
     {
@@ -47,7 +48,7 @@ public class CustomerManager : MonoBehaviour
         }
         
         // Determinar qué receta usar
-        RecipeData recipe;
+        RecipeDataMenu recipe;
         if (randomOrderInLevel)
         {
             // Orden aleatorio
@@ -88,39 +89,46 @@ public class CustomerManager : MonoBehaviour
         currentCounterCustomer.Initialize(counterWaitPoint, counterSpawnPoint, recipe, this);
     }
     
-    public void ShowRecipeScroll(RecipeData recipe)
+    public void ShowRecipeScroll(RecipeDataMenu recipe)
+{
+    if (recipeScrollUI != null)
     {
-        if (recipeScrollUI != null)
+        recipeScrollUI.SetActive(true);
+        
+        // ✅ ACTUALIZAR EL CONTENIDO DEL PERGAMINO
+        if (recipeScrollDisplay != null)
         {
-            recipeScrollUI.SetActive(true);
-            
-            // Actualizar la imagen del pergamino
-            UnityEngine.UI.Image scrollImage = recipeScrollUI.GetComponent<UnityEngine.UI.Image>();
-            if (scrollImage != null)
-            {
-                if (recipe.recipeScrollImage != null)
-                {
-                    scrollImage.sprite = recipe.recipeScrollImage;
-                    scrollImage.enabled = true;
-                    Debug.Log("Sprite del pergamino asignado: " + recipe.recipeScrollImage.name);
-                }
-                else
-                {
-                    Debug.LogWarning("¡RecipeScrollImage es NULL en la receta: " + recipe.recipeName + "!");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("¡No se encontró componente Image en recipeScrollUI!");
-            }
-            
-            Debug.Log("Mostrando pergamino de receta: " + recipe.recipeName);
+            recipeScrollDisplay.DisplayRecipe(recipe);
+            Debug.Log("✅ RecipeScrollDisplay actualizado con datos de: " + recipe.recipeName);
         }
         else
         {
-            Debug.LogError("¡recipeScrollUI es NULL!");
+            Debug.LogError("❌ RecipeScrollDisplay es NULL! No se pueden actualizar los datos del pergamino");
         }
+        
+        // Actualizar la imagen de fondo del pergamino (si existe)
+        UnityEngine.UI.Image scrollImage = recipeScrollUI.GetComponent<UnityEngine.UI.Image>();
+        if (scrollImage != null)
+        {
+            if (recipe.recipeScrollImage != null)
+            {
+                scrollImage.sprite = recipe.recipeScrollImage;
+                scrollImage.enabled = true;
+                Debug.Log("Sprite del pergamino asignado: " + recipe.recipeScrollImage.name);
+            }
+            else
+            {
+                Debug.LogWarning("¡RecipeScrollImage es NULL en la receta: " + recipe.recipeName + "!");
+            }
+        }
+        
+        Debug.Log("Mostrando pergamino de receta: " + recipe.recipeName);
     }
+    else
+    {
+        Debug.LogError("¡recipeScrollUI es NULL!");
+    }
+}
     
     public void HideRecipeScroll()
     {
@@ -131,18 +139,18 @@ public class CustomerManager : MonoBehaviour
         }
     }
     
-    public void ShowRecipeUI(RecipeData recipe)
+    public void ShowRecipeUI(RecipeDataMenu recipe)
     {
         activeRecipe = recipe;
         
         if (recipeUIManager != null)
         {
             recipeUIManager.DisplayRecipe(recipe);
-            Debug.Log("UI de receta mostrada con " + recipe.ingredients.Count + " ingredientes");
+            Debug.Log("UI de receta mostrada con " + recipe.ingredientSteps.Count + " ingredientes");
         }
     }
     
-    public void OnCustomerLeftCounter(RecipeData recipe)
+    public void OnCustomerLeftCounter(RecipeDataMenu recipe)
     {
         Debug.Log("Cliente dejó el mostrador. Spawneando " + recipe.numberOfCustomers + " clientes en las mesas");
         
@@ -212,7 +220,7 @@ public class CustomerManager : MonoBehaviour
     }
     
     // Método para configurar el orden de recetas manualmente
-    public void SetRecipeOrder(List<RecipeData> customOrder)
+    public void SetRecipeOrder(List<RecipeDataMenu> customOrder)
     {
         levelRecipes = customOrder;
         currentRecipeIndex = 0;

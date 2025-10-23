@@ -3,7 +3,7 @@ using UnityEngine;
 public class RecipeUITester : MonoBehaviour
 {
     public RecipeUIManager recipeUIManager;
-    public RecipeData testRecipe;
+    public RecipeDataMenu testRecipe;
     public KeyCode testKey = KeyCode.T;
     
     void Update()

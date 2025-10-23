@@ -13,11 +13,27 @@ MonoBehaviour:
   m_Name: Recipe_CheeseSimple
   m_EditorClassIdentifier: 
   recipeName: Pizza de Queso
-  recipeScrollImage: {fileID: 21300000, guid: c461e02e1ffdf874aabeee1ef3c8a983, type: 3}
+  numberOfPizzas: 1
   numberOfCustomers: 2
-  ingredients:
-  - ingredientName: Bola de Masa
-    ingredientIcon: {fileID: 21300000, guid: a6449e4def2c8804d8104bb4ab03495a, type: 3}
-  - ingredientName: Queso Rallado
-    ingredientIcon: {fileID: 21300000, guid: 4e550d38b54936d4a90b15ae0551c729, type: 3}
-  dishIcon: {fileID: 21300000, guid: 84853b589575cd14db7392289bf78645, type: 3}
+  recipeScrollImage: {fileID: 21300000, guid: c461e02e1ffdf874aabeee1ef3c8a983, type: 3}
+  dishIcon: {fileID: 21300000, guid: 7f3f892d0f2ac62409e8cb0952970141, type: 3}
+  slicedPizzaIcon: {fileID: 21300000, guid: 96a4a7d4b58ecab408ef16f53c24b6a3, type: 3}
+  pizzaSlices: 2
+  sliceNumberIcon: {fileID: 21300000, guid: 96a4a7d4b58ecab408ef16f53c24b6a3, type: 3}
+  ingredientSteps:
+  - ingredient:
+      ingredientName: Bola de masa
+      ingredientIcon: {fileID: 21300000, guid: a6449e4def2c8804d8104bb4ab03495a, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 0
+  - ingredient:
+      ingredientName: Queso rayado
+      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 0

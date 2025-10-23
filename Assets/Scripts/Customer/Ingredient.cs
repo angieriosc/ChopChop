@@ -5,6 +5,7 @@ public class Ingredient
 {
     public string ingredientName;
     public Sprite ingredientIcon;
+    public Sprite ingredientSlicedIcon;
     
     public Ingredient(string name, Sprite icon)
     {
