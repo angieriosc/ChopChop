@@ -1,59 +1,49 @@
 using UnityEngine;
 
-/// <summary>
-/// Controla el movimiento del jugador, incluyendo caminar y saltar.
-/// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float jumpHeight = 1.5f;
+    public float speed = 5f;           // Velocidad de avance/retroceso
+    public float rotationSpeed = 120f; // Velocidad de rotación (grados por segundo)
+    public float gravity = -9.81f;     // Gravedad
+    public float jumpHeight = 1.5f;    // Altura del salto
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
 
-    private void Start() => controller = GetComponent<CharacterController>();
-
-    private void Update()
+    void Start()
     {
-        HandleMovement();
-        HandleJump();
-        ApplyGravity();
+        controller = GetComponent<CharacterController>();
     }
 
-    /// <summary>
-    /// Gestiona el movimiento horizontal del jugador.
-    /// </summary>
-    private void HandleMovement()
+    void Update()
     {
+        // Comprobar si está en el suelo
         isGrounded = controller.isGrounded;
-        if (isGrounded && velocity.y < 0) velocity.y = -2f;
 
-        float moveX = Input.GetAxis("Horizontal");
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // Mantener pegado al suelo
+        }
+
+        // Movimiento hacia adelante/atrás (W/S) 
         float moveZ = Input.GetAxis("Vertical");
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-
+        Vector3 move = transform.forward * moveZ;
         controller.Move(move * speed * Time.deltaTime);
-    }
 
-    /// <summary>
-    /// Gestiona el salto del jugador.
-    /// </summary>
-    private void HandleJump()
-    {
-        if (!Input.GetButtonDown("Jump") || !isGrounded) return;
+        // Rotación con A/D
+        float rotate = Input.GetAxis("Horizontal"); 
+        transform.Rotate(Vector3.up * rotate * rotationSpeed * Time.deltaTime);
 
-        velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-    }
+        // Salto
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
 
-    /// <summary>
-    /// Aplica gravedad al jugador.
-    /// </summary>
-    private void ApplyGravity()
-    {
+        // Aplicar gravedad 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
