@@ -3,81 +3,159 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// Controla un recipiente que puede verter líquido en un ReceivingContainer.
+/// Controla un recipiente que puede verter líquido hacia un 
+/// <see cref="ReceivingContainer"/>.
+/// Incluye animaciones de vertido, efectos de partículas y control de UI.
 /// </summary>
 [RequireComponent(typeof(InteractableObject))]
 public class PouringContainer : MonoBehaviour
 {
+    // ──────────────────────────────── CONTENEDOR DESTINO ──────────────────────────
+
     [Header("Target Container")]
-    [SerializeField] public ReceivingContainer targetContainer;
+    [Tooltip("Recipiente objetivo donde se verterá el líquido.")]
+    [SerializeField] 
+    public ReceivingContainer targetContainer;
+
+    // ──────────────────────────────── INFORMACIÓN DEL INGREDIENTE ─────────────────
 
     [Header("Ingredient Info")]
-    [SerializeField] public string ingredientName = "Agua";
+    [Tooltip("Nombre del ingrediente contenido.")]
+    [SerializeField] 
+    public string ingredientName = "Agua";
+
+    // ──────────────────────────────── UI DE CANTIDAD ──────────────────────────────
 
     [Header("UI Amount Text")]
-    [SerializeField] public TextMeshProUGUI amountText;
+    [Tooltip("Texto en pantalla que muestra la cantidad restante.")]
+    [SerializeField] 
+    public TextMeshProUGUI amountText;
+
+    // ──────────────────────────────── CAPACIDAD Y TASA ────────────────────────────
 
     [Header("Capacity Settings")]
-    [SerializeField] private float capacityML = 1000f;
-    [SerializeField] public float pourRateMLPerSec = 100f;
+    [Tooltip("Capacidad máxima en mililitros.")]
+    [SerializeField] 
+    private float capacityML = 1000f;
+
+    [Tooltip("Tasa de vertido en mililitros por segundo.")]
+    [SerializeField] 
+    public float pourRateMLPerSec = 100f;
+
+    [Tooltip("Cantidad actual de líquido.")]
     public float currentML;
 
+    // ──────────────────────────────── EFECTOS Y TRANSFORM ─────────────────────────
+
     [Header("Particle System")]
-    [SerializeField] public ParticleSystem pourParticles;
+    [Tooltip("Sistema de partículas para simular el vertido.")]
+    [SerializeField] 
+    public ParticleSystem pourParticles;
 
     [Header("Transform Reference")]
-    [SerializeField] private Transform containerTransform;
+    [Tooltip("Referencia al transform del recipiente.")]
+    [SerializeField] 
+    private Transform containerTransform;
+
+    // ──────────────────────────────── CONFIGURACIÓN DE ÁNGULOS ────────────────────
 
     [Header("Pour Angle Settings")]
-    [SerializeField] private float pourStartAngle = 35f;
-    [SerializeField] private float pourStopAngle = 20f;
+    [Tooltip("Ángulo mínimo para iniciar el vertido.")]
+    [SerializeField] 
+    private float pourStartAngle = 35f;
+
+    [Tooltip("Ángulo mínimo para detener el vertido.")]
+    [SerializeField] 
+    private float pourStopAngle = 20f;
+
+    // ──────────────────────────────── CUP TRACKER ─────────────────────────────────
 
     [Header("CupTracker (para notificar cambios de cantidad)")]
-    [Tooltip("Asignar el CupTracker desde el inspector")]
-    [SerializeField] private CupTracker cupTracker;
+    [Tooltip("Referencia al CupTracker global.")]
+    [SerializeField] 
+    private CupTracker cupTracker;
+
+    // ──────────────────────────────── VARIABLES PRIVADAS ──────────────────────────
 
     private bool isPouring;
     private InteractableObject interactable;
 
+    // ──────────────────────────────── CICLO DE VIDA ───────────────────────────────
+
+    /// <summary>
+    /// Inicializa el recipiente, configura capacidades, partículas y referencias.
+    /// </summary>
     private void Start()
     {
         currentML = capacityML;
         interactable = GetComponent<InteractableObject>();
         amountText.text = $"{currentML:F0} ml";
 
+        // Asegura que tenga capacidad de verter.
         if (!interactable.HasCapability(ObjectCapabilities.Pourable))
+        {
             interactable.capabilities |= ObjectCapabilities.Pourable;
+        }
 
         if (containerTransform == null) containerTransform = transform;
 
+        // Busca el sistema de partículas si no fue asignado.
         if (pourParticles == null)
         {
             pourParticles = GetComponentInChildren<ParticleSystem>(true);
             if (pourParticles == null)
-                Debug.LogWarning($"{name}: ParticleSystem not found");
+            {
+                Debug.LogWarning($"{name}: ParticleSystem not found.");
+            }
         }
 
+        // Busca el CupTracker si no está asignado.
         if (cupTracker == null)
             cupTracker = FindFirstObjectByType<CupTracker>();
 
-        pourParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        pourParticles?.Stop(
+            true, ParticleSystemStopBehavior.StopEmittingAndClear
+        );
     }
 
+    /// <summary>
+    /// Valida condiciones de vertido en cada frame.
+    /// (Reservado para lógica futura o control de ángulo).
+    /// </summary>
     private void Update()
     {
         if (!interactable.HasCapability(ObjectCapabilities.Pourable)) return;
         if (targetContainer == null) return;
-
     }
 
-    public void PourAllOnce(float duration = 0.5f, float moveHeight = 0.2f, float tiltAngle = 45f)
+    // ──────────────────────────────── FUNCIONALIDAD PRINCIPAL ─────────────────────
+
+    /// <summary>
+    /// Vierte todo el contenido del recipiente de una sola vez con animación.
+    /// </summary>
+    /// <param name="duration">Duración total del vertido.</param>
+    /// <param name="moveHeight">Altura de movimiento al inclinar.</param>
+    /// <param name="tiltAngle">Ángulo de inclinación durante el vertido.</param>
+    public void PourAllOnce(
+        float duration = 0.5f, float moveHeight = 0.2f, float tiltAngle = 45f)
     {
         if (targetContainer == null || currentML <= 0f) return;
-        Vector3 startPos = targetContainer.transform.position + Vector3.up * 0.05f; // 5 cm sobre el contenedor
-        StartCoroutine(PourAllRoutine(duration, moveHeight, tiltAngle, startPos));
+
+        // Define posición inicial sobre el recipiente destino.
+        Vector3 startPos = targetContainer.transform.position + 
+                           Vector3.up * 0.05f;
+
+        StartCoroutine(
+            PourAllRoutine(duration, moveHeight, tiltAngle, startPos)
+        );
     }
 
-  private IEnumerator PourAllRoutine(float duration, float moveHeight, float tiltAngle, Vector3 startPos)
+    /// <summary>
+    /// Corrutina que ejecuta la animación completa del vertido:
+    /// inclinación, vaciado, y retorno a posición inicial.
+    /// </summary>
+    private IEnumerator PourAllRoutine(
+        float duration, float moveHeight, float tiltAngle, Vector3 startPos)
     {
         float startAmount = currentML;
         float t = 0f;
@@ -86,9 +164,9 @@ public class PouringContainer : MonoBehaviour
         Vector3 targetPos = startPos + Vector3.up * moveHeight;
         Quaternion targetRot = Quaternion.Euler(0f, 0f, tiltAngle);
 
-        // 🔹 Subir e inclinar antes de vaciar
-        t = 0f;
+        // 🔹 Animar elevación e inclinación inicial
         float animDuration = duration * 0.3f;
+        t = 0f;
         while (t < animDuration)
         {
             t += Time.deltaTime;
@@ -98,23 +176,27 @@ public class PouringContainer : MonoBehaviour
             yield return null;
         }
 
-        // 🔹 Vaciar contenido
+        // 🔹 Vaciar contenido progresivamente
         t = 0f;
         while (t < duration)
         {
             t += Time.deltaTime;
             float normalized = Mathf.Clamp01(t / duration);
             float poured = startAmount * normalized;
-            targetContainer.AddLiquid(ingredientName, poured - (startAmount - currentML));
+            targetContainer.AddLiquid(
+                ingredientName, poured - (startAmount - currentML)
+            );
+
             currentML = startAmount * (1f - normalized);
             amountText.text = $"{currentML:F0} ml";
             yield return null;
         }
 
+        // 🔹 Actualizar UI y estado final
         currentML = 0f;
         amountText.text = "0 ml";
 
-        // 🔹 Regresar a posición inicial (sobre el contenedor)
+        // 🔹 Retornar a la posición original
         t = 0f;
         animDuration = duration * 0.3f;
         while (t < animDuration)
@@ -125,18 +207,24 @@ public class PouringContainer : MonoBehaviour
             transform.rotation = Quaternion.Slerp(targetRot, startRot, norm);
             yield return null;
         }
-        
+
+        // 🔹 Finalizar y actualizar registro global
         currentML = 0f;
         amountText.text = "0 ml";
         Destroy(gameObject);
-        cupTracker.UpdateCups();    
-
+        cupTracker.UpdateCups();
     }
+
+    // ──────────────────────────────── EVENTOS DE INTERACCIÓN ──────────────────────
+
+    /// <summary>
+    /// Detecta clic sobre el recipiente y ejecuta vertido completo si es posible.
+    /// </summary>
     private void OnMouseDown()
     {
-        if(interactable.HasCapability(ObjectCapabilities.PourableAllOnce)){
-            PourAllOnce(0.5f); // dura medio segundo            
+        if (interactable.HasCapability(ObjectCapabilities.PourableAllOnce))
+        {
+            PourAllOnce(0.5f);
         }
     }
-
 }

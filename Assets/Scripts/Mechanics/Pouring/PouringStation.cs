@@ -1,103 +1,99 @@
 using UnityEngine;
 
 /// <summary>
-/// Estación de vertido donde el jugador coloca un recipiente para llenar con ingredientes.
-/// Bloquea movimiento del jugador y activa la cámara de estación.
+/// Estación de vertido donde el jugador coloca un recipiente 
+/// para llenarlo con ingredientes. 
+/// Controla el bloqueo del jugador, la cámara activa y la interfaz.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class PouringStation : MonoBehaviour
 {
-    [Header("Station Camera & UI")]
-    [Tooltip("Cámara que se activa al colocar recipiente.")]
-    [SerializeField] private Camera stationCamera;
+    // ──────────────────────────── CONFIGURACIÓN VISUAL ────────────────────────────
 
-    [Tooltip("Panel de ingredientes que se muestra al colocar recipiente.")]
-    [SerializeField] private GameObject ingredientPanel;
+    [Header("Station Camera & UI")]
+    [Tooltip("Cámara que se activa al colocar un recipiente.")]
+    [SerializeField] 
+    private Camera stationCamera;
+
+    [Tooltip("Panel de ingredientes visible al colocar el recipiente.")]
+    [SerializeField] 
+    private GameObject ingredientPanel;
+
+    // ─────────────────────────────── CONTROL DEL JUGADOR ──────────────────────────
 
     [Header("Player and Controllers")]
-    [Tooltip("Referencia al jugador.")]
-    [SerializeField] private GameObject player;
+    [Tooltip("Referencia al objeto del jugador.")]
+    [SerializeField] 
+    private GameObject player;
 
     [Tooltip("Script de movimiento del jugador.")]
-    [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] 
+    private PlayerMovement playerMovement;
 
-    [Tooltip("Script que sigue al jugador con la cámara.")]
-    [SerializeField] private FollowPlayer cameraFollow;
+    [Tooltip("Script que hace que la cámara siga al jugador.")]
+    [SerializeField] 
+    private FollowPlayer cameraFollow;
 
-    [Tooltip("Controlador de cámaras.")]
-    [SerializeField] private CameraController cameraController;
+    [Tooltip("Controlador central de cámaras.")]
+    [SerializeField] 
+    private CameraController cameraController;
+
+    // ─────────────────────────────── RECIPIENTES ──────────────────────────────────
 
     [Header("Target Receiving Container")]
-    [Tooltip("Recipiente actualmente en la estación.")]
-    [SerializeField] private ReceivingContainer receivingContainer;
+    [Tooltip("Recipiente actualmente asignado a la estación.")]
+    [SerializeField] 
+    private ReceivingContainer receivingContainer;
 
+    /// <summary>
+    /// Obtiene el recipiente actual colocado en la estación.
+    /// </summary>
     public ReceivingContainer CurrentReceiving => receivingContainer;
 
     [Header("Recipiente activo en la estación")]
-    [SerializeField] public PouringContainer activePouringContainer;
+    [Tooltip("Contenedor activo que se está utilizando para verter.")]
+    [SerializeField] 
+    public PouringContainer activePouringContainer;
+
+    // ─────────────────────────────── INTERACCIÓN ──────────────────────────────────
 
     [Header("Player Pickup Script")]
-    [SerializeField] private PlayerPickup playerPickup; // Referencia al script PlayerPickup
+    [Tooltip("Referencia al script que maneja la recolección de objetos.")]
+    [SerializeField] 
+    private PlayerPickup playerPickup;
 
     [Header("Punto de colocación del bowl")]
-    [SerializeField] private Transform bowlPoint;
+    [Tooltip("Posición donde se ancla el recipiente al colocarlo.")]
+    [SerializeField] 
+    private Transform bowlPoint;
 
-    private bool playerLocked;         // Indica si el jugador está bloqueado
-    private Camera previousCamera;     // Cámara previa antes de entrar a la estación
+    private bool playerLocked;          // Indica si el jugador está bloqueado.
+    private Camera previousCamera;      // Guarda la cámara activa previa.
 
     [Header("Receta actual en la estación")]
+    [Tooltip("Receta que se prepara en la estación.")]
     public RecipeData currentRecipe;
 
-
-
-    /*
+    // ─────────────────────────────── MÉTODOS PRINCIPALES ──────────────────────────
 
     /// <summary>
-    /// Detecta cuando un recipiente entra en la estación.
+    /// Intenta recibir el bowl que el jugador sostiene y lo coloca en la estación.
     /// </summary>
-    private void OnTriggerEnter(Collider other)
-    {
-        ReceivingContainer placed = other.GetComponent<ReceivingContainer>();
-        if (placed == null) return;
-
-        receivingContainer = placed;
-
-        Rigidbody rb = placed.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.constraints = RigidbodyConstraints.FreezeAll; // Bloquea todo movimiento
-        }
-
-
-        // Asignar targetContainer a todos los PouringContainer activos
-        foreach (var pouring in Object.FindObjectsByType<PouringContainer>(
-                     FindObjectsSortMode.None))
-        {
-            pouring.targetContainer = placed;
-        }
-
-        LockPlayer();
-
-
-    }
-    */
-
-    /// <summary>
-    /// Intenta recibir el bowl que el jugador tiene en la mano.
-    /// </summary>
+    /// <param name="bowl">Objeto bowl que contiene un ReceivingContainer.</param>
+    /// <returns>
+    /// true si el bowl fue recibido correctamente; de lo contrario, false.
+    /// </returns>
     public bool TryReceiveBowl(GameObject bowl)
     {
         if (receivingContainer != null || bowl == null) return false;
 
-        ReceivingContainer placed = bowl.GetComponent<ReceivingContainer>();
+        var placed = bowl.GetComponent<ReceivingContainer>();
         if (placed == null) return false;
 
         receivingContainer = placed;
 
-        // Bloquear física y anclar al bowlPoint
-        Rigidbody rb = placed.GetComponent<Rigidbody>();
+        // Bloquea la física y fija el recipiente al punto designado.
+        var rb = placed.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
@@ -107,26 +103,24 @@ public class PouringStation : MonoBehaviour
             rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
-        // Colocar en el bowlPoint
+        // Anclar al punto de colocación.
         placed.transform.SetParent(bowlPoint);
         placed.transform.localPosition = Vector3.zero;
         placed.transform.localRotation = Quaternion.identity;
 
-        // Asignar targetContainer a todos los PouringContainer activos
-        foreach (var pouring in Object.FindObjectsByType<PouringContainer>(FindObjectsSortMode.None))
+        // Asigna el recipiente a todos los PouringContainers activos.
+        foreach (var pouring in Object.FindObjectsByType<PouringContainer>(
+                     FindObjectsSortMode.None))
         {
             pouring.targetContainer = placed;
         }
-        
 
         LockPlayer();
         return true;
     }
 
-        
-
     /// <summary>
-    /// Bloquea al jugador y activa la UI y cámara de estación.
+    /// Bloquea el movimiento del jugador y activa la UI y cámara de la estación.
     /// </summary>
     public void LockPlayer()
     {
@@ -134,6 +128,7 @@ public class PouringStation : MonoBehaviour
         playerLocked = true;
 
         ingredientPanel?.SetActive(true);
+
         if (playerMovement != null) playerMovement.enabled = false;
         if (cameraFollow != null) cameraFollow.enabled = false;
 
@@ -145,7 +140,7 @@ public class PouringStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Desbloquea al jugador, desactiva UI y restaura cámara previa.
+    /// Desbloquea al jugador, desactiva la UI y restaura la cámara anterior.
     /// </summary>
     public void UnlockPlayer()
     {
@@ -158,19 +153,21 @@ public class PouringStation : MonoBehaviour
         if (cameraFollow != null) cameraFollow.enabled = true;
 
         if (cameraController != null && previousCamera != null)
+        {
             cameraController.ActivateCamera(previousCamera);
+        }
 
-        // Si hay un bowl en la estación, pasarlo a la mano del jugador
+        // Devuelve el bowl al jugador si hay uno en la estación.
         if (receivingContainer != null)
         {
-            GameObject bowl = receivingContainer.gameObject;
-            Rigidbody rb = bowl.GetComponent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.None; // Desbloquea todo movimiento
-
+            var bowl = receivingContainer.gameObject;
+            var rb = bowl.GetComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.None;
 
             playerPickup.GrabObject(bowl);
 
             receivingContainer = null;
+
             if (activePouringContainer != null)
             {
                 Destroy(activePouringContainer.gameObject);
@@ -179,25 +176,41 @@ public class PouringStation : MonoBehaviour
         }
     }
 
+    // ─────────────────────────────── GETTERS / SETTERS ────────────────────────────
 
+    /// <summary>
+    /// Asigna un contenedor de vertido activo a la estación.
+    /// </summary>
+    /// <param name="container">Instancia del PouringContainer activo.</param>
     public void SetActivePouring(PouringContainer container)
     {
         activePouringContainer = container;
     }
 
+    /// <summary>
+    /// Obtiene el contenedor de vertido actualmente activo.
+    /// </summary>
+    /// <returns>Instancia activa de PouringContainer.</returns>
     public PouringContainer GetActivePouring()
     {
         return activePouringContainer;
     }
 
+    /// <summary>
+    /// Establece la receta actual asignada a la estación.
+    /// </summary>
+    /// <param name="recipe">Instancia de la receta a utilizar.</param>
     public void SetActiveRecipe(RecipeData recipe)
     {
         currentRecipe = recipe;
     }
 
+    /// <summary>
+    /// Obtiene la receta actualmente activa en la estación.
+    /// </summary>
+    /// <returns>Instancia actual de RecipeData.</returns>
     public RecipeData GetActiveRecipe()
     {
         return currentRecipe;
     }
-
 }
