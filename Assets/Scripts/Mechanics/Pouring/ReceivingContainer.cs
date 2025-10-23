@@ -1,122 +1,91 @@
 using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
+using TMPro;
 
-/// <summary>
-/// Recipiente que recibe líquidos de los PouringContainers.
-/// Maneja mezcla de ingredientes, UI y seguimiento de recetas.
-/// </summary>
 [RequireComponent(typeof(InteractableObject))]
 public class ReceivingContainer : MonoBehaviour
 {
-    [Header("Capacity (ml)")]
-    [Tooltip("Capacidad máxima del recipiente en mililitros.")]
-    [SerializeField] private float capacityML = 1000f;
+    [Header("Receta asignada")]
+    [SerializeField] public RecipeData currentRecipe;
 
-    [Header("UI Text (Optional)")]
-    [Tooltip("Texto para mostrar cantidad total e ingredientes.")]
-    [SerializeField] private TextMeshProUGUI amountText;
+    [Header("CupTracker (para notificar cambios de cantidad)")]
+    [Tooltip("Asignar el CupTracker desde el inspector")]
+    [SerializeField] private CupTracker cupTracker;
 
-    [Header("Recipe Data")]
-    [Tooltip("Receta activa asignada al recipiente.")]
-    public RecipeData currentRecipe;
-
-    private Dictionary<string, float> ingredients = new Dictionary<string, float>();
-    private InteractableObject interactable;
+    // Diccionario para llevar la cantidad actual por ingrediente
+    private Dictionary<string, float> ingredientAmounts = new Dictionary<string, float>();
 
     /// <summary>
-    /// Cantidad total de líquido actual en el recipiente.
+    /// Asigna una receta al recipiente.
     /// </summary>
-    private float TotalML
-    {
-        get
-        {
-            float total = 0f;
-            foreach (var ing in ingredients.Values) total += ing;
-            return total;
-        }
-    }
-
-    private void Start()
-    {
-        interactable = GetComponent<InteractableObject>();
-
-        // Asegurar que el recipiente pueda mezclarse
-        if (!interactable.HasCapability(ObjectCapabilities.Mixable))
-            interactable.capabilities |= ObjectCapabilities.Mixable;
-
-        UpdateVisual();
-    }
-
-    /// <summary>
-    /// Asigna una receta al recipiente y reinicia ingredientes.
-    /// </summary>
-    /// <param name="recipe">Receta a asignar.</param>
     public void AssignRecipe(RecipeData recipe)
     {
         currentRecipe = recipe;
-        ingredients.Clear();
-        UpdateVisual();
+        ingredientAmounts.Clear();
 
-        Debug.Log($"[ReceivingContainer] Receta asignada: {recipe.recipeName}");
-    }
-
-    /// <summary>
-    /// Agrega líquido de un ingrediente al recipiente.
-    /// </summary>
-    /// <param name="ingredient">Nombre del ingrediente.</param>
-    /// <param name="amount">Cantidad en ml.</param>
-    public void AddLiquid(string ingredient, float amount)
-    {
-        if (TotalML + amount > capacityML)
-            amount = capacityML - TotalML;
-
-        if (!ingredients.ContainsKey(ingredient)) ingredients[ingredient] = 0f;
-        ingredients[ingredient] += amount;
-
-        UpdateVisual();
-        CheckRecipeProgress();
-    }
-
-    /// <summary>
-    /// Verifica si los ingredientes coinciden con la receta actual.
-    /// </summary>
-    private void CheckRecipeProgress()
-    {
-        if (currentRecipe == null) return;
-
-        bool allMatch = true;
-        foreach (var req in currentRecipe.ingredients)
+        if (recipe != null)
         {
-            if (!ingredients.ContainsKey(req.ingredientName) ||
-                ingredients[req.ingredientName] < req.amountML)
+            // Inicializar todos los ingredientes en 0
+            foreach (var ing in recipe.ingredients)
             {
-                allMatch = false;
-                break;
+                ingredientAmounts[ing.ingredientName] = 0f;
             }
         }
-
-        if (allMatch)
-        {
-            Debug.Log($"✅ Receta completada: {currentRecipe.recipeName}");
-        }
     }
 
     /// <summary>
-    /// Actualiza la UI del recipiente mostrando ingredientes y total.
+    /// Devuelve la cantidad actual de un ingrediente.
     /// </summary>
-    private void UpdateVisual()
+    public float GetIngredientAmount(string ingredientName)
     {
-        if (amountText == null) return;
+        if (ingredientAmounts.TryGetValue(ingredientName, out float amount))
+            return amount;
+        // si no existe, devolver 0 (no lo inicializamos)
+        return 0f;
+    }
 
-        string text = currentRecipe != null
-            ? $"Receta: {currentRecipe.recipeName}\n"
-            : "";
+    /// <summary>
+    /// Agrega líquido al ingrediente especificado.
+    /// </summary>
+    public void AddLiquid(string ingredientName, float amountML)
+    {
+        if (currentRecipe == null)
+        {
+            Debug.LogWarning("No hay receta asignada - AddLiquid no hará nada.");
+            return;
+        }
 
-        text += $"Total: {TotalML:F0} ml\n";
-        foreach (var kvp in ingredients)
-            text += $"{kvp.Key}: {kvp.Value:F0} ml\n";
+        if (!ingredientAmounts.ContainsKey(ingredientName))
+        {
+            // Si el ingrediente no estaba en la receta, opcionalmente añadirlo:
+            ingredientAmounts[ingredientName] = 0f;
+        }
 
-        amountText.text = text;
+        ingredientAmounts[ingredientName] += amountML;
+
+        // No exceder la cantidad requerida de la receta (si quieres permitir overflow, quita esto)
+        float max = currentRecipe.GetRequiredAmount(ingredientName);
+        if (ingredientAmounts[ingredientName] > max)
+            ingredientAmounts[ingredientName] = max;
+
+    }
+
+    /// <summary>
+    /// Resetea todas las cantidades de los ingredientes.
+    /// </summary>
+    public void ResetIngredients()
+    {
+        List<string> keys = new List<string>(ingredientAmounts.Keys);
+        foreach (var key in keys)
+            ingredientAmounts[key] = 0f;
+
+    }
+
+    /// <summary>
+    /// Devuelve la receta asignada actualmente.
+    /// </summary>
+    public RecipeData GetRecipe()
+    {
+        return currentRecipe;
     }
 }

@@ -17,5 +17,6 @@ public enum ObjectCapabilities
     Bakeable    = 1 << 6,
     Liquefiable = 1 << 7,
     Deliverable = 1 << 8,
-    Buyable     = 1 << 9
+    Buyable     = 1 << 9,
+    PourableAllOnce = 1 << 10
 }

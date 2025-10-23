@@ -69,11 +69,18 @@ public class RecipeMenu : MonoBehaviour
         RecipeData selected = recipes[index];
         currentRecipe = selected;
 
+        // 🔹 Asignar receta a la estación
+        if (pouringStation != null)
+            pouringStation.SetActiveRecipe(selected);
+
         // Asignar receta al recipiente activo de la estación
         if (pouringStation?.CurrentReceiving != null)
         {
             pouringStation.CurrentReceiving.AssignRecipe(selected);
         }
+
+        Object.FindFirstObjectByType<RecipeController>()?.StartRecipeFlow(selected);
+
 
         ShowRecipeDetails(selected);
     }

@@ -50,12 +50,13 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Camera\FollowPlayer.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerPickup.cs" />
-    <Compile Include="Assets\Scripts\RecipeMenu.cs" />
+    <Compile Include="Assets\Scripts\Managers\RecipeMenu.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\ReceivingContainer.cs" />
     <Compile Include="Assets\Scripts\RecipeData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
+    <Compile Include="Assets\Scripts\RecipeController.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\CuttingStation.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\Scripts\Inventory\Inventory.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
+    <Compile Include="Assets\Scripts\CupTracker.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\Scripts\TakeObject.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Infinite\InfiniteSlicer.cs" />
@@ -91,7 +93,8 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Mix\MixableBowl.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Procedural\GeneratedMesh.cs" />
-    <Compile Include="Assets\Scripts\Mechanics\Pouring\IngredientClickManager.cs" />
+    <Compile Include="Assets\Scripts\FractionPanelUI.cs" />
+    <Compile Include="Assets\Scripts\IngredientDivider.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />

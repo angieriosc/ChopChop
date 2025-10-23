@@ -33,8 +33,24 @@ public class PouringStation : MonoBehaviour
 
     public ReceivingContainer CurrentReceiving => receivingContainer;
 
+    [Header("Recipiente activo en la estación")]
+    [SerializeField] public PouringContainer activePouringContainer;
+
+    [Header("Player Pickup Script")]
+    [SerializeField] private PlayerPickup playerPickup; // Referencia al script PlayerPickup
+
+    [Header("Punto de colocación del bowl")]
+    [SerializeField] private Transform bowlPoint;
+
     private bool playerLocked;         // Indica si el jugador está bloqueado
     private Camera previousCamera;     // Cámara previa antes de entrar a la estación
+
+    [Header("Receta actual en la estación")]
+    public RecipeData currentRecipe;
+
+
+
+    /*
 
     /// <summary>
     /// Detecta cuando un recipiente entra en la estación.
@@ -46,6 +62,15 @@ public class PouringStation : MonoBehaviour
 
         receivingContainer = placed;
 
+        Rigidbody rb = placed.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.constraints = RigidbodyConstraints.FreezeAll; // Bloquea todo movimiento
+        }
+
+
         // Asignar targetContainer a todos los PouringContainer activos
         foreach (var pouring in Object.FindObjectsByType<PouringContainer>(
                      FindObjectsSortMode.None))
@@ -54,27 +79,51 @@ public class PouringStation : MonoBehaviour
         }
 
         LockPlayer();
+
+
     }
+    */
 
     /// <summary>
-    /// Detecta cuando un recipiente sale de la estación.
+    /// Intenta recibir el bowl que el jugador tiene en la mano.
     /// </summary>
-    private void OnTriggerExit(Collider other)
+    public bool TryReceiveBowl(GameObject bowl)
     {
-        ReceivingContainer placed = other.GetComponent<ReceivingContainer>();
-        if (placed == null) return;
+        if (receivingContainer != null || bowl == null) return false;
 
-        if (placed == receivingContainer) receivingContainer = null;
+        ReceivingContainer placed = bowl.GetComponent<ReceivingContainer>();
+        if (placed == null) return false;
 
-        foreach (var pouring in Object.FindObjectsByType<PouringContainer>(
-                     FindObjectsSortMode.None))
+        receivingContainer = placed;
+
+        // Bloquear física y anclar al bowlPoint
+        Rigidbody rb = placed.GetComponent<Rigidbody>();
+        if (rb != null)
         {
-            if (pouring.targetContainer == placed)
-                pouring.targetContainer = null;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
 
-        UnlockPlayer();
+        // Colocar en el bowlPoint
+        placed.transform.SetParent(bowlPoint);
+        placed.transform.localPosition = Vector3.zero;
+        placed.transform.localRotation = Quaternion.identity;
+
+        // Asignar targetContainer a todos los PouringContainer activos
+        foreach (var pouring in Object.FindObjectsByType<PouringContainer>(FindObjectsSortMode.None))
+        {
+            pouring.targetContainer = placed;
+        }
+        
+
+        LockPlayer();
+        return true;
     }
+
+        
 
     /// <summary>
     /// Bloquea al jugador y activa la UI y cámara de estación.
@@ -104,10 +153,51 @@ public class PouringStation : MonoBehaviour
         playerLocked = false;
 
         ingredientPanel?.SetActive(false);
+
         if (playerMovement != null) playerMovement.enabled = true;
         if (cameraFollow != null) cameraFollow.enabled = true;
 
         if (cameraController != null && previousCamera != null)
             cameraController.ActivateCamera(previousCamera);
+
+        // Si hay un bowl en la estación, pasarlo a la mano del jugador
+        if (receivingContainer != null)
+        {
+            GameObject bowl = receivingContainer.gameObject;
+            Rigidbody rb = bowl.GetComponent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.None; // Desbloquea todo movimiento
+
+
+            playerPickup.GrabObject(bowl);
+
+            receivingContainer = null;
+            if (activePouringContainer != null)
+            {
+                Destroy(activePouringContainer.gameObject);
+                activePouringContainer = null;
+            }
+        }
     }
+
+
+    public void SetActivePouring(PouringContainer container)
+    {
+        activePouringContainer = container;
+    }
+
+    public PouringContainer GetActivePouring()
+    {
+        return activePouringContainer;
+    }
+
+    public void SetActiveRecipe(RecipeData recipe)
+    {
+        currentRecipe = recipe;
+    }
+
+    public RecipeData GetActiveRecipe()
+    {
+        return currentRecipe;
+    }
+
 }

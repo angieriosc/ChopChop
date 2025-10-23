@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -11,18 +12,18 @@ public class PouringContainer : MonoBehaviour
     [SerializeField] public ReceivingContainer targetContainer;
 
     [Header("Ingredient Info")]
-    [SerializeField] private string ingredientName = "Agua";
+    [SerializeField] public string ingredientName = "Agua";
 
     [Header("UI Amount Text")]
-    [SerializeField] private TextMeshProUGUI amountText;
+    [SerializeField] public TextMeshProUGUI amountText;
 
     [Header("Capacity Settings")]
     [SerializeField] private float capacityML = 1000f;
-    [SerializeField] private float pourRateMLPerSec = 100f;
+    [SerializeField] public float pourRateMLPerSec = 100f;
     public float currentML;
 
     [Header("Particle System")]
-    [SerializeField] private ParticleSystem pourParticles;
+    [SerializeField] public ParticleSystem pourParticles;
 
     [Header("Transform Reference")]
     [SerializeField] private Transform containerTransform;
@@ -30,6 +31,10 @@ public class PouringContainer : MonoBehaviour
     [Header("Pour Angle Settings")]
     [SerializeField] private float pourStartAngle = 35f;
     [SerializeField] private float pourStopAngle = 20f;
+
+    [Header("CupTracker (para notificar cambios de cantidad)")]
+    [Tooltip("Asignar el CupTracker desde el inspector")]
+    [SerializeField] private CupTracker cupTracker;
 
     private bool isPouring;
     private InteractableObject interactable;
@@ -52,6 +57,9 @@ public class PouringContainer : MonoBehaviour
                 Debug.LogWarning($"{name}: ParticleSystem not found");
         }
 
+        if (cupTracker == null)
+            cupTracker = FindFirstObjectByType<CupTracker>();
+
         pourParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
@@ -60,41 +68,75 @@ public class PouringContainer : MonoBehaviour
         if (!interactable.HasCapability(ObjectCapabilities.Pourable)) return;
         if (targetContainer == null) return;
 
-        float tiltAngle = Vector3.Angle(containerTransform.up, Vector3.up);
-
-        if (tiltAngle >= pourStartAngle && !isPouring && currentML > 0f)
-            StartPouring();
-        else if (tiltAngle <= pourStopAngle && isPouring)
-            StopPouring();
-
-        if (isPouring && currentML > 0f) PourLiquid();
     }
 
-    private void PourLiquid()
+    public void PourAllOnce(float duration = 0.5f, float moveHeight = 0.2f, float tiltAngle = 45f)
     {
-        float pouredAmount = pourRateMLPerSec * Time.deltaTime;
-        currentML -= pouredAmount;
-        currentML = Mathf.Max(currentML, 0f);
-        amountText.text = $"{currentML:F0} ml";
-
-        targetContainer.AddLiquid(ingredientName, pouredAmount);
-
-        if (currentML <= 0f) StopPouring();
+        if (targetContainer == null || currentML <= 0f) return;
+        Vector3 startPos = targetContainer.transform.position + Vector3.up * 0.05f; // 5 cm sobre el contenedor
+        StartCoroutine(PourAllRoutine(duration, moveHeight, tiltAngle, startPos));
     }
 
-    public void StartPouring()
+  private IEnumerator PourAllRoutine(float duration, float moveHeight, float tiltAngle, Vector3 startPos)
     {
-        if (isPouring || currentML <= 0f) return;
+        float startAmount = currentML;
+        float t = 0f;
 
-        isPouring = true;
-        if (pourParticles != null) pourParticles.Play();
-        else Debug.LogWarning($"{name}: No particle system assigned");
+        Quaternion startRot = transform.rotation;
+        Vector3 targetPos = startPos + Vector3.up * moveHeight;
+        Quaternion targetRot = Quaternion.Euler(0f, 0f, tiltAngle);
+
+        // 🔹 Subir e inclinar antes de vaciar
+        t = 0f;
+        float animDuration = duration * 0.3f;
+        while (t < animDuration)
+        {
+            t += Time.deltaTime;
+            float norm = Mathf.Clamp01(t / animDuration);
+            transform.position = Vector3.Lerp(startPos, targetPos, norm);
+            transform.rotation = Quaternion.Slerp(startRot, targetRot, norm);
+            yield return null;
+        }
+
+        // 🔹 Vaciar contenido
+        t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float normalized = Mathf.Clamp01(t / duration);
+            float poured = startAmount * normalized;
+            targetContainer.AddLiquid(ingredientName, poured - (startAmount - currentML));
+            currentML = startAmount * (1f - normalized);
+            amountText.text = $"{currentML:F0} ml";
+            yield return null;
+        }
+
+        currentML = 0f;
+        amountText.text = "0 ml";
+
+        // 🔹 Regresar a posición inicial (sobre el contenedor)
+        t = 0f;
+        animDuration = duration * 0.3f;
+        while (t < animDuration)
+        {
+            t += Time.deltaTime;
+            float norm = Mathf.Clamp01(t / animDuration);
+            transform.position = Vector3.Lerp(targetPos, startPos, norm);
+            transform.rotation = Quaternion.Slerp(targetRot, startRot, norm);
+            yield return null;
+        }
+        
+        currentML = 0f;
+        amountText.text = "0 ml";
+        Destroy(gameObject);
+        cupTracker.UpdateCups();    
+
     }
-
-    public void StopPouring()
+    private void OnMouseDown()
     {
-        if (!isPouring) return;
-        isPouring = false;
-        pourParticles?.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        if(interactable.HasCapability(ObjectCapabilities.PourableAllOnce)){
+            PourAllOnce(0.5f); // dura medio segundo            
+        }
     }
+
 }
