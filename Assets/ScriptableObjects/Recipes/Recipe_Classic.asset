@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 941d51253894967489155db311c24c63, type: 3}
+  m_Name: Recipe_Classic
+  m_EditorClassIdentifier: 
+  recipeName: "Pizza Cl\xE1sica"
+  numberOfPizzas: 1
+  numberOfCustomers: 4
+  recipeScrollImage: {fileID: 21300000, guid: c1effc54f8a478046b86dee8a04f6df3, type: 3}
+  dishIcon: {fileID: 21300000, guid: 84853b589575cd14db7392289bf78645, type: 3}
+  slicedPizzaIcon: {fileID: 21300000, guid: 3aa33657e2c6d474e82965ea60d06c40, type: 3}
+  pizzaSlices: 4
+  sliceNumberIcon: {fileID: 0}
+  ingredientSteps:
+  - ingredient:
+      ingredientName: Bola de masa
+      ingredientIcon: {fileID: 21300000, guid: a6449e4def2c8804d8104bb4ab03495a, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 0
+  - ingredient:
+      ingredientName: Pure de tomate
+      ingredientIcon: {fileID: 21300000, guid: bff411994e9f35049b91b599846204b5, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 0
+  - ingredient:
+      ingredientName: Queso Rayado
+      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 0
