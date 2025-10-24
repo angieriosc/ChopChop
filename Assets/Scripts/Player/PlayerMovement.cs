@@ -4,46 +4,78 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float speed = 5f;           // Velocidad de avance/retroceso
-    public float rotationSpeed = 120f; // Velocidad de rotación (grados por segundo)
-    public float gravity = -9.81f;     // Gravedad
-    public float jumpHeight = 1.5f;    // Altura del salto
+    [SerializeField] private float speed = 5f;           // Velocidad de movimiento
+    [SerializeField] private float rotationSpeed = 120f; // Velocidad de rotación (grados/segundo)
+    [SerializeField] private float gravity = -9.81f;     // Gravedad
+    [SerializeField] private float jumpHeight = 1.5f;    // Altura de salto
+
+    [Header("Animation")]
+    [SerializeField] private Animator animator;          // Asignar en Inspector
+    [SerializeField] private string speedParam = "Speed";
+    [SerializeField] private string groundedParam = "Grounded";
+    [SerializeField] private string jumpTrigger = "Jump";
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
 
-    void Start()
+    private int speedHash;
+    private int groundedHash;
+    private int jumpHash;
+
+    private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        speedHash = Animator.StringToHash(speedParam);
+        groundedHash = Animator.StringToHash(groundedParam);
+        jumpHash = Animator.StringToHash(jumpTrigger);
     }
 
-    void Update()
+    private void Update()
     {
-        // Comprobar si está en el suelo
+        HandleMovement();
+        HandleJump();
+        ApplyGravity();
+    }
+
+    private void HandleMovement()
+    {
+        // Comprobamos si está en el suelo
         isGrounded = controller.isGrounded;
-
         if (isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f; // Mantener pegado al suelo
-        }
+            velocity.y = -2f;
 
-        // Movimiento hacia adelante/atrás (W/S) 
-        float moveZ = Input.GetAxis("Vertical");
+        // Movimiento hacia adelante y atrás (W/S)
+        float moveZ = Input.GetAxis("Vertical");  // W/S
         Vector3 move = transform.forward * moveZ;
+
         controller.Move(move * speed * Time.deltaTime);
 
         // Rotación con A/D
-        float rotate = Input.GetAxis("Horizontal"); 
+        float rotate = Input.GetAxis("Horizontal"); // A/D
         transform.Rotate(Vector3.up * rotate * rotationSpeed * Time.deltaTime);
 
-        // Salto
+        // Animaciones
+        if (animator)
+        {
+            animator.SetFloat(speedHash, Mathf.Abs(moveZ), 0.1f, Time.deltaTime);
+            animator.SetBool(groundedHash, isGrounded);
+        }
+    }
+
+    private void HandleJump()
+    {
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
 
-        // Aplicar gravedad 
+            if (animator && !string.IsNullOrEmpty(jumpTrigger))
+                animator.SetTrigger(jumpHash);
+        }
+    }
+
+    private void ApplyGravity()
+    {
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
