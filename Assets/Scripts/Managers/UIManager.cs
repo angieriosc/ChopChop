@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 /// <summary>
 /// Gestiona la UI del conteo de cortes y checkmark al alcanzar el objetivo.
@@ -9,6 +10,12 @@ public class UIManager : MonoBehaviour
     // 1. Variables públicas y serializadas
     [SerializeField] private TextMeshProUGUI countText;
     [SerializeField] private GameObject checkmarkImageObject;
+
+    [Header("UI")]
+    [SerializeField] private Button exitButton;
+
+    [Header("Estación actual")]
+    [SerializeField] private CuttingStation cuttingStation;
 
     // 3. Métodos de Unity
     private void OnEnable()
@@ -27,9 +34,21 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        AssignButtonListeners();
         checkmarkImageObject.SetActive(false);
         countText.gameObject.SetActive(false);
     }
+
+    /// <summary>
+    /// Asigna eventos a los botones de ingredientes y al de salida.
+    /// </summary>
+    private void AssignButtonListeners()
+    {
+
+        if (exitButton != null)
+            exitButton.onClick.AddListener(ExitMenu);
+    }
+
 
     // 6. Métodos privados auxiliares
     /// <summary>
@@ -59,5 +78,17 @@ public class UIManager : MonoBehaviour
     {
         countText.gameObject.SetActive(false);
         checkmarkImageObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Cierra el menú y desbloquea jugador y cámara.
+    /// </summary>
+    private void ExitMenu()
+    {
+        gameObject.SetActive(false);
+
+        cuttingStation?.UnlockPlayer();
+
+        Debug.Log("Menú cerrado. Jugador desbloqueado.");
     }
 }

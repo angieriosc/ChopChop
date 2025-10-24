@@ -13,8 +13,8 @@ public class MixableBowl : MonoBehaviour
     [SerializeField] private bool isMixed = false;
 
     [Header("Required Ingredients")]
-    [SerializeField] private List<string> requiredIngredients = new() { "Flour", "Water", "Yeast" };
-    [SerializeField] private List<string> currentIngredients = new();
+    [SerializeField] private List<string> requiredIngredients = new() { "Harina", "Agua", "Levadura" };
+    [SerializeField] public List<string> currentIngredients = new();
 
     [Header("Visual States")]
     [SerializeField] private GameObject unmixedModel;

@@ -33,9 +33,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        HandleMovement();
-        HandleJump();
-        ApplyGravity();
+        controller = GetComponent<CharacterController>();
     }
 
     private void HandleMovement()

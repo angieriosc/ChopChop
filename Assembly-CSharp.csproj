@@ -51,6 +51,8 @@
     <Compile Include="Assets\Scripts\Camera\FollowPlayer.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerPickup.cs" />
     <Compile Include="Assets\Scripts\Inventory\InventorySlot.cs" />
+    <Compile Include="Assets\Scripts\Managers\RecipeMenu.cs" />
+    <Compile Include="Assets\Scripts\Customer\ButtonIconChanger.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\ReceivingContainer.cs" />
@@ -58,6 +60,8 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\Scripts\UI\DetectMouseClick.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\CuttingStation.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Pouring\RecipeData.cs" />
+    <Compile Include="Assets\Scripts\Customer\RecipeUITester.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\Scripts\Inventory\Inventory.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
@@ -87,32 +91,40 @@
     <Compile Include="Assets\Scripts\Mechanics\Cut\Procedural\Cutter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Mix\MixerStation.cs" />
+    <Compile Include="Assets\Scripts\Customer\CustomerType.cs" />
     <Compile Include="Assets\Scripts\Managers\IngredientMenu.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Pouring\IngredientDivider.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\PouringContainer.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Place_Toppings\ToppingStation.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Pouring\CupTracker.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Bake\OvenStation.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Pouring\RecipeController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Mix\MixableBowl.cs" />
+    <Compile Include="Assets\Scripts\Customer\RecipeUIManager.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Procedural\GeneratedMesh.cs" />
     <Compile Include="Assets\Scripts\Player\MovementPlayer.cs" />
-    <Compile Include="Assets\Scripts\Mechanics\Pouring\IngredientClickManager.cs" />
     <Compile Include="Assets\Scripts\Inventory\InventoryManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\Scripts\UI\InventoryHotbar.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Pouring\FractionPanelUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\Scripts\UI\UISpriteAnimation.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Hover\HoverAndCut.cs" />
+    <Compile Include="Assets\Scripts\Customer\Ingredient.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
+    <Compile Include="Assets\Scripts\Customer\Customer.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\Scripts\Customer\IngredientItemUI.cs" />
     <Compile Include="Assets\Scripts\Managers\UIManager.cs" />
     <Compile Include="Assets\Scripts\UI\ProximityIcon.cs" />
     <Compile Include="Assets\Scripts\PanShelf.cs" />
@@ -121,8 +133,13 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
+    <Compile Include="Assets\Scripts\Customer\OrderDeliveryTrigger.cs" />
+    <Compile Include="Assets\Scripts\Customer\IngredientItemDebugger.cs" />
+    <Compile Include="Assets\Scripts\Customer\RecipeScrollDisplay.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\Customer\CustomerManager.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\PouringStation.cs" />
+    <Compile Include="Assets\Scripts\Customer\RecipeDataMenu.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Procedural\MouseClickCut.cs" />
     <Compile Include="Assets\Scripts\Object\InteractableObject.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\ClickableIngredient.cs" />
@@ -162,6 +179,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Bangers - OFL.txt" />
@@ -1222,6 +1240,10 @@
     </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Performance.Profile-Analyzer.Editor">

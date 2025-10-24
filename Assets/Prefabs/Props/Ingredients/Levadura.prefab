@@ -4965,10 +4965,8 @@ GameObject:
   - component: {fileID: 8712632328215116155}
   - component: {fileID: 7395733120827928095}
   - component: {fileID: 7149400646490568830}
-  - component: {fileID: 3654440563963069643}
   - component: {fileID: 7932742636660015506}
   - component: {fileID: 286272551024373174}
-  - component: {fileID: 582469837727212154}
   m_Layer: 0
   m_Name: Levadura
   m_TagString: Untagged
@@ -5087,22 +5085,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.37971535, y: 1.2880745, z: 0.36585045}
   m_Center: {x: 0.011214614, y: 0.60186744, z: 0.0024485588}
---- !u!114 &3654440563963069643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4651080364211566176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dfe4e5674ad94c448ee9edf1dd2b3fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CubeClickRotate
-  holdRotationAxis: {x: 0, y: 0, z: 1}
-  holdRotationAngle: 120
-  rotationSpeed: 200
-  raycastCamera: {fileID: 0}
 --- !u!114 &7932742636660015506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5129,31 +5111,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PouringContainer
   targetContainer: {fileID: 0}
-  ingredientName: Harina
+  ingredientName: Levadura
   amountText: {fileID: 1315800822604667003}
   capacityML: 1000
-  pourRateMLPerSec: 100
+  pourRateMLPerSec: 600
   currentML: 0
   pourParticles: {fileID: 654918546192314626}
   containerTransform: {fileID: 6339520602786379917}
   pourStartAngle: 10
   pourStopAngle: 40
---- !u!114 &582469837727212154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4651080364211566176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dfe4e5674ad94c448ee9edf1dd2b3fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CubeClickRotate
-  holdRotationAxis: {x: 1, y: 0, z: 0}
-  holdRotationAngle: 40
-  rotationSpeed: 200
-  raycastCamera: {fileID: 0}
+  cupTracker: {fileID: 0}
 --- !u!1 &7022471462817875617
 GameObject:
   m_ObjectHideFlags: 0
