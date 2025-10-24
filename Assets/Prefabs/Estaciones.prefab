@@ -652,7 +652,10 @@ GameObject:
   - component: {fileID: 4878103917485005501}
   - component: {fileID: 7606430911950204726}
   - component: {fileID: 8412659402589818495}
+<<<<<<< HEAD
+=======
   - component: {fileID: 3634324333059826917}
+>>>>>>> d11a7c530aff7b2ecbb373a642160cd012d41fad
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -669,13 +672,13 @@ Transform:
   m_GameObject: {fileID: 3863967958082121566}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.33, z: 1.2400004}
+  m_LocalPosition: {x: -471.45, y: -229.89502, z: -14.61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5878555920120189298}
   - {fileID: 5657766003180894103}
-  m_Father: {fileID: 8196864412550481687}
+  m_Father: {fileID: 3970252478541074049}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6301309544647764234
 MeshFilter:
@@ -807,6 +810,8 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   cameraClose: {fileID: 0}
   cameraPlayer: {fileID: 5979872722914766761}
+<<<<<<< HEAD
+=======
 --- !u!114 &3634324333059826917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -822,6 +827,7 @@ MonoBehaviour:
   speed: 5
   gravity: -9.81
   jumpHeight: 1.5
+>>>>>>> d11a7c530aff7b2ecbb373a642160cd012d41fad
 --- !u!1 &4087135371404248846
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,7 +1546,6 @@ Transform:
   m_Children:
   - {fileID: 9159800224854806512}
   - {fileID: 3970252478541074049}
-  - {fileID: 5528881325147628179}
   - {fileID: 2662676212654640969}
   - {fileID: 4262431063035464483}
   - {fileID: 4045676530642038800}
@@ -2129,6 +2134,7 @@ RectTransform:
   m_Children:
   - {fileID: 6809330519020856925}
   - {fileID: 582361243798638922}
+  - {fileID: 5528881325147628179}
   m_Father: {fileID: 8196864412550481687}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

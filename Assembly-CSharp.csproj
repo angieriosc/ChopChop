@@ -50,18 +50,23 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Camera\FollowPlayer.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerPickup.cs" />
+    <Compile Include="Assets\Scripts\Inventory\InventorySlot.cs" />
     <Compile Include="Assets\Scripts\Managers\RecipeMenu.cs" />
     <Compile Include="Assets\Scripts\Customer\ButtonIconChanger.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\ReceivingContainer.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Place_Toppings\ToppingSource.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
+    <Compile Include="Assets\Scripts\UI\DetectMouseClick.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\CuttingStation.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\RecipeData.cs" />
     <Compile Include="Assets\Scripts\Customer\RecipeUITester.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\Scripts\Inventory\Inventory.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Inventory\Item.cs" />
+    <Compile Include="Assets\Scripts\UI\BarColorChanger.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
@@ -75,8 +80,11 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\Scripts\Object\ObjectCapabilities.cs" />
+    <Compile Include="Assets\Scripts\Inventory\InventoryItem.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
+    <Compile Include="Assets\Scripts\UI\SlotIndex.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Hover\ObjectGrabbing.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Place_Toppings\PizzaToppingManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Bake\BakeableIngredient.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\RotateOnClick.cs" />
@@ -87,6 +95,7 @@
     <Compile Include="Assets\Scripts\Managers\IngredientMenu.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\IngredientDivider.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\PouringContainer.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Place_Toppings\ToppingStation.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\CupTracker.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
@@ -98,10 +107,14 @@
     <Compile Include="Assets\Scripts\Mechanics\Mix\MixableBowl.cs" />
     <Compile Include="Assets\Scripts\Customer\RecipeUIManager.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Procedural\GeneratedMesh.cs" />
+    <Compile Include="Assets\Scripts\Player\MovementPlayer.cs" />
+    <Compile Include="Assets\Scripts\Inventory\InventoryManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
+    <Compile Include="Assets\Scripts\UI\InventoryHotbar.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Pouring\FractionPanelUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\Scripts\UI\UISpriteAnimation.cs" />
     <Compile Include="Assets\Scripts\Mechanics\Cut\Hover\HoverAndCut.cs" />
     <Compile Include="Assets\Scripts\Customer\Ingredient.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
@@ -113,7 +126,9 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
     <Compile Include="Assets\Scripts\Customer\IngredientItemUI.cs" />
     <Compile Include="Assets\Scripts\Managers\UIManager.cs" />
+    <Compile Include="Assets\Scripts\UI\ProximityIcon.cs" />
     <Compile Include="Assets\Scripts\PanShelf.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Place_Toppings\PizzaRecipe.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
@@ -133,23 +148,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
-    <None Include="Assets\SyntyStudios\PolygonPrototype\Shaders\Prototype_Glass_Global.shader" />
+    <None Include="Assets\Art\SyntyStudios\PolygonPrototype\Shaders\Prototype_Glass_Global.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - License.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
-    <None Include="Assets\Poly-Survival Food\Documentation.txt" />
+    <None Include="Assets\Art\Poly-Survival Food\Documentation.txt" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Unity - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Oswald-Bold - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - AFL.txt" />
-    <None Include="Assets\SyntyStudios\PolygonPrototype\Shaders\Prototype_Object.shader" />
+    <None Include="Assets\Art\SyntyStudios\PolygonPrototype\Shaders\Prototype_Object.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Anton OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
     <None Include="Assets\Art\3D Models\Props\kenney_food-kit\License.txt" />
-    <None Include="Assets\SyntyStudios\PolygonPrototype\Shaders\Prototype_Global.shader" />
+    <None Include="Assets\Art\SyntyStudios\PolygonPrototype\Shaders\Prototype_Global.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
@@ -160,7 +175,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets\SyntyStudios\PolygonPrototype\Shaders\Prototype_Glass_Object.shader" />
+    <None Include="Assets\Art\SyntyStudios\PolygonPrototype\Shaders\Prototype_Glass_Object.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
@@ -168,6 +183,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Bangers - OFL.txt" />
+    <None Include="Assets\Scripts\CharacterController.cs.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
