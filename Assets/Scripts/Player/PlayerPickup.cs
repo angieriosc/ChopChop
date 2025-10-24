@@ -7,7 +7,7 @@ using UnityEngine;
 public class PlayerPickup : MonoBehaviour
 {
     [Header("Configuración")]
-    [SerializeField] private Transform handPoint;
+    [SerializeField] public Transform handPoint;
 
     [Header("Teclas de interacción")]
     [SerializeField] private KeyCode grabKey = KeyCode.E;
@@ -22,6 +22,8 @@ public class PlayerPickup : MonoBehaviour
     // Referencias a estaciones cercanas
     private OvenStation nearbyOven = null;
     private MixerStation nearbyMixer = null;
+
+    private PouringStation nearbyPouringStation = null;
 
     private void Update()
     {
@@ -39,6 +41,7 @@ public class PlayerPickup : MonoBehaviour
         Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRange);
         bool ovenFound = false;
         bool mixerFound = false;
+        bool pouringStationFound = false;
 
         foreach (var col in nearbyColliders)
         {
@@ -55,10 +58,18 @@ public class PlayerPickup : MonoBehaviour
                 nearbyMixer = mixer;
                 mixerFound = true;
             }
+
+            PouringStation pouringStation = col.GetComponent<PouringStation>();
+            if (pouringStation != null)
+            {
+                nearbyPouringStation = pouringStation;
+                pouringStationFound = true;
+            }
         }
 
         if (!ovenFound) nearbyOven = null;
         if (!mixerFound) nearbyMixer = null;
+        if (!pouringStationFound) nearbyPouringStation = null;
     }
 
     /// <summary>
@@ -119,6 +130,16 @@ public class PlayerPickup : MonoBehaviour
             }
         }
 
+        if (nearbyPouringStation != null && 
+            interactable.HasCapability(ObjectCapabilities.Pourable))
+        {
+            if (nearbyPouringStation.TryReceiveBowl(pickedObject))
+            {
+                pickedObject = null;
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -169,7 +190,7 @@ public class PlayerPickup : MonoBehaviour
     /// <summary>
     /// Agarra un objeto y lo asigna al handPoint.
     /// </summary>
-    private void GrabObject(GameObject obj)
+    public void GrabObject(GameObject obj)
     {
         var interactable = obj.GetComponentInParent<InteractableObject>() ??
                           obj.GetComponentInChildren<InteractableObject>();
@@ -203,7 +224,7 @@ public class PlayerPickup : MonoBehaviour
     /// <summary>
     /// Suelta el objeto actual.
     /// </summary>
-    private void DropObject()
+    public void DropObject()
     {
         if (pickedObject == null) return;
 
