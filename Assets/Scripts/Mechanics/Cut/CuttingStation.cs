@@ -15,6 +15,7 @@ public class CuttingStation : MonoBehaviour
 
     [Header("Paneles de UI opcionales")]
     public GameObject cuttingPanel;
+    public GameObject overlay;
 
     [Header("Sistema de corte")]
     public ObjectGrabbing objectGrabbing; // Script que activa el cuchillo
@@ -61,6 +62,7 @@ public class CuttingStation : MonoBehaviour
         playerLocked = true;
 
         cuttingPanel?.SetActive(true);
+        overlay?.SetActive(false);
 
         if (playerMovement != null) playerMovement.enabled = false;
         if (cameraFollow != null) cameraFollow.enabled = false;
@@ -82,6 +84,7 @@ public class CuttingStation : MonoBehaviour
         playerLocked = false;
         
         cuttingPanel?.SetActive(false);
+        overlay?.SetActive(true );
         if (playerMovement != null) playerMovement.enabled = true;
         if (cameraFollow != null) cameraFollow.enabled = true;
 
