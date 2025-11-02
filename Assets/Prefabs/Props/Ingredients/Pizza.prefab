@@ -145,10 +145,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4100550664420233040}
-  serializedVersion: 5
+  serializedVersion: 4
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -211,15 +211,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 0f8114caa9556904883043ea45cba2dc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.143
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0f8114caa9556904883043ea45cba2dc, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.062
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0f8114caa9556904883043ea45cba2dc, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.056
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0f8114caa9556904883043ea45cba2dc, type: 3}
       propertyPath: m_LocalRotation.w
@@ -367,8 +367,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.858258, y: 1.0365517, z: 0.8792062}
-  m_Center: {x: 0.0010740757, y: 0.51655257, z: 0.0133702755}
+  m_Size: {x: 0.858258, y: 0.1, z: 0.8792062}
+  m_Center: {x: 0.0010740757, y: 0, z: 0.0133702755}
 --- !u!54 &777924315275714009
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -376,10 +376,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7610586135646193562}
-  serializedVersion: 5
+  serializedVersion: 4
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -607,10 +607,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9214052261487568060}
-  serializedVersion: 5
+  serializedVersion: 4
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
