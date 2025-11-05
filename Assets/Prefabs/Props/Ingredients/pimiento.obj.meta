@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: 88e32b70090854342b3d1f17151a3afe
+guid: 2b0838cde35ec40418ff9d9315168ce5
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: paprika-sliceMat
+    second: {fileID: 2100000, guid: aa32337a4d8ce0d408685f9baa2b326b, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -56,9 +61,6 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
-    generateMeshLods: 0
-    meshLodGenerationFlags: 0
-    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
