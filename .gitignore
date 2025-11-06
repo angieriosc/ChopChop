@@ -96,6 +96,11 @@ InitTestScene*.unity*
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
 
+# Ignorar fuentes de ejemplo de TextMesh Pro
+Assets/TextMesh Pro/Examples & Extras/
+Assets/TextMesh Pro/Resources/Fonts & Materials/
+
+
 # Auto-generated scenes by play mode tests
 *.csproj
 *.unityproj
