@@ -47,7 +47,7 @@ public class IngredientDivider : MonoBehaviour
     /// Divide el contenido del recipiente activo en un número de partes iguales.
     /// </summary>
     /// <param name="parts">Número de tazas a generar.</param>
-    public void DivideIntoCups(int parts)
+    public void DivideIntoCups(int parts, string fraction)
     {
         ClearCups();
 
@@ -69,9 +69,9 @@ public class IngredientDivider : MonoBehaviour
 
         float perCup = total / parts;
         activeContainer.currentML = 0f;
-        activeContainer.amountText.text = "0 ml";
+        activeContainer.amountText.text = "...";
 
-        StartCoroutine(DivideRoutine(activeContainer, parts, perCup));
+        StartCoroutine(DivideRoutine(activeContainer, parts, perCup, fraction));
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public class IngredientDivider : MonoBehaviour
     /// Realiza la animación y vertido de líquido en cada taza.
     /// </summary>
     private IEnumerator DivideRoutine(
-        PouringContainer original, int parts, float perCup)
+        PouringContainer original, int parts, float perCup, string fractionLabel)
     {
         for (int i = 0; i < parts && i < spawnPoints.Length; i++)
         {
@@ -120,24 +120,24 @@ public class IngredientDivider : MonoBehaviour
             }
 
             InteractableObject capabilities =
-                cupObj.GetComponent<InteractableObject>();
+            cupObj.GetComponent<InteractableObject>();
             capabilities.capabilities |= ObjectCapabilities.Pourable;
             capabilities.capabilities |= ObjectCapabilities.PourableAllOnce;
 
             cup.ingredientName = original.ingredientName;
             cup.targetContainer = original.targetContainer;
             cup.currentML = 0f;
+            cup.amountText.text = "";
             SetIngredientName(cup, GetIngredientName(original));
-            cup.amountText.text = "0 ml";
 
             // Animación de vertido
             yield return StartCoroutine(AnimatePour(
-                original, spawnPoints[i].position, perCup, cup
+                original, spawnPoints[i].position, perCup, cup, fractionLabel
             ));
         }
 
         original.currentML = 0f;
-        original.amountText.text = "0 ml";
+        original.amountText.text = "Vacio";
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public class IngredientDivider : MonoBehaviour
     /// </summary>
     private IEnumerator AnimatePour(
         PouringContainer original, Vector3 targetPos,
-        float perCup, PouringContainer cup)
+        float perCup, PouringContainer cup, string fractionLabel)
     {
         Vector3 startPos = original.transform.position;
         Vector3 liftedPos = targetPos + Vector3.up * moveHeight;
@@ -173,7 +173,7 @@ public class IngredientDivider : MonoBehaviour
             float delta = original.pourRateMLPerSec * Time.deltaTime;
             poured = Mathf.Min(poured + delta, perCup);
             cup.currentML = poured;
-            cup.amountText.text = $"{poured:F0} ml";
+            cup.amountText.text = $"{fractionLabel}";
             yield return null;
         }
 

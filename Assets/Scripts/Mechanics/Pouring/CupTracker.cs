@@ -48,7 +48,7 @@ public class CupTracker : MonoBehaviour
         if (container == null || recipe == null)
         {
             StartCoroutine(ShowMessage(
-                "❌ No hay receta activa o recipiente asignado."
+                "No hay receta activa o recipiente asignado."
             ));
             return false;
         }
@@ -63,14 +63,26 @@ public class CupTracker : MonoBehaviour
         if (!IsCupValid(required, cupSize))
         {
             StartCoroutine(ShowMessage(
-                $"❌ La fracción seleccionada ({cupSize:F0} ml) no coincide."
+                $"La fracción es incorrecta, itenta con otra."
             ));
             return false;
         }
+        else
+        {
 
-        StartCoroutine(ShowMessage(
-            $"✅ Fracción válida seleccionada: {cupSize:F0} ml."
-        ));
+            required = recipe.GetRequiredAmount(ingredient);
+            current = container.GetIngredientAmount(ingredient);
+
+            int totalCups = Mathf.CeilToInt(required / cupSize);
+            int pouredCups = Mathf.FloorToInt(current / cupSize);
+
+            progressText.text =
+            $"Tazas vertidas: {pouredCups} / {totalCups}\n";
+
+            StartCoroutine(ShowMessage(
+                $"Da click a las tazas, para verterlas en el recipiente."
+            ));
+        }
         return true;
     }
 
@@ -93,17 +105,9 @@ public class CupTracker : MonoBehaviour
         int pouredCups = Mathf.FloorToInt(current / cupSize);
 
         progressText.text =
-            $"Ingrediente: {ingredient}\n" +
-            $"Tazas vertidas: {pouredCups} / {totalCups}\n" +
-            $"({cupSize:F0} ml por taza)\n" +
-            $"Total: {current:F0} / {required:F0} ml";
+            $"Tazas vertidas: {pouredCups} / {totalCups}\n";
 
         bool isComplete = current >= required - tolerance;
-        string msg = isComplete
-            ? "✅ Ingrediente completo!"
-            : "🧪 Sigue vertiendo...";
-
-        StartCoroutine(ShowMessage(msg));
 
         if (isComplete)
         {
@@ -142,7 +146,7 @@ public class CupTracker : MonoBehaviour
         messageText.gameObject.SetActive(true);
         messageText.text = msg;
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(7f);
 
         messageText.gameObject.SetActive(false);
     }

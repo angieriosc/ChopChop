@@ -53,7 +53,7 @@ public class FractionPanelUI : MonoBehaviour
             {
                 bool isCupValid = cupTracker.SelectCup(fraction);
                 if (isCupValid)
-                    ingredientDivider.DivideIntoCups(parts);
+                    ingredientDivider.DivideIntoCups(parts, $"1/{parts}");
             });
         }
     }

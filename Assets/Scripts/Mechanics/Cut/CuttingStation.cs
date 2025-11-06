@@ -28,7 +28,6 @@ public class CuttingStation : MonoBehaviour
     [Header("Paneles de UI opcionales")]
     [Tooltip("Panel de UI que se muestra al entrar a la estación de corte.")]
     public GameObject cuttingPanel;
-    public GameObject overlay;
 
     [Header("Sistema de corte")]
     [Tooltip("Script ObjectGrabbing que se activa para cortar.")]
@@ -112,7 +111,6 @@ public class CuttingStation : MonoBehaviour
         playerLocked = false;
 
         cuttingPanel?.SetActive(false);
-        overlay?.SetActive(true );
         if (playerMovement != null) playerMovement.enabled = true;
         if (cameraFollow != null) cameraFollow.enabled = true;
 
