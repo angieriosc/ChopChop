@@ -18,5 +18,6 @@ public enum ObjectCapabilities
     Liquefiable = 1 << 7,
     Deliverable = 1 << 8,
     Buyable     = 1 << 9,
-    PourableAllOnce = 1 << 10
+    PourableAllOnce = 1 << 10,
+    Toppingable  = 1 << 11
 }
