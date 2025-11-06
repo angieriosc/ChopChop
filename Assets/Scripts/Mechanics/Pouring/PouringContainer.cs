@@ -89,7 +89,6 @@ public class PouringContainer : MonoBehaviour
     {
         currentML = capacityML;
         interactable = GetComponent<InteractableObject>();
-        amountText.text = $"{currentML:F0} ml";
 
         // Asegura que tenga capacidad de verter.
         if (!interactable.HasCapability(ObjectCapabilities.Pourable))
@@ -188,14 +187,13 @@ public class PouringContainer : MonoBehaviour
             );
 
             currentML = startAmount * (1f - normalized);
-            amountText.text = $"{currentML:F0} ml";
+            amountText.text = $"{currentML:F0}";
             yield return null;
         }
 
         // 🔹 Actualizar UI y estado final
         currentML = 0f;
-        amountText.text = "0 ml";
-
+        amountText.text = "0";
         // 🔹 Retornar a la posición original
         t = 0f;
         animDuration = duration * 0.3f;

@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Controla la UI de selección y detalle de recetas,
@@ -32,6 +34,9 @@ public class RecipeMenu : MonoBehaviour
 
     [Tooltip("Botón para volver al listado de recetas.")]
     [SerializeField] private Button backButton;
+
+    /// <summary>Valores equivalentes de cada fracción en mililitros.</summary>
+    private readonly float[] cupValues = { 500f, 333f, 250f, 200f, 166.5f };
 
     private RecipeData currentRecipe;
 
@@ -79,7 +84,7 @@ public class RecipeMenu : MonoBehaviour
             pouringStation.CurrentReceiving.AssignRecipe(selected);
         }
 
-        Object.FindFirstObjectByType<RecipeController>()?.StartRecipeFlow(selected);
+        UnityEngine.Object.FindFirstObjectByType<RecipeController>()?.StartRecipeFlow(selected);
 
 
         ShowRecipeDetails(selected);
@@ -101,9 +106,9 @@ public class RecipeMenu : MonoBehaviour
 
         // Construir texto con ingredientes
         string info = $"<b>{recipe.recipeName}</b>\n\nIngredientes requeridos:\n";
-        foreach (var ing in recipe.ingredients)
-            info += $"- {ing.ingredientName}: {ing.amountML:F0} ml\n";
-
+        foreach (var ing in recipe.ingredients) {
+            info += $"{ing.ingredientName}: {GetCupFraction(ing.amountML)}";
+        }
         ingredientsText.text = info;
     }
 
@@ -116,5 +121,42 @@ public class RecipeMenu : MonoBehaviour
         recipeDetailsPanel?.SetActive(false);
 
         Debug.Log("Volviendo a la lista de recetas.");
+    }
+
+    /// <summary>
+    /// Obtiene la fracción de taza correspondiente al tamaño en ml.
+    /// </summary>
+    public string  GetCupFraction(float ml)
+    {
+        Dictionary<float, string> map = new()
+        {
+            { 500f, "2" },
+            { 333f, "3" },
+            { 250f, "4" },
+            { 200f, "5" },
+            { 166.5f, "6" }
+        };
+        List<float> fractions = new List<float>();
+        for (int i = 0; i < cupValues.Length; i++)
+        {
+            if (ml % cupValues[i] == 0)
+                fractions.Add(cupValues[i]);
+        }
+        if (fractions.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, fractions.Count);
+            float randomValue = fractions[randomIndex];
+            var fracctionCup = "";
+            foreach (var kv in map)
+            {
+                if (kv.Key == randomValue)
+                    fracctionCup = kv.Value;
+            }
+            return $"{ml / randomValue}/{fracctionCup} de taza\n";
+        }
+        else
+        {
+            return "0";
+        }
     }
 }
