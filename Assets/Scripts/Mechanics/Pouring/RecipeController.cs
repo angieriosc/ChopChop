@@ -109,7 +109,7 @@ public class RecipeController : MonoBehaviour
         cupTracker.ResetTracker();
 
         StartCoroutine(ShowMessage(
-            $"Añade: {ingredient.ingredientName} ({ingredient.amountML} ml)"
+            $"Añade {ingredient.ingredientName}"
         ));
     }
 
@@ -127,7 +127,7 @@ public class RecipeController : MonoBehaviour
     /// </summary>
     private void RecipeCompleted()
     {
-        StartCoroutine(ShowMessage("✅ Receta completada!"));
+        StartCoroutine(ShowMessage("Receta completada!"));
 
         // Eliminar último ingrediente
         if (currentIngredientGO != null)
