@@ -22,6 +22,8 @@ public class PlayerPickup : MonoBehaviour
     // Referencias a estaciones cercanas
     private OvenStation nearbyOven = null;
     private MixerStation nearbyMixer = null;
+    private ToppingStation nearbyToppingStation = null;
+
 
     private PouringStation nearbyPouringStation = null;
 
@@ -42,6 +44,7 @@ public class PlayerPickup : MonoBehaviour
         bool ovenFound = false;
         bool mixerFound = false;
         bool pouringStationFound = false;
+        bool toppingStationFound = false;
 
         foreach (var col in nearbyColliders)
         {
@@ -65,11 +68,19 @@ public class PlayerPickup : MonoBehaviour
                 nearbyPouringStation = pouringStation;
                 pouringStationFound = true;
             }
+            ToppingStation toppingStation = col.GetComponent<ToppingStation>();
+            if (toppingStation != null)
+            {
+                nearbyToppingStation = toppingStation;
+                toppingStationFound = true;
+            }
+
         }
 
         if (!ovenFound) nearbyOven = null;
         if (!mixerFound) nearbyMixer = null;
         if (!pouringStationFound) nearbyPouringStation = null;
+        if (!toppingStationFound) nearbyToppingStation = null;
     }
 
     /// <summary>
@@ -130,7 +141,7 @@ public class PlayerPickup : MonoBehaviour
             }
         }
 
-        if (nearbyPouringStation != null && 
+        if (nearbyPouringStation != null &&
             interactable.HasCapability(ObjectCapabilities.Pourable))
         {
             if (nearbyPouringStation.TryReceiveBowl(pickedObject))
@@ -139,6 +150,17 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
+        
+        if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() &&
+            interactable.HasCapability(ObjectCapabilities.Toppingable))
+        {
+            if (nearbyToppingStation.TryPlace(pickedObject))
+            {
+                pickedObject = null;
+                return true;
+            }
+        }
+
 
         return false;
     }
@@ -167,6 +189,17 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
+
+        if (nearbyToppingStation != null && nearbyToppingStation.HasPizza())
+        {
+            GameObject pizza = nearbyToppingStation.TakePizza();
+            if (pizza != null)
+            {
+                GrabObject(pizza);
+                return true;
+            }
+        }
+
 
         return false;
     }
@@ -215,10 +248,9 @@ public class PlayerPickup : MonoBehaviour
         var col = pickedObject.GetComponent<Collider>();
         if (col != null && !col.enabled) col.enabled = true;
 
-        pickedObject.transform.SetParent(handPoint, false);
+        pickedObject.transform.SetParent(handPoint, true);
         pickedObject.transform.localPosition = Vector3.zero;
         pickedObject.transform.localRotation = Quaternion.identity;
-        pickedObject.transform.localScale = originalScale;
     }
 
     /// <summary>
@@ -262,4 +294,6 @@ public class PlayerPickup : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
+
+    
 }
