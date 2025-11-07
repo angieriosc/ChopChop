@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using System.Diagnostics;
 
 /// <summary>
 /// Gestiona la división de un recipiente principal en múltiples tazas,
@@ -15,13 +16,13 @@ public class IngredientDivider : MonoBehaviour
     [SerializeField] public Transform spawnParent;
 
     [Header("Separación entre tazas")]
-    [SerializeField, Range(0.2f, 2f)] private float spacing = 0.8f;
+    private float spacing = 0.3f;
 
     [Header("Estación de vertido activa")]
     [SerializeField] private PouringStation pouringStation;
 
     [Header("Parámetros de animación")]
-    [SerializeField] private float moveHeight = 0.5f;
+    private float moveHeight = 0.8f;
     [SerializeField] private float moveDuration = 0.2f;
     [SerializeField] private float tiltAngle = 45f;
 
@@ -54,14 +55,14 @@ public class IngredientDivider : MonoBehaviour
         PouringContainer activeContainer = pouringStation.GetActivePouring();
         if (activeContainer == null)
         {
-            Debug.LogWarning("No hay recipiente activo para dividir.");
+            UnityEngine.Debug.LogWarning("No hay recipiente activo para dividir.");
             return;
         }
 
         float total = activeContainer.currentML;
         if (total <= 0f)
         {
-            Debug.LogWarning("El recipiente está vacío.");
+            UnityEngine.Debug.LogWarning("El recipiente está vacío.");
             return;
         }
 
@@ -101,7 +102,7 @@ public class IngredientDivider : MonoBehaviour
     /// Realiza la animación y vertido de líquido en cada taza.
     /// </summary>
     private IEnumerator DivideRoutine(
-        PouringContainer original, int parts, float perCup, string fractionLabel)
+    PouringContainer original, int parts, float perCup, string fractionLabel)
     {
         for (int i = 0; i < parts && i < spawnPoints.Length; i++)
         {
@@ -112,9 +113,10 @@ public class IngredientDivider : MonoBehaviour
             );
 
             PouringContainer cup = cupObj.GetComponent<PouringContainer>();
+            cup.streamPrefab = original.streamPrefab;
             if (cup == null)
             {
-                Debug.LogError(
+                UnityEngine.Debug.LogError(
                     "El prefab de taza no contiene PouringContainer.");
                 continue;
             }
@@ -147,26 +149,38 @@ public class IngredientDivider : MonoBehaviour
         PouringContainer original, Vector3 targetPos,
         float perCup, PouringContainer cup, string fractionLabel)
     {
-        Vector3 startPos = original.transform.position;
-        Vector3 liftedPos = targetPos + Vector3.up * moveHeight;
+        //  Offset local de la punta (respecto al pivote)
+        Vector3 localTipOffset =
+            original.transform.InverseTransformPoint(original.origin.position);
+
+        // Calcular posición objetivo para que la punta quede en el centro de la taza
+        Vector3 desiredTipWorld = targetPos; // el centro exacto de la taza
+        Vector3 liftedPos =
+            desiredTipWorld - original.transform.TransformVector(localTipOffset)
+            + Vector3.up * moveHeight;
+
+        liftedPos += Vector3.right * 0.19f;
+
+        // Guardar rotaciones
         Quaternion startRot = original.transform.rotation;
         Quaternion targetRot = Quaternion.Euler(0f, 0f, tiltAngle);
 
-        // Movimiento inicial
+        // Movimiento hacia la taza
         float t = 0f;
         while (t < moveDuration)
         {
             t += Time.deltaTime;
             float norm = Mathf.Clamp01(t / moveDuration);
             original.transform.position =
-                Vector3.Lerp(startPos, liftedPos, norm);
+                Vector3.Lerp(original.transform.position, liftedPos, norm);
             original.transform.rotation =
                 Quaternion.Slerp(startRot, targetRot, norm);
             yield return null;
         }
 
-        // Llenado
-        if (original.pourParticles != null) original.pourParticles.Play();
+        // Iniciar vertido
+        original.StartStream();
+
         float poured = 0f;
         while (poured < perCup)
         {
@@ -177,20 +191,16 @@ public class IngredientDivider : MonoBehaviour
             yield return null;
         }
 
-        if (original.pourParticles != null)
-        {
-            original.pourParticles.Stop(
-                true, ParticleSystemStopBehavior.StopEmitting);
-        }
+        original.EndStream();
 
-        // Regresar a la posición original
+        // 6️⃣ Regresar
         t = 0f;
         while (t < moveDuration)
         {
             t += Time.deltaTime;
             float norm = Mathf.Clamp01(t / moveDuration);
             original.transform.position =
-                Vector3.Lerp(liftedPos, startPos, norm);
+                Vector3.Lerp(liftedPos, original.transform.position, norm);
             original.transform.rotation =
                 Quaternion.Slerp(targetRot, startRot, norm);
             yield return null;

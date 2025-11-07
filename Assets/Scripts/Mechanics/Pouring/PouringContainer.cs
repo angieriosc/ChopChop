@@ -47,26 +47,24 @@ public class PouringContainer : MonoBehaviour
 
     // ──────────────────────────────── EFECTOS Y TRANSFORM ─────────────────────────
 
-    [Header("Particle System")]
-    [Tooltip("Sistema de partículas para simular el vertido.")]
-    [SerializeField] 
-    public ParticleSystem pourParticles;
 
     [Header("Transform Reference")]
     [Tooltip("Referencia al transform del recipiente.")]
-    [SerializeField] 
+    [SerializeField]
     private Transform containerTransform;
 
-    // ──────────────────────────────── CONFIGURACIÓN DE ÁNGULOS ────────────────────
+    [Header("Stream Prefab")]
+    [Tooltip("Prefab del efecto de chorro de vertido.")]
+    public GameObject streamPrefab;
 
-    [Header("Pour Angle Settings")]
-    [Tooltip("Ángulo mínimo para iniciar el vertido.")]
-    [SerializeField] 
-    private float pourStartAngle = 35f;
+    [Header("Stream State")]
+    [Tooltip("Estado actual del stream.")]
+    private Stream currentStream = null; // Reference to the current stream effect
 
-    [Tooltip("Ángulo mínimo para detener el vertido.")]
-    [SerializeField] 
-    private float pourStopAngle = 20f;
+    
+    [Header("Origin Point")]
+    [Tooltip("Punto de origen del vertido.")]   
+    public Transform origin;
 
     // ──────────────────────────────── CUP TRACKER ─────────────────────────────────
 
@@ -98,23 +96,12 @@ public class PouringContainer : MonoBehaviour
 
         if (containerTransform == null) containerTransform = transform;
 
-        // Busca el sistema de partículas si no fue asignado.
-        if (pourParticles == null)
-        {
-            pourParticles = GetComponentInChildren<ParticleSystem>(true);
-            if (pourParticles == null)
-            {
-                Debug.LogWarning($"{name}: ParticleSystem not found.");
-            }
-        }
+
 
         // Busca el CupTracker si no está asignado.
         if (cupTracker == null)
             cupTracker = FindFirstObjectByType<CupTracker>();
 
-        pourParticles?.Stop(
-            true, ParticleSystemStopBehavior.StopEmittingAndClear
-        );
     }
 
     /// <summary>
@@ -163,6 +150,9 @@ public class PouringContainer : MonoBehaviour
         Vector3 targetPos = startPos + Vector3.up * moveHeight;
         Quaternion targetRot = Quaternion.Euler(0f, 0f, tiltAngle);
 
+        targetPos += Vector3.right * 0.19f;
+
+
         // 🔹 Animar elevación e inclinación inicial
         float animDuration = duration * 0.3f;
         t = 0f;
@@ -174,7 +164,7 @@ public class PouringContainer : MonoBehaviour
             transform.rotation = Quaternion.Slerp(startRot, targetRot, norm);
             yield return null;
         }
-
+        StartStream();
         // 🔹 Vaciar contenido progresivamente
         t = 0f;
         while (t < duration)
@@ -207,6 +197,7 @@ public class PouringContainer : MonoBehaviour
         }
 
         // 🔹 Finalizar y actualizar registro global
+        EndStream();
         currentML = 0f;
         amountText.text = "0 ml";
         Destroy(gameObject);
@@ -218,11 +209,31 @@ public class PouringContainer : MonoBehaviour
     /// <summary>
     /// Detecta clic sobre el recipiente y ejecuta vertido completo si es posible.
     /// </summary>
-    private void OnMouseDown()
+    public void OnMouseDown()
     {
         if (interactable.HasCapability(ObjectCapabilities.PourableAllOnce))
         {
             PourAllOnce(0.5f);
         }
+    }
+
+    public void StartStream()
+    {
+        currentStream = CreateStream();
+        currentStream.BeginStream();
+    }
+
+    public void EndStream()
+    {
+        currentStream.End();
+    }
+
+    /// <summary>
+    /// Calcula el ángulo actual de inclinación del recipiente.
+    /// </summary>
+    private Stream CreateStream()
+    {
+        GameObject streamObj = Instantiate(streamPrefab, origin.position, Quaternion.identity, transform);
+        return streamObj.GetComponent<Stream>();
     }
 }

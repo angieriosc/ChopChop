@@ -116,3 +116,7 @@ Assets/TextMesh Pro/Resources/Fonts & Materials/
 # === VSCode ===
 .vscode/
 .vscode/*
+
+# Ignorar fuentes de ejemplo de TextMesh Pro
+Assets/TextMesh Pro/Examples & Extras/
+Assets/TextMesh Pro/Resources/Fonts & Materials/
