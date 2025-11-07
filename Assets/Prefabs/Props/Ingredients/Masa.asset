@@ -15,7 +15,7 @@ MonoBehaviour:
   recipeName: Masa
   ingredients:
   - ingredientName: Harina
-    amountML: 333
+    amountML: 500
   - ingredientName: Levadura
     amountML: 333
   - ingredientName: Agua
