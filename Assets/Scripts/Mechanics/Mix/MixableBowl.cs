@@ -60,6 +60,9 @@ public class MixableBowl : MonoBehaviour
         isMixed = true;
         RemoveMixableCapability();
         UpdateAppearance();
+
+        interactable.capabilities |= ObjectCapabilities.Cuttable;
+
         Debug.Log($"🔄 '{bowlName}' ahora está mezclado");
     }
 
