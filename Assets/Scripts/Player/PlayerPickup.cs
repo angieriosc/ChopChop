@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -107,7 +108,13 @@ public class PlayerPickup : MonoBehaviour
         else
         {
             if (!TakeFromStation() && nearbyObject != null)
-                GrabObject(nearbyObject.gameObject);
+            {
+                float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
+                if (distance < detectionRange)
+                {
+                    GrabObject(nearbyObject.gameObject);
+                }
+            }
         }
     }
 
@@ -127,6 +134,7 @@ public class PlayerPickup : MonoBehaviour
             if (nearbyOven.PutInOven(pickedObject))
             {
                 pickedObject = null;
+                nearbyObject = null; 
                 return true;
             }
         }
@@ -170,6 +178,7 @@ public class PlayerPickup : MonoBehaviour
     /// </summary>
     private bool TakeFromStation()
     {
+        
         if (nearbyOven != null && nearbyOven.HasIngredient())
         {
             GameObject ingredient = nearbyOven.TakeFromOven();
@@ -216,8 +225,12 @@ public class PlayerPickup : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (nearbyObject != null && other.gameObject == nearbyObject.gameObject)
+        if (nearbyObject == null) return;
+        float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
+        if (distance > detectionRange)
+        {
             nearbyObject = null;
+        }
     }
 
     /// <summary>
@@ -239,8 +252,6 @@ public class PlayerPickup : MonoBehaviour
         var rb = pickedObject.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             rb.useGravity = false;
             rb.isKinematic = true;
         }
