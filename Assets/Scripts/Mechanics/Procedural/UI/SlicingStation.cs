@@ -12,6 +12,11 @@ public class SlicingStation : MonoBehaviour
     [Tooltip("Referencia al GameManager para notificar cuando se completa un corte.")]
     private GameManager gameManager;
 
+    [Header("Station Spawner")]
+    [SerializeField]
+    [Tooltip("Referencia al StationSpawner para gestionar el spawn de objetos.")]
+    private Transform itemSpawnPoint;
+
     [Header("Slice Settings")]
     [Range(2, 12)]
     [Tooltip("Cantidad de cortes que se harán al objeto.")]
@@ -33,6 +38,48 @@ public class SlicingStation : MonoBehaviour
     // {
     //     cutVisualizer = GetComponent<CutVisualizer>();
     // }
+
+    /// <summary>
+    /// Called by PlayerPickup when placing an item.
+    /// Handles swapping the bowl for the dough.
+    /// </summary>
+    /// <param name="itemFromPlayer">The object the player is holding (e.g., bowl with dough)</param>
+    /// <returns>True if the item was accepted, false otherwise</returns>
+    public bool AssignItemToStation(GameObject itemFromPlayer)
+    {
+        if (objectToCut != null)
+        {
+            Debug.LogWarning("[SlicingStation] Station is already full.");
+            return false; // Already holding an item
+        }
+        
+        // Check if the item from the player has the helper script
+        DoughContainer container = itemFromPlayer.GetComponent<DoughContainer>();
+        if (container == null || container.doughPrefabToSpawn == null)
+        {
+            Debug.LogError($"[SlicingStation] {itemFromPlayer.name} is not a valid dough container or its 'doughPrefabToSpawn' is not set.");
+            return false;
+        }
+
+        // 1. Get the spawn point (use the station's spawn point or default)
+        Transform spawnTransform = (itemSpawnPoint != null) ? itemSpawnPoint : this.transform;
+
+        // 2. Spawn the "dough-only" prefab
+        GameObject doughObject = Instantiate(
+            container.doughPrefabToSpawn,
+            spawnTransform.position,
+            spawnTransform.rotation
+        );
+
+        // 3. Assign this new dough object to be cut
+        this.objectToCut = doughObject;
+
+        // 4. Destroy the "bowl-with-dough" object the player was holding
+        Destroy(itemFromPlayer);
+
+        Debug.Log($"[SlicingStation] Assigned {doughObject.name} to be cut.");
+        return true;
+    }
 
     /// <summary>
     /// Realiza el corte del objeto actualmente asignado en la estación.
