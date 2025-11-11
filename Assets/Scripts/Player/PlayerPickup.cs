@@ -166,11 +166,21 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-        
+
         if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() &&
             interactable.HasCapability(ObjectCapabilities.Toppingable))
         {
             if (nearbyToppingStation.TryPlace(pickedObject))
+            {
+                pickedObject = null;
+                return true;
+            }
+        }
+        
+        if (nearbySlicingStation != null &&
+            interactable.HasCapability(ObjectCapabilities.Cuttable))
+        {
+            if (nearbySlicingStation.AssignItemToStation(pickedObject))
             {
                 pickedObject = null;
                 return true;

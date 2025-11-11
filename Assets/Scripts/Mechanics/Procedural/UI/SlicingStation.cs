@@ -30,6 +30,11 @@ public class SlicingStation : MonoBehaviour
     [Tooltip("Referencia al objeto actualmente asignado para cortar (asignado por InventoryUI).")]
     public GameObject objectToCut;
 
+    [Header("Container Settings")]
+    [SerializeField]
+    [Tooltip("Prefab del objeto que se usará para mostrar la masa.")]
+    private GameObject doughPrefabToSpawn;
+
     // [Header("Cut Visualizer")]
     // [Tooltip("Referencia al visualizador de cortes para mostrar efectos visuales.")]
     // private CutVisualizer cutVisualizer;
@@ -53,11 +58,9 @@ public class SlicingStation : MonoBehaviour
             return false; // Already holding an item
         }
         
-        // Check if the item from the player has the helper script
-        DoughContainer container = itemFromPlayer.GetComponent<DoughContainer>();
-        if (container == null || container.doughPrefabToSpawn == null)
+        if (doughPrefabToSpawn == null)
         {
-            Debug.LogError($"[SlicingStation] {itemFromPlayer.name} is not a valid dough container or its 'doughPrefabToSpawn' is not set.");
+            Debug.LogError("[SlicingStation] Dough prefab is not assigned.");
             return false;
         }
 
@@ -66,7 +69,7 @@ public class SlicingStation : MonoBehaviour
 
         // 2. Spawn the "dough-only" prefab
         GameObject doughObject = Instantiate(
-            container.doughPrefabToSpawn,
+            doughPrefabToSpawn,
             spawnTransform.position,
             spawnTransform.rotation
         );
