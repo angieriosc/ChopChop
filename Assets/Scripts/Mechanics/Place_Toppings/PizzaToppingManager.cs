@@ -31,6 +31,16 @@ public class PizzaToppingManager : MonoBehaviour
     public Collider PizzaSurfaceCollider { get => _pizzaSurfaceCollider; set => _pizzaSurfaceCollider = value; }
     public Transform PizzaCenter { get => _pizzaCenter; set => _pizzaCenter = value; }
 
+    [Header("Ghost Topping cursor")]
+    private GameObject _ghostInstance;
+
+    [SerializeField] private Material _ghostMaterial;
+    [SerializeField] private bool _hideSystemCursorWithGhost = false;
+
+    [SerializeField] private bool _autoToggleSystemCursor = true;
+    private bool _ghostVisible = false;
+
+
     /// <summary>Activa o desactiva el manager (se usa al entrar/salir de la estación).</summary>
     public void SetEnabled(bool value) => _enabled = value;
 
@@ -38,11 +48,41 @@ public class PizzaToppingManager : MonoBehaviour
     public void SelectToppingByIndex(int index)
     {
         if (index < 0 || index >= _toppings.Count) return;
+
         _currentToppingPrefab = _toppings[index].prefab;
+
+        if (_ghostInstance != null)
+            Destroy(_ghostInstance);
+
+        _ghostInstance = Instantiate(_currentToppingPrefab);
+        _ghostInstance.transform.localScale = Vector3.Scale(_ghostInstance.transform.localScale, _extraScale);
+        _ghostInstance.layer = LayerMask.NameToLayer("Ignore Raycast"); // no bloqueará el raycast a la pizza
+
+        if (_ghostMaterial != null)
+        {
+            foreach (var r in _ghostInstance.GetComponentsInChildren<Renderer>())
+                r.material = _ghostMaterial;
+        }
+
+        if (_hideSystemCursorWithGhost) Cursor.visible = false;
+        SetGhostVisible(false);
     }
 
+
     /// <summary>Limpia la selección actual de topping.</summary>
-    public void ClearSelection() => _currentToppingPrefab = null;
+    public void ClearSelection()
+    {
+        _currentToppingPrefab = null;
+
+        if (_ghostInstance != null)
+        {
+            Destroy(_ghostInstance);
+            _ghostInstance = null;
+        }
+
+        Cursor.visible = true;
+        _ghostVisible = false;
+    }
 
     /// <summary>
     /// Detecta el click del mouse y, si el manager está activo, intenta colocar un topping
@@ -50,11 +90,32 @@ public class PizzaToppingManager : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (!_enabled || WorkCamera == null || _currentToppingPrefab == null) return;
+        if (!_enabled || WorkCamera == null || _currentToppingPrefab == null)
+            return;
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-            TryPlaceTopping();
+        Ray ray = WorkCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+        if (PizzaSurfaceCollider.Raycast(ray, out var hit, 100f))
+        {
+            Vector3 target = hit.point + hit.normal * _surfaceYOffset;
+
+            SetGhostVisible(true);
+
+            if (_ghostInstance != null)
+            {
+                _ghostInstance.transform.position = target;
+                _ghostInstance.transform.rotation = Quaternion.LookRotation(Vector3.forward, hit.normal);
+            }
+
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+                SpawnTopping(target, hit.normal, _currentToppingPrefab);
+        }
+        else
+        {
+            SetGhostVisible(false);
+        }
     }
+
 
      // Código generado con ayuda de ChatGPT (OpenAI), adaptado para el proyecto ChopChop!
     /// <summary>
@@ -83,6 +144,29 @@ public class PizzaToppingManager : MonoBehaviour
         GameObject go = Instantiate(prefab, position, rot, PizzaRoot);
         go.transform.localScale = Vector3.Scale(go.transform.localScale, _extraScale);
     }
+
+    private void OnDisable()
+    {
+        if (_ghostInstance != null)
+        {
+            Destroy(_ghostInstance);
+            _ghostInstance = null;
+        }
+        Cursor.visible = true;
+        _ghostVisible = false;
+    }
+    private void SetGhostVisible(bool visible)
+    {
+        _ghostVisible = visible;
+
+        if (_ghostInstance != null && _ghostInstance.activeSelf != visible)
+            _ghostInstance.SetActive(visible);
+
+        if (_autoToggleSystemCursor)
+            Cursor.visible = !visible; // si el ghost está visible, oculto el cursor; si no, lo muestro
+    }
+
+
 
 }
 

@@ -68,7 +68,7 @@ public class PlayerPickup : MonoBehaviour
                 nearbyPouringStation = pouringStation;
                 pouringStationFound = true;
             }
-            ToppingStation toppingStation = col.GetComponent<ToppingStation>();
+            ToppingStation toppingStation = col.GetComponentInParent<ToppingStation>();
             if (toppingStation != null)
             {
                 nearbyToppingStation = toppingStation;
@@ -190,7 +190,9 @@ public class PlayerPickup : MonoBehaviour
             }
         }
 
-        if (nearbyToppingStation != null && nearbyToppingStation.HasPizza())
+        if (nearbyToppingStation != null &&
+            nearbyToppingStation.HasPizza() &&
+            nearbyToppingStation.IsPlayerInside())
         {
             GameObject pizza = nearbyToppingStation.TakePizza();
             if (pizza != null)

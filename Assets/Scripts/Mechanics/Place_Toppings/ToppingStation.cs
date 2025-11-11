@@ -21,10 +21,12 @@ public class ToppingStation : MonoBehaviour
     [SerializeField] private float _snapYOffset = 0.01f;
 
     // 2. Variables privadas
+    [SerializeField] private bool _playerInStation = false;
     private GameObject _currentPizza;
     private Rigidbody _rb;
     private Collider _col;
     private bool _hasPizza;
+    
 
     /// <summary>
     /// Intenta colocar la pizza en la estación. Valida que sea un objeto utilizable y la centra.
@@ -84,7 +86,11 @@ public class ToppingStation : MonoBehaviour
     /// </summary>
     public GameObject TakePizza()
     {
-        if (!_hasPizza || _currentPizza == null) return null;
+        Debug.Log(_playerInStation ? "Jugador en estación" : "Jugador NO en estación");
+        // Verificación: solo permitir sacar la pizza si el jugador está en la estación
+
+        if (!_hasPizza || _currentPizza == null)
+            return null;
 
         var root = _currentPizza.transform;
 
@@ -94,27 +100,53 @@ public class ToppingStation : MonoBehaviour
             _rb.useGravity = true;
         }
 
-        if (_col != null) _col.enabled = true;
+        if (_col != null)
+            _col.enabled = true;
 
-        root.SetParent(null, true);
+        if (_playerInStation)
+        {
+            root.SetParent(null, true);
 
-        _toppingManager.SetEnabled(false);
-        _toppingManager.WorkCamera = null;
-        _toppingManager.ClearSelection();
+            _toppingManager.SetEnabled(false);
+            _toppingManager.WorkCamera = null;
+            _toppingManager.ClearSelection();
 
-        _playerCamera.gameObject.SetActive(true);
-        _stationCamera.gameObject.SetActive(false);
-        _stationCanvas.SetActive(false);
+            _playerCamera.gameObject.SetActive(true);
+            _stationCamera.gameObject.SetActive(false);
+            _stationCanvas.SetActive(false);
 
-        _hasPizza = false;
-        _currentPizza = null;
+            _hasPizza = false;
+            _currentPizza = null;
 
-        return root.gameObject;
+            return root.gameObject;
+        }
+        return null;
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            _playerInStation = true;
+            Debug.Log("Jugador entró en la estación");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            _playerInStation = false;
+            Debug.Log("Jugador salió de la estación");
+        }
+    }
+
 
     /// <summary>Indica si la estación está libre.</summary>
     public bool IsAvailable() => !_hasPizza;
 
     /// <summary>Indica si hay una pizza actualmente en la estación.</summary>
     public bool HasPizza() => _hasPizza;
+
+    /// <summary>Indica si el  una jugador esta actualmente en la estación.</summary>
+    public bool IsPlayerInside() => _playerInStation;
 }
