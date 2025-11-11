@@ -24,8 +24,7 @@ public class PlayerPickup : MonoBehaviour
     private OvenStation nearbyOven = null;
     private MixerStation nearbyMixer = null;
     private ToppingStation nearbyToppingStation = null;
-
-
+    private SlicingStation nearbySlicingStation = null;
     private PouringStation nearbyPouringStation = null;
 
     private void Update()
@@ -46,6 +45,7 @@ public class PlayerPickup : MonoBehaviour
         bool mixerFound = false;
         bool pouringStationFound = false;
         bool toppingStationFound = false;
+        bool slicingStationFound = false;
 
         foreach (var col in nearbyColliders)
         {
@@ -69,6 +69,7 @@ public class PlayerPickup : MonoBehaviour
                 nearbyPouringStation = pouringStation;
                 pouringStationFound = true;
             }
+
             ToppingStation toppingStation = col.GetComponent<ToppingStation>();
             if (toppingStation != null)
             {
@@ -76,12 +77,19 @@ public class PlayerPickup : MonoBehaviour
                 toppingStationFound = true;
             }
 
+            SlicingStation slicingStation = col.GetComponent<SlicingStation>();
+            if (slicingStation != null)
+            {
+                nearbySlicingStation = slicingStation;
+                slicingStationFound = true;
+            }
         }
 
         if (!ovenFound) nearbyOven = null;
         if (!mixerFound) nearbyMixer = null;
         if (!pouringStationFound) nearbyPouringStation = null;
         if (!toppingStationFound) nearbyToppingStation = null;
+        if (!slicingStationFound) nearbySlicingStation = null;
     }
 
     /// <summary>
