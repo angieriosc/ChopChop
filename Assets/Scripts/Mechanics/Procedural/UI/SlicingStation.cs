@@ -71,6 +71,20 @@ public class SlicingStation : MonoBehaviour
     [Tooltip("Referencia al objeto actualmente asignado para cortar.")]
     public GameObject objectToCut;
 
+    private void Awake()
+    {
+        // Si no están asignados manualmente en el inspector, los buscamos automáticamente
+
+        if (playerMovement == null)
+            playerMovement = FindFirstObjectByType<PlayerMovement>();
+
+        if (cameraFollow == null)
+            cameraFollow = FindFirstObjectByType<FollowPlayer>();
+
+        if (cameraController == null)
+            cameraController = FindFirstObjectByType<CameraController>();
+    }
+
     /// <summary>
     /// Revisa si el jugador presiona la tecla de salida mientras está bloqueado.
     /// </summary>
