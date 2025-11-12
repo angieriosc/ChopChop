@@ -840,12 +840,9 @@ MonoBehaviour:
   sliceControlsPanel: {fileID: 0}
   playerMovement: {fileID: 0}
   cameraFollow: {fileID: 0}
-  playerPickup: {fileID: 0}
   stationCamera: {fileID: 900065974053967401}
   cameraController: {fileID: 0}
-  enterKey: 101
   exitKey: 113
-  playerTag: Player
   sliceCount: 4
   cutUpAxis: {x: 0, y: 1, z: 0}
   objectToCut: {fileID: 0}
@@ -1268,7 +1265,7 @@ Transform:
   m_GameObject: {fileID: 6409741024132466087}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.42788005, y: 0.58, z: -0.017130852}
+  m_LocalPosition: {x: -0.42788005, y: 0.682, z: -0.017130852}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2253,7 +2250,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9a889ed7699c343d5b51f2791991276b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3348408246982247907}
+      addedObject: {fileID: 8886759913984343038}
   m_SourcePrefab: {fileID: 100100000, guid: 9a889ed7699c343d5b51f2791991276b, type: 3}
 --- !u!4 &2660416602253514254 stripped
 Transform:
@@ -2265,8 +2262,8 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9a889ed7699c343d5b51f2791991276b, type: 3}
   m_PrefabInstance: {fileID: 2549331717251019237}
   m_PrefabAsset: {fileID: 0}
---- !u!65 &3348408246982247907
-BoxCollider:
+--- !u!64 &8886759913984343038
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2283,6 +2280,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
