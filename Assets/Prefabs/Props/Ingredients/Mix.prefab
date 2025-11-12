@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ebcba29a97da024aba12d5ccef12f83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  capabilities: 39
+  capabilities: 35
 --- !u!114 &7495961494590235437
 MonoBehaviour:
   m_ObjectHideFlags: 0
