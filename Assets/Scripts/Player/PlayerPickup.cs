@@ -28,6 +28,8 @@ public class PlayerPickup : MonoBehaviour
 
     private PouringStation nearbyPouringStation = null;
 
+    private BowlStation nearbyBowlStation = null;
+
     private void Update()
     {
         DetectNearbyStations();
@@ -46,6 +48,7 @@ public class PlayerPickup : MonoBehaviour
         bool mixerFound = false;
         bool pouringStationFound = false;
         bool toppingStationFound = false;
+        bool bowlStationFound = false;
 
         foreach (var col in nearbyColliders)
         {
@@ -75,6 +78,12 @@ public class PlayerPickup : MonoBehaviour
                 nearbyToppingStation = toppingStation;
                 toppingStationFound = true;
             }
+            BowlStation bowlStation = col.GetComponent<BowlStation>();
+            if (bowlStation != null)
+            {
+                nearbyBowlStation = bowlStation;
+                bowlStationFound = true;
+            }
 
         }
 
@@ -82,6 +91,7 @@ public class PlayerPickup : MonoBehaviour
         if (!mixerFound) nearbyMixer = null;
         if (!pouringStationFound) nearbyPouringStation = null;
         if (!toppingStationFound) nearbyToppingStation = null;
+        if (!bowlStationFound) nearbyBowlStation = null;
     }
 
     /// <summary>
@@ -205,6 +215,16 @@ public class PlayerPickup : MonoBehaviour
             if (pizza != null)
             {
                 GrabObject(pizza);
+                return true;
+            }
+        }
+
+        if (nearbyBowlStation != null && pickedObject == null)
+        {
+            GameObject bowl = nearbyBowlStation.TrySpawnBowl();
+            if (bowl != null)
+            {
+                GrabObject(bowl);
                 return true;
             }
         }
