@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1109075255459101663}
   - component: {fileID: -4259884580618170620}
   - component: {fileID: 8274391526924070541}
+  - component: {fileID: 8340568068761603898}
   m_Layer: 0
   m_Name: wedge
   m_TagString: Untagged
@@ -137,3 +138,16 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -5755851932433107301, guid: 1521438948f9d92439cdc4202b6a6ef0, type: 3}
+--- !u!114 &8340568068761603898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5670257119428399006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abb44d14e365841d29f88dfdd8c6cdaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliceResultPrefab: {fileID: 5670257119428399006, guid: f95cab103837c4ea3a1d15d7528d6031, type: 3}

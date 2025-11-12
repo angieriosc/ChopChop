@@ -55,6 +55,9 @@ public class SlicingStation : MonoBehaviour
     // Objeto original (ej. el bowl) que el jugador entregó.
     private GameObject originalBowlObject;
 
+    // Referencia a los datos del item para el inventario
+    private CuttableItemData currentItemData; // <--- MODIFICACIÓN: Variable para guardar los datos del item
+
     [Header("Slice Settings")]
     [Range(2, 12)]
     [Tooltip("Cantidad de cortes que se harán al objeto.")]
@@ -92,7 +95,7 @@ public class SlicingStation : MonoBehaviour
         if (IsAvailable())
         {
             LockPlayer();
-            // TODO: Abrir el inventario de la estación aquí
+            // TODO: Aquí deberías mostrar la UI que lea de CuttingInventory.Instance // <--- MODIFICACIÓN (Comentario)
         }
     }
 
@@ -107,6 +110,23 @@ public class SlicingStation : MonoBehaviour
             Debug.LogWarning("[SlicingStation] La estación ya está llena.");
             return false;
         }
+
+        // --- INICIO: Integración Inventario ---
+        // 1. Guardamos los datos del item que nos están entregando
+        this.currentItemData = itemFromPlayer.GetComponent<CuttableItemData>();
+        
+        if (this.currentItemData == null)
+        {
+            Debug.LogError($"[SlicingStation] El objeto '{itemFromPlayer.name}' no tiene el script 'CuttableItemData'. No se podrán guardar las rebanadas.", itemFromPlayer);
+            // Opcional: podrías decidir no aceptar el item si no tiene este script
+            // return false; 
+        }
+        else if (this.currentItemData.sliceResultPrefab == null)
+        {
+            Debug.LogError($"[SlicingStation] 'CuttableItemData' en '{itemFromPlayer.name}' no tiene un 'sliceResultPrefab' asignado.", itemFromPlayer);
+        }
+        // --- FIN: Integración Inventario ---
+
 
         if (doughPrefabToSpawn == null)
         {
@@ -181,6 +201,32 @@ public class SlicingStation : MonoBehaviour
             gameManager.OnCutComplete(originalObject, newPieces, newPieces.Count, this);
         }
 
+        // --- INICIO: Integración Inventario ---
+        // 2. Añadimos las rebanadas al inventario
+        if (currentItemData != null && currentItemData.sliceResultPrefab != null)
+        {
+            if (CuttingInventory.Instance != null)
+            {
+                // Usamos el nombre del prefab de la rebanada como clave
+                string key = currentItemData.sliceResultPrefab.name;
+                GameObject prefab = currentItemData.sliceResultPrefab;
+                // Usamos newPieces.Count en lugar de sliceCount por si falló la creación de alguna pieza
+                int amount = newPieces.Count; 
+                
+                CuttingInventory.Instance.AddSlices(key, prefab, amount);
+            }
+            else
+            {
+                Debug.LogWarning("[SlicingStation] CuttingInventory.Instance no encontrado. No se pudo añadir al inventario.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[SlicingStation] No se encontró 'currentItemData' o 'sliceResultPrefab'. Las rebanadas no se guardaron en el inventario.");
+        }
+        // --- FIN: Integración Inventario ---
+
+
         Destroy(originalObject); // Destruye la masa
         objectToCut = null;
 
@@ -189,6 +235,9 @@ public class SlicingStation : MonoBehaviour
             Destroy(originalBowlObject);
             originalBowlObject = null;
         }
+
+        // 3. Limpiamos la referencia para la próxima interacción
+        currentItemData = null; // <--- MODIFICACIÓN
     }
 
     /// <summary>
@@ -258,6 +307,9 @@ public class SlicingStation : MonoBehaviour
                 }
                 originalBowlObject = null;
             }
+
+            // 3. Limpiamos la referencia si el jugador cancela
+            currentItemData = null; // <--- MODIFICACIÓN
         }
 
         if (!playerLocked) return;
@@ -278,7 +330,7 @@ public class SlicingStation : MonoBehaviour
             gameManager.ResetBoard();
         }
 
-        // TODO: Cerrar el inventario de la estación aquí
+        // TODO: Aquí deberías ocultar la UI del inventario // <--- MODIFICACIÓN (Comentario)
     }
 
     /// <summary>

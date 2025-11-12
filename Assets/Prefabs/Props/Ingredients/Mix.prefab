@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2433822215628644663}
   - component: {fileID: 3828835878281043784}
   - component: {fileID: 7495961494590235437}
+  - component: {fileID: -5531966767028649919}
   m_Layer: 0
   m_Name: Mix
   m_TagString: Untagged
@@ -125,6 +126,19 @@ MonoBehaviour:
   unmixedColor: {r: 0.9, g: 0.9, b: 0.8, a: 1}
   mixedColor: {r: 0.95, g: 0.85, b: 0.7, a: 1}
   bubblesEffect: {fileID: 0}
+--- !u!114 &-5531966767028649919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6495452903966164578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abb44d14e365841d29f88dfdd8c6cdaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliceResultPrefab: {fileID: 5670257119428399006, guid: f95cab103837c4ea3a1d15d7528d6031, type: 3}
 --- !u!1001 &3784602370603844535
 PrefabInstance:
   m_ObjectHideFlags: 0
