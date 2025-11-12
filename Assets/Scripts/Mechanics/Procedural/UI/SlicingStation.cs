@@ -1,4 +1,4 @@
-using System.Collections; // ¡ASEGÚRATE DE AGREGAR ESTO!
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,10 +35,6 @@ public class SlicingStation : MonoBehaviour
     [SerializeField]
     [Tooltip("Script que hace que la cámara siga al jugador.")]
     private FollowPlayer cameraFollow;
-
-    [SerializeField]
-    [Tooltip("Referencia al script de pickup del jugador.")]
-    private PlayerPickup playerPickup;
     
     [SerializeField]
     [Tooltip("Cámara que se activa al usar esta estación.")]
@@ -51,16 +47,8 @@ public class SlicingStation : MonoBehaviour
     private Camera previousCamera;
 
     [SerializeField]
-    [Tooltip("Tecla para entrar a la estación (debe coincidir con grabKey del jugador).")]
-    private KeyCode enterKey = KeyCode.E;
-
-    [SerializeField]
     [Tooltip("Tecla para salir de la estación.")]
     private KeyCode exitKey = KeyCode.Q;
-
-    [SerializeField]
-    [Tooltip("Tag del GameObject del jugador.")]
-    private string playerTag = "Player";
 
     private bool playerLocked;
     
@@ -92,30 +80,21 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Revisa si el jugador está cerca e intenta entrar con manos vacías.
-    /// </summary>
-    private void OnTriggerStay(Collider other)
-    {
-        if (!playerLocked && other.CompareTag(playerTag) && Input.GetKeyDown(enterKey))
-        {
-            if (playerPickup == null)
-            {
-                Debug.LogError("SlicingStation no tiene referencia a PlayerPickup.");
-                return;
-            }
-
-            if (!playerPickup.HasObjectInHand() && IsAvailable())
-            {
-                LockPlayer();
-                // TODO: Abrir el inventario de la estación aquí
-            }
-        }
-    }
-
-    /// <summary>
     /// Verifica si la estación está disponible (no tiene un objeto).
     /// </summary>
     public bool IsAvailable() => objectToCut == null;
+
+    /// <summary>
+    /// Llamado por PlayerPickup para entrar a la estación con manos vacías.
+    /// </summary>
+    public void EnterStation()
+    {
+        if (IsAvailable())
+        {
+            LockPlayer();
+            // TODO: Abrir el inventario de la estación aquí
+        }
+    }
 
     /// <summary>
     /// Llamado por PlayerPickup al colocar un item.
@@ -269,9 +248,14 @@ public class SlicingStation : MonoBehaviour
 
             // Llama a la corutina para devolver el objeto en el siguiente frame,
             // evitando el conflicto de 'Q'.
-            if (originalBowlObject != null && playerPickup != null)
+            if (originalBowlObject != null)
             {
-                StartCoroutine(ReturnObjectToPlayerNextFrame(originalBowlObject));
+                // Busca el PlayerPickup en la escena
+                PlayerPickup pickup = FindObjectOfType<PlayerPickup>();
+                if(pickup != null)
+                {
+                    StartCoroutine(ReturnObjectToPlayerNextFrame(originalBowlObject, pickup));
+                }
                 originalBowlObject = null;
             }
         }
@@ -301,7 +285,7 @@ public class SlicingStation : MonoBehaviour
     /// Espera un frame antes de devolver el objeto al jugador.
     /// Esto evita el conflicto de input de 'soltar' (Q) y 'salir' (Q).
     /// </summary>
-    private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn)
+    private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn, PlayerPickup playerPickup)
     {
         // Espera un frame
         yield return null;

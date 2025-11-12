@@ -189,7 +189,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: wedge
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4363228446146830891, guid: 774604482d2ab4887a43acc713c577a2, type: 3}
+    - {fileID: -4259884580618170620, guid: 774604482d2ab4887a43acc713c577a2, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -82,8 +82,6 @@ public class InventoryUI : MonoBehaviour
             spawnPoint.rotation
         );
 
-        currentSpawnedIngredient.layer = LayerMask.NameToLayer("CuttableFood");
-
         slicingStation.objectToCut = currentSpawnedIngredient;
         currentSelectedIndex = index;
     }

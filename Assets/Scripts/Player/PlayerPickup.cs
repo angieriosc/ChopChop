@@ -25,8 +25,7 @@ public class PlayerPickup : MonoBehaviour
     private MixerStation nearbyMixer = null;
     private ToppingStation nearbyToppingStation = null;
     private PouringStation nearbyPouringStation = null;
-    private SlicingStation nearbySlicingStation = null;
-
+    private SlicingStation nearbySlicingStation = null; // Re-añadido
 
     private void Update()
     {
@@ -46,7 +45,7 @@ public class PlayerPickup : MonoBehaviour
         bool mixerFound = false;
         bool pouringStationFound = false;
         bool toppingStationFound = false;
-        bool slicingStationFound = false;
+        bool slicingStationFound = false; // Re-añadido
 
         foreach (var col in nearbyColliders)
         {
@@ -76,21 +75,22 @@ public class PlayerPickup : MonoBehaviour
                 nearbyToppingStation = toppingStation;
                 toppingStationFound = true;
             }
-
+            
+            // --- LÓGICA RE-AÑADIDA ---
             SlicingStation slicer = col.GetComponent<SlicingStation>();
             if (slicer != null)
             {
                 nearbySlicingStation = slicer;
                 slicingStationFound = true;
             }
-
+            // --- FIN ---
         }
 
         if (!ovenFound) nearbyOven = null;
         if (!mixerFound) nearbyMixer = null;
         if (!pouringStationFound) nearbyPouringStation = null;
         if (!toppingStationFound) nearbyToppingStation = null;
-        if (!slicingStationFound) nearbySlicingStation = null;
+        if (!slicingStationFound) nearbySlicingStation = null; // Re-añadido
     }
 
     /// <summary>
@@ -111,12 +111,29 @@ public class PlayerPickup : MonoBehaviour
 
         if (pickedObject != null)
         {
+            // 1. Mano llena: Intenta colocar en estación
             if (!PlaceInStation())
                 Debug.Log("💡 No nearby station or can't place this object.");
         }
         else
         {
-            if (!TakeFromStation() && nearbyObject != null)
+            // 2. Mano vacía: Intenta tomar de estación
+            if (TakeFromStation())
+            {
+                return; // Salió con éxito
+            }
+            
+            // --- LÓGICA MODIFICADA ---
+            // 3. Mano vacía: Intenta entrar a Slicing Station
+            if (nearbySlicingStation != null && nearbySlicingStation.IsAvailable())
+            {
+                nearbySlicingStation.EnterStation(); // Llama al nuevo método
+                return;
+            }
+            // --- FIN ---
+
+            // 4. Mano vacía: Intenta agarrar objeto del mundo
+            if (nearbyObject != null)
             {
                 float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
                 if (distance < detectionRange)
@@ -177,7 +194,8 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-
+        
+        // --- LÓGICA RE-AÑADIDA ---
         if (nearbySlicingStation != null &&
             interactable.HasCapability(ObjectCapabilities.Cuttable))
         {
@@ -187,7 +205,7 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-
+        // --- FIN ---
 
         return false;
     }
@@ -227,7 +245,6 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-
 
         return false;
     }
