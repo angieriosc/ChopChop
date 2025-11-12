@@ -11,7 +11,7 @@ public class BowlStation : MonoBehaviour
     private float lastSpawnTime;
     private int currentBowls;
 
-    private bool hasABowl = false;
+    public GameObject actualBowl;
 
     private void Start()
     {
@@ -34,28 +34,22 @@ public class BowlStation : MonoBehaviour
         newBowl.name = "Bowl_" + currentBowls;
         currentBowls++;
         lastSpawnTime = Time.time;
-        hasABowl = true;
+        actualBowl = newBowl;
     }
 
 
-    public GameObject TrySpawnBowl()
+    public void  TrySpawnBowl()
     {
-        if (Time.time - lastSpawnTime < spawnCooldown)
-        {
-            Debug.Log("⏳ Espera antes de generar otro bowl.");
-            return null;
-        }
-
-        if (currentBowls >= maxBowls)
+        if (currentBowls >= maxBowls || actualBowl!=null)
         {
             Debug.Log("🚫 Límite de bowls alcanzado.");
-            return null;
+            return;
         }
 
         if (bowlPrefab == null || spawnPoint == null)
         {
             Debug.LogError("❌ Falta asignar el prefab o spawn point.");
-            return null;
+            return;
         }
 
         GameObject newBowl = Instantiate(
@@ -72,7 +66,7 @@ public class BowlStation : MonoBehaviour
         currentBowls++;
         lastSpawnTime = Time.time;
 
-        return newBowl;
+        actualBowl = newBowl;
     }
 
     public void OnBowlTaken()
