@@ -1,10 +1,12 @@
+using System.Collections; // ¡ASEGÚRATE DE AGREGAR ESTO!
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Estación de corte que realiza el slicing en el objeto que se le asigne.
+/// También maneja el bloqueo del jugador y la interacción de entrada/salida.
 /// </summary>
-[RequireComponent(typeof(BoxCollider))] 
+[RequireComponent(typeof(BoxCollider))]
 public class SlicingStation : MonoBehaviour
 {
     [Header("Game Manager")]
@@ -12,10 +14,58 @@ public class SlicingStation : MonoBehaviour
     [Tooltip("Referencia al GameManager para notificar cuando se completa un corte.")]
     private GameManager gameManager;
 
-    [Header("Station Spawner")]
+    [Header("Spawning")]
     [SerializeField]
-    [Tooltip("Referencia al StationSpawner para gestionar el spawn de objetos.")]
+    [Tooltip("Punto en la escena donde se generará el ingrediente.")]
     private Transform itemSpawnPoint;
+
+    [SerializeField]
+    [Tooltip("Prefab de 'solo masa' que se genera cuando se coloca el bowl.")]
+    private GameObject doughPrefabToSpawn;
+
+    [Header("Player, UI & Camera")]
+    [SerializeField]
+    [Tooltip("Panel de UI con los controles de corte.")]
+    private GameObject sliceControlsPanel;
+
+    [SerializeField]
+    [Tooltip("Script de movimiento del jugador.")]
+    private PlayerMovement playerMovement;
+
+    [SerializeField]
+    [Tooltip("Script que hace que la cámara siga al jugador.")]
+    private FollowPlayer cameraFollow;
+
+    [SerializeField]
+    [Tooltip("Referencia al script de pickup del jugador.")]
+    private PlayerPickup playerPickup;
+    
+    [SerializeField]
+    [Tooltip("Cámara que se activa al usar esta estación.")]
+    private Camera stationCamera;
+
+    [SerializeField]
+    [Tooltip("Controlador central de cámaras (usualmente en el Player).")]
+    private CameraController cameraController;
+
+    private Camera previousCamera;
+
+    [SerializeField]
+    [Tooltip("Tecla para entrar a la estación (debe coincidir con grabKey del jugador).")]
+    private KeyCode enterKey = KeyCode.E;
+
+    [SerializeField]
+    [Tooltip("Tecla para salir de la estación.")]
+    private KeyCode exitKey = KeyCode.Q;
+
+    [SerializeField]
+    [Tooltip("Tag del GameObject del jugador.")]
+    private string playerTag = "Player";
+
+    private bool playerLocked;
+    
+    // Objeto original (ej. el bowl) que el jugador entregó.
+    private GameObject originalBowlObject;
 
     [Header("Slice Settings")]
     [Range(2, 12)]
@@ -27,60 +77,78 @@ public class SlicingStation : MonoBehaviour
     public Vector3 cutUpAxis = Vector3.up;
 
     [Header("Object to Cut")]
-    [Tooltip("Referencia al objeto actualmente asignado para cortar (asignado por InventoryUI).")]
+    [Tooltip("Referencia al objeto actualmente asignado para cortar.")]
     public GameObject objectToCut;
 
-    [Header("Container Settings")]
-    [SerializeField]
-    [Tooltip("Prefab del objeto que se usará para mostrar la masa.")]
-    private GameObject doughPrefabToSpawn;
-
-    // [Header("Cut Visualizer")]
-    // [Tooltip("Referencia al visualizador de cortes para mostrar efectos visuales.")]
-    // private CutVisualizer cutVisualizer;
-
-    // private void Start()
-    // {
-    //     cutVisualizer = GetComponent<CutVisualizer>();
-    // }
+    /// <summary>
+    /// Revisa si el jugador presiona la tecla de salida mientras está bloqueado.
+    /// </summary>
+    private void Update()
+    {
+        if (playerLocked && Input.GetKeyDown(exitKey))
+        {
+            UnlockPlayer();
+        }
+    }
 
     /// <summary>
-    /// Called by PlayerPickup when placing an item.
-    /// Handles swapping the bowl for the dough.
+    /// Revisa si el jugador está cerca e intenta entrar con manos vacías.
     /// </summary>
-    /// <param name="itemFromPlayer">The object the player is holding (e.g., bowl with dough)</param>
-    /// <returns>True if the item was accepted, false otherwise</returns>
+    private void OnTriggerStay(Collider other)
+    {
+        if (!playerLocked && other.CompareTag(playerTag) && Input.GetKeyDown(enterKey))
+        {
+            if (playerPickup == null)
+            {
+                Debug.LogError("SlicingStation no tiene referencia a PlayerPickup.");
+                return;
+            }
+
+            if (!playerPickup.HasObjectInHand() && IsAvailable())
+            {
+                LockPlayer();
+                // TODO: Abrir el inventario de la estación aquí
+            }
+        }
+    }
+
+    /// <summary>
+    /// Verifica si la estación está disponible (no tiene un objeto).
+    /// </summary>
+    public bool IsAvailable() => objectToCut == null;
+
+    /// <summary>
+    /// Llamado por PlayerPickup al colocar un item.
+    /// Intercambia el bowl por la masa y bloquea al jugador.
+    /// </summary>
     public bool AssignItemToStation(GameObject itemFromPlayer)
     {
         if (objectToCut != null)
         {
-            Debug.LogWarning("[SlicingStation] Station is already full.");
-            return false; // Already holding an item
-        }
-        
-        if (doughPrefabToSpawn == null)
-        {
-            Debug.LogError("[SlicingStation] Dough prefab is not assigned.");
+            Debug.LogWarning("[SlicingStation] La estación ya está llena.");
             return false;
         }
 
-        // 1. Get the spawn point (use the station's spawn point or default)
+        if (doughPrefabToSpawn == null)
+        {
+            Debug.LogError("[SlicingStation] 'doughPrefabToSpawn' no está asignado.");
+            return false;
+        }
+
         Transform spawnTransform = (itemSpawnPoint != null) ? itemSpawnPoint : this.transform;
 
-        // 2. Spawn the "dough-only" prefab
         GameObject doughObject = Instantiate(
             doughPrefabToSpawn,
             spawnTransform.position,
             spawnTransform.rotation
         );
 
-        // 3. Assign this new dough object to be cut
         this.objectToCut = doughObject;
+        
+        this.originalBowlObject = itemFromPlayer;
+        this.originalBowlObject.SetActive(false);
 
-        // 4. Destroy the "bowl-with-dough" object the player was holding
-        Destroy(itemFromPlayer);
-
-        Debug.Log($"[SlicingStation] Assigned {doughObject.name} to be cut.");
+        LockPlayer();
         return true;
     }
 
@@ -95,18 +163,12 @@ public class SlicingStation : MonoBehaviour
             return;
         }
 
-        // if (cutVisualizer != null)
-        // {
-        //     cutVisualizer.HideHologram();
-        // }
-
-        GameObject originalObject = objectToCut;
-
+        GameObject originalObject = objectToCut; // Esto es la masa (doughObject)
         MeshFilter meshFilter = originalObject.GetComponentInChildren<MeshFilter>();
 
         if (meshFilter == null)
         {
-            Debug.LogError($"[SlicingStation] No se encontró un MeshFilter en '{originalObject.name}' o sus hijos. No se puede cortar.");
+            Debug.LogError($"[SlicingStation] No se encontró MeshFilter en '{originalObject.name}'.");
             return;
         }
 
@@ -114,7 +176,7 @@ public class SlicingStation : MonoBehaviour
         MeshRenderer originalRenderer = meshFilter.GetComponent<MeshRenderer>();
         if (originalRenderer == null)
         {
-            Debug.LogError($"[SlicingStation] El objeto '{meshFilter.gameObject.name}' tiene un MeshFilter pero no un MeshRenderer. No se puede cortar.");
+            Debug.LogError($"[SlicingStation] '{meshFilter.gameObject.name}' no tiene MeshRenderer.");
             return;
         }
         
@@ -137,11 +199,17 @@ public class SlicingStation : MonoBehaviour
         
         if (gameManager != null)
         {
-            gameManager.OnCutComplete(originalObject, newPieces, newPieces.Count);
+            gameManager.OnCutComplete(originalObject, newPieces, newPieces.Count, this);
         }
 
-        Destroy(originalObject);
+        Destroy(originalObject); // Destruye la masa
         objectToCut = null;
+
+        if (originalBowlObject != null)
+        {
+            Destroy(originalBowlObject);
+            originalBowlObject = null;
+        }
     }
 
     /// <summary>
@@ -150,24 +218,103 @@ public class SlicingStation : MonoBehaviour
     private GameObject CreateSliceGameObject(Mesh sliceMesh, Material[] materials, Transform originalTransform)
     {
         if (sliceMesh.vertexCount == 0) return null;
-
         GameObject slice = new GameObject($"Slice");
-        
         slice.transform.position = originalTransform.position;
         slice.transform.rotation = originalTransform.rotation;
         slice.transform.localScale = originalTransform.localScale;
-
         slice.AddComponent<MeshFilter>().mesh = sliceMesh;
         slice.AddComponent<MeshRenderer>().materials = materials;
-        
         var collider = slice.AddComponent<MeshCollider>();
         collider.convex = true;
-        
         var rb = slice.AddComponent<Rigidbody>();
         rb.isKinematic = true;
-        
         slice.AddComponent<EnablePhysicsDelay>();
-
         return slice; 
+    }
+
+    /// <summary>
+    /// Bloquea el movimiento del jugador, muestra UI y cambia la cámara.
+    /// </summary>
+    public void LockPlayer()
+    {
+        if (playerLocked) return;
+        playerLocked = true;
+
+        if (sliceControlsPanel != null) sliceControlsPanel.SetActive(true);
+
+        if (playerMovement != null) playerMovement.enabled = false;
+        if (cameraFollow != null) cameraFollow.enabled = false;
+
+        if (cameraController != null && stationCamera != null)
+        {
+            previousCamera = cameraController.GetActiveCamera();
+            cameraController.ActivateCamera(stationCamera);
+        }
+    }
+
+    /// <summary>
+    /// Desbloquea al jugador, oculta UI y restaura la cámara.
+    /// </summary>
+    public void UnlockPlayer()
+    {
+        // Si el jugador sale (presionando Q) ANTES de cortar,
+        // 'objectToCut' (la masa) todavía existirá.
+        if (objectToCut != null)
+        {
+            Debug.Log("Corte cancelado. Devolviendo el objeto original.");
+            
+            // Destruye la masa que se generó
+            Destroy(objectToCut);
+            objectToCut = null;
+
+            // Llama a la corutina para devolver el objeto en el siguiente frame,
+            // evitando el conflicto de 'Q'.
+            if (originalBowlObject != null && playerPickup != null)
+            {
+                StartCoroutine(ReturnObjectToPlayerNextFrame(originalBowlObject));
+                originalBowlObject = null;
+            }
+        }
+
+        if (!playerLocked) return;
+        playerLocked = false;
+
+        if (sliceControlsPanel != null) sliceControlsPanel.SetActive(false);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        if (cameraFollow != null) cameraFollow.enabled = true;
+
+        if (cameraController != null && previousCamera != null)
+        {
+            cameraController.ActivateCamera(previousCamera);
+        }
+        
+        if (gameManager != null)
+        {
+            gameManager.ResetBoard();
+        }
+
+        // TODO: Cerrar el inventario de la estación aquí
+    }
+
+    /// <summary>
+    /// Espera un frame antes de devolver el objeto al jugador.
+    /// Esto evita el conflicto de input de 'soltar' (Q) y 'salir' (Q).
+    /// </summary>
+    private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn)
+    {
+        // Espera un frame
+        yield return null;
+
+        if (objectToReturn != null && playerPickup != null)
+        {
+            objectToReturn.SetActive(true);
+            playerPickup.GrabObject(objectToReturn);
+        }
+        else if (objectToReturn != null)
+        {
+            // Fallback por si playerPickup es null, simplemente reactívalo
+            objectToReturn.SetActive(true);
+        }
     }
 }

@@ -5,34 +5,20 @@ using UnityEngine;
 using TMPro;
 
 /// <summary>
-/// Administrador principal del juego que controla las tareas de corte de ingredientes.
+/// Administrador principal del juego.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    [Header("Task List")]
-    [SerializeField]
-    [Tooltip("Lista de tareas de corte que el jugador debe completar.")]
-    private List<SliceTask> tasks;
-
     [Header("Scene References")]
     [SerializeField]
-    [Tooltip("Referencia al TextMeshProUGUI que muestra la información de la tarea actual.")]
+    [Tooltip("Referencia al TextMeshProUGUI que muestra la información.")]
     private TextMeshProUGUI taskText;
 
     [SerializeField]
     [Tooltip("UI RawImage that displays the task image.")]
     private RawImage taskImageDisplay;
 
-
-    /// <summary>
-    /// Índice de la tarea actual en la lista de tareas.
-    /// </summary>
-    private int currentTaskIndex = -1;
-
-    /// <summary>
-    /// Referencia a la tarea actual.
-    /// </summary>
-    private SliceTask currentTask;
+    private SlicingStation currentSlicingStation;
 
     /// <summary>
     /// Lista de piezas generadas en el corte actual.
@@ -40,85 +26,84 @@ public class GameManager : MonoBehaviour
     private List<GameObject> currentCutPieces = new List<GameObject>();
 
     /// <summary>
-    /// Inicializa el juego y comienza la primera tarea.
+    /// Inicializa el juego y muestra un mensaje de bienvenida.
     /// </summary>
     void Start()
     {
-        GoToNextTask();
-    }
-
-    /// <summary>
-    /// Avanza a la siguiente tarea, limpia el tablero y actualiza el texto.
-    /// </summary>
-    private void GoToNextTask()
-    {
-        ClearBoard();
-
-        currentTaskIndex++;
-        if (currentTaskIndex >= tasks.Count)
+        if (taskText != null)
         {
-            taskText.text = "All tasks complete!";
-            if (taskImageDisplay != null)
-                taskImageDisplay.texture = null;
-            return;
+            taskText.text = "Place an item on the station to cut.";
         }
-
-        currentTask = tasks[currentTaskIndex];
-        taskText.text = $"{currentTask.taskName} x{currentTask.requiredSlices}";
 
         if (taskImageDisplay != null)
-            taskImageDisplay.texture = currentTask.taskTexture;
+        {
+            taskImageDisplay.gameObject.SetActive(false);
+        }
     }
 
-
+    /// <summary>
+    /// --- GoToNextTask() method is no longer needed and has been REMOVED ---
+    /// </summary>
+    
     /// <summary>
     /// Llamado cuando un objeto ha sido cortado.
-    /// Evalúa si el corte fue correcto según la tarea actual.
+    /// Acepta CUALQUIER corte, lo reporta y reinicia el tablero.
     /// </summary>
-    /// <param name="originalCutObject">Objeto original que se cortó.</param>
-    /// <param name="pieces">Lista de piezas resultantes del corte.</param>
-    /// <param name="pieceCount">Cantidad de piezas resultantes.</param>
-    public void OnCutComplete(GameObject originalCutObject, List<GameObject> pieces, int pieceCount)
+    public void OnCutComplete(GameObject originalCutObject, List<GameObject> pieces, int pieceCount, SlicingStation station)
     {
+
+        this.currentSlicingStation = station;
         currentCutPieces = pieces;
-
-        bool correctItem = originalCutObject.name.StartsWith(currentTask.ingredientPrefab.name);
-        bool correctCount = (pieceCount == currentTask.requiredSlices);
-
-        if (correctItem && correctCount)
+        
+        if (taskText != null)
         {
-            taskText.text = "Success!";
-            StartCoroutine(HandleSuccess());
+            taskText.text = $"Success! You cut {pieceCount} pieces.";
         }
-        else
-        {
-            string failureReason = "";
-            if (!correctItem) failureReason = $"That wasn't the right item!";
-            else if (!correctCount) failureReason = $"Oops! That's {pieceCount} pieces.";
 
-            taskText.text = failureReason;
-            StartCoroutine(HandleFailure());
-        }
+        // We can reuse one of the coroutines to handle the reset
+        StartCoroutine(ResetAfterCut());
     }
 
     /// <summary>
-    /// Coroutine que maneja el éxito del corte, espera un tiempo y avanza a la siguiente tarea.
+    /// --- HandleSuccess() method is no longer needed and has been REMOVED ---
     /// </summary>
-    private IEnumerator HandleSuccess()
-    {
-        yield return new WaitForSeconds(2.0f);
-        GoToNextTask();
-    }
 
     /// <summary>
-    /// Coroutine que maneja un corte incorrecto, espera un tiempo y restablece el tablero.
+    /// Coroutine that handles resetting the board after a cut.
+    /// (Renamed from HandleFailure)
     /// </summary>
-    private IEnumerator HandleFailure()
+    private IEnumerator ResetAfterCut()
     {
+        // Wait for 2 seconds to show the message
         yield return new WaitForSeconds(2.0f);
+
+        if (currentSlicingStation != null)
+        {
+            currentSlicingStation.UnlockPlayer();
+            currentSlicingStation = null;
+        }
+
+        // Clear the pieces
         ClearBoard();
 
-        taskText.text = $"Task: Cut the {currentTask.taskName} into {currentTask.requiredSlices} pieces.";
+        // Reset the text
+        if (taskText != null)
+        {
+            taskText.text = "Place an item on the station to cut.";
+        }
+    }
+    
+    /// <summary>
+    /// Resets the text and clears all cut pieces from the board.
+    /// </summary>
+    public void ResetBoard()
+    {
+        ClearBoard();
+
+        if (taskText != null)
+        {
+            taskText.text = "Place an item on the station to cut.";
+        }
     }
 
     /// <summary>

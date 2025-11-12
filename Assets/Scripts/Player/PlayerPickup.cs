@@ -24,8 +24,9 @@ public class PlayerPickup : MonoBehaviour
     private OvenStation nearbyOven = null;
     private MixerStation nearbyMixer = null;
     private ToppingStation nearbyToppingStation = null;
-    private SlicingStation nearbySlicingStation = null;
     private PouringStation nearbyPouringStation = null;
+    private SlicingStation nearbySlicingStation = null;
+
 
     private void Update()
     {
@@ -69,7 +70,6 @@ public class PlayerPickup : MonoBehaviour
                 nearbyPouringStation = pouringStation;
                 pouringStationFound = true;
             }
-
             ToppingStation toppingStation = col.GetComponent<ToppingStation>();
             if (toppingStation != null)
             {
@@ -77,12 +77,13 @@ public class PlayerPickup : MonoBehaviour
                 toppingStationFound = true;
             }
 
-            SlicingStation slicingStation = col.GetComponent<SlicingStation>();
-            if (slicingStation != null)
+            SlicingStation slicer = col.GetComponent<SlicingStation>();
+            if (slicer != null)
             {
-                nearbySlicingStation = slicingStation;
+                nearbySlicingStation = slicer;
                 slicingStationFound = true;
             }
+
         }
 
         if (!ovenFound) nearbyOven = null;
@@ -166,7 +167,7 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-
+        
         if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() &&
             interactable.HasCapability(ObjectCapabilities.Toppingable))
         {
@@ -176,7 +177,7 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-        
+
         if (nearbySlicingStation != null &&
             interactable.HasCapability(ObjectCapabilities.Cuttable))
         {
@@ -323,6 +324,4 @@ public class PlayerPickup : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
-
-    
 }
