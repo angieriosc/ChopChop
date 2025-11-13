@@ -221,17 +221,17 @@ public class PlayerPickup : MonoBehaviour
 
         if (nearbyBowlStation != null && pickedObject == null)
         {
-            if (nearbyBowlStation.actualBowl == null)
+            if (nearbyBowlStation.activeBowl == null)
             {
                 nearbyBowlStation.TrySpawnBowl();
-                GrabObject(nearbyBowlStation.actualBowl);
-                nearbyBowlStation.actualBowl = null;
+                GrabObject(nearbyBowlStation.activeBowl);
+                nearbyBowlStation.activeBowl = null;
                 nearbyBowlStation.TrySpawnBowl();
             }
             else
             {
-               GrabObject(nearbyBowlStation.actualBowl);
-               nearbyBowlStation.actualBowl = null; 
+               GrabObject(nearbyBowlStation.activeBowl);
+               nearbyBowlStation.activeBowl = null; 
                nearbyBowlStation.TrySpawnBowl();
 
             }

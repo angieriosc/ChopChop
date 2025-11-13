@@ -21,7 +21,7 @@ public class BowlStation : MonoBehaviour
 
     private float lastSpawnTime;
     private int currentBowls;
-    private GameObject activeBowl;
+    public GameObject activeBowl;
 
     private void Start()
     {
