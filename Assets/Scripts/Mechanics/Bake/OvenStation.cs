@@ -137,8 +137,6 @@ public class OvenStation : MonoBehaviour
         Rigidbody rb = realObject.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             rb.useGravity = false;
             rb.isKinematic = true;
         }
@@ -197,8 +195,6 @@ public class OvenStation : MonoBehaviour
         Rigidbody rb = ingredient.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
             rb.isKinematic = false;
             rb.useGravity = true;
         }

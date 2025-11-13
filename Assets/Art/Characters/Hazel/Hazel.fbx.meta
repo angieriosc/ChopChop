@@ -3,7 +3,22 @@ guid: 52b68845906bb6f4da89ffd84127aa03
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body_Hazel.004
+    second: {fileID: 2100000, guid: c32053e99586db146a2687e52c3fc62f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hazel_Head.004
+    second: {fileID: 2100000, guid: 8b100be59e6210547a975b68ee3a5720, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hazel_Tail.004
+    second: {fileID: 2100000, guid: 1d240083cf48e9949a032047eec13899, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
