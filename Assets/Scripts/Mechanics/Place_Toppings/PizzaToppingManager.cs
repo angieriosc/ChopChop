@@ -40,6 +40,9 @@ public class PizzaToppingManager : MonoBehaviour
     [SerializeField] private bool _autoToggleSystemCursor = true;
     private bool _ghostVisible = false;
 
+    private int _numPeppersPlaced = 0;
+    private int _numTomatoesPlaced = 0;
+
 
     /// <summary>Activa o desactiva el manager (se usa al entrar/salir de la estación).</summary>
     public void SetEnabled(bool value) => _enabled = value;
@@ -140,9 +143,19 @@ public class PizzaToppingManager : MonoBehaviour
     /// <param name="prefab">Prefab del topping que se va a instanciar.</param>
     private void SpawnTopping(Vector3 position, Vector3 normal, GameObject prefab)
     {
+        if (prefab.name == "pimiento") _numPeppersPlaced++;
+
+        if (prefab.name == "tomatoSlice") _numTomatoesPlaced++;
+
         Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
         GameObject go = Instantiate(prefab, position, rot, PizzaRoot);
         go.transform.localScale = Vector3.Scale(go.transform.localScale, _extraScale);
+
+        // Ocultar instrucción después del primer topping
+        ToppingStation station = FindObjectOfType<ToppingStation>();
+        if (station != null)
+            station.HideInstruction();
+
     }
 
     private void OnDisable()

@@ -26,6 +26,9 @@ public class ToppingStation : MonoBehaviour
     private Rigidbody _rb;
     private Collider _col;
     private bool _hasPizza;
+
+    [Header("UI instrucciones")]
+    [SerializeField] private GameObject _instructionImage;
     
 
     /// <summary>
@@ -73,10 +76,14 @@ public class ToppingStation : MonoBehaviour
         _toppingManager.WorkCamera = _stationCamera;
         _toppingManager.SetEnabled(true);
 
+        Cursor.visible = true;
+
         // Activar UI y cámara de estación
         _playerCamera.gameObject.SetActive(false);
         _stationCamera.gameObject.SetActive(true);
         _stationCanvas.SetActive(true);
+        _instructionImage.SetActive(true);
+
 
         return true;
     }
@@ -138,6 +145,11 @@ public class ToppingStation : MonoBehaviour
             _playerInStation = false;
             Debug.Log("Jugador salió de la estación");
         }
+    }
+    public void HideInstruction()
+    {
+        if (_instructionImage != null)
+            _instructionImage.SetActive(false);
     }
 
 
