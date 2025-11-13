@@ -49,14 +49,9 @@ public class SlicingStation : MonoBehaviour
     [SerializeField]
     [Tooltip("Tecla para salir de la estación.")]
     private KeyCode exitKey = KeyCode.Q;
-
     private bool playerLocked;
-    
-    // Objeto original (ej. el bowl) que el jugador entregó.
     private GameObject originalBowlObject;
-
-    // Referencia a los datos del item para el inventario
-    private CuttableItemData currentItemData; // <--- MODIFICACIÓN: Variable para guardar los datos del item
+    private CuttableItemData currentItemData;
 
     [Header("Slice Settings")]
     [Range(2, 12)]
@@ -73,8 +68,6 @@ public class SlicingStation : MonoBehaviour
 
     private void Awake()
     {
-        // Si no están asignados manualmente en el inspector, los buscamos automáticamente
-
         if (playerMovement == null)
             playerMovement = FindFirstObjectByType<PlayerMovement>();
 
@@ -109,7 +102,6 @@ public class SlicingStation : MonoBehaviour
         if (IsAvailable())
         {
             LockPlayer();
-            // TODO: Aquí deberías mostrar la UI que lea de CuttingInventory.Instance // <--- MODIFICACIÓN (Comentario)
         }
     }
 
@@ -125,22 +117,16 @@ public class SlicingStation : MonoBehaviour
             return false;
         }
 
-        // --- INICIO: Integración Inventario ---
-        // 1. Guardamos los datos del item que nos están entregando
         this.currentItemData = itemFromPlayer.GetComponent<CuttableItemData>();
         
         if (this.currentItemData == null)
         {
             Debug.LogError($"[SlicingStation] El objeto '{itemFromPlayer.name}' no tiene el script 'CuttableItemData'. No se podrán guardar las rebanadas.", itemFromPlayer);
-            // Opcional: podrías decidir no aceptar el item si no tiene este script
-            // return false; 
         }
         else if (this.currentItemData.sliceResultPrefab == null)
         {
             Debug.LogError($"[SlicingStation] 'CuttableItemData' en '{itemFromPlayer.name}' no tiene un 'sliceResultPrefab' asignado.", itemFromPlayer);
         }
-        // --- FIN: Integración Inventario ---
-
 
         if (doughPrefabToSpawn == null)
         {
@@ -176,7 +162,7 @@ public class SlicingStation : MonoBehaviour
             return;
         }
 
-        GameObject originalObject = objectToCut; // Esto es la masa (doughObject)
+        GameObject originalObject = objectToCut;
         MeshFilter meshFilter = originalObject.GetComponentInChildren<MeshFilter>();
 
         if (meshFilter == null)
@@ -215,16 +201,12 @@ public class SlicingStation : MonoBehaviour
             gameManager.OnCutComplete(originalObject, newPieces, newPieces.Count, this);
         }
 
-        // --- INICIO: Integración Inventario ---
-        // 2. Añadimos las rebanadas al inventario
         if (currentItemData != null && currentItemData.sliceResultPrefab != null)
         {
             if (CuttingInventory.Instance != null)
             {
-                // Usamos el nombre del prefab de la rebanada como clave
                 string key = currentItemData.sliceResultPrefab.name;
                 GameObject prefab = currentItemData.sliceResultPrefab;
-                // Usamos newPieces.Count en lugar de sliceCount por si falló la creación de alguna pieza
                 int amount = newPieces.Count; 
                 
                 CuttingInventory.Instance.AddSlices(key, prefab, amount);
@@ -238,10 +220,8 @@ public class SlicingStation : MonoBehaviour
         {
             Debug.LogWarning("[SlicingStation] No se encontró 'currentItemData' o 'sliceResultPrefab'. Las rebanadas no se guardaron en el inventario.");
         }
-        // --- FIN: Integración Inventario ---
 
-
-        Destroy(originalObject); // Destruye la masa
+        Destroy(originalObject);
         objectToCut = null;
 
         if (originalBowlObject != null)
@@ -250,8 +230,7 @@ public class SlicingStation : MonoBehaviour
             originalBowlObject = null;
         }
 
-        // 3. Limpiamos la referencia para la próxima interacción
-        currentItemData = null; // <--- MODIFICACIÓN
+        currentItemData = null;
     }
 
     /// <summary>
@@ -299,31 +278,22 @@ public class SlicingStation : MonoBehaviour
     /// </summary>
     public void UnlockPlayer()
     {
-        // Si el jugador sale (presionando Q) ANTES de cortar,
-        // 'objectToCut' (la masa) todavía existirá.
         if (objectToCut != null)
         {
             Debug.Log("Corte cancelado. Devolviendo el objeto original.");
-            
-            // Destruye la masa que se generó
             Destroy(objectToCut);
             objectToCut = null;
 
-            // Llama a la corutina para devolver el objeto en el siguiente frame,
-            // evitando el conflicto de 'Q'.
             if (originalBowlObject != null)
             {
-                // Busca el PlayerPickup en la escena
-                PlayerPickup pickup = FindObjectOfType<PlayerPickup>();
+                PlayerPickup pickup = FindFirstObjectByType<PlayerPickup>();
                 if(pickup != null)
                 {
                     StartCoroutine(ReturnObjectToPlayerNextFrame(originalBowlObject, pickup));
                 }
                 originalBowlObject = null;
             }
-
-            // 3. Limpiamos la referencia si el jugador cancela
-            currentItemData = null; // <--- MODIFICACIÓN
+            currentItemData = null;
         }
 
         if (!playerLocked) return;
@@ -343,8 +313,6 @@ public class SlicingStation : MonoBehaviour
         {
             gameManager.ResetBoard();
         }
-
-        // TODO: Aquí deberías ocultar la UI del inventario // <--- MODIFICACIÓN (Comentario)
     }
 
     /// <summary>
@@ -353,7 +321,6 @@ public class SlicingStation : MonoBehaviour
     /// </summary>
     private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn, PlayerPickup playerPickup)
     {
-        // Espera un frame
         yield return null;
 
         if (objectToReturn != null && playerPickup != null)
@@ -363,7 +330,6 @@ public class SlicingStation : MonoBehaviour
         }
         else if (objectToReturn != null)
         {
-            // Fallback por si playerPickup es null, simplemente reactívalo
             objectToReturn.SetActive(true);
         }
     }

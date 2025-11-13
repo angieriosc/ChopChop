@@ -25,7 +25,6 @@ public class IngredientSpawner : MonoBehaviour
     /// </summary>
     void Start()
     {
-        // Validación de referencias
         if (ingredientToSpawn == null)
         {
             Debug.LogError("No ingredient prefab assigned to spawn!");
@@ -44,14 +43,12 @@ public class IngredientSpawner : MonoBehaviour
             return;
         }
 
-        // Instanciar el ingrediente en la posición y rotación del spawnPoint
         GameObject spawnedIngredient = Instantiate(
             ingredientToSpawn, 
             spawnPoint.position, 
             spawnPoint.rotation
         );
 
-        // Asignar el objeto instanciado a la estación de corte
         slicingStation.objectToCut = spawnedIngredient;
 
         Debug.Log($"Spawned {spawnedIngredient.name} and assigned it to the Slicing Station.");
