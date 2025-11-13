@@ -7,7 +7,6 @@ using UnityEngine;
 /// </summary>
 public class CuttingInventory : MonoBehaviour
 {
-    // --- Singleton Setup ---
     public static CuttingInventory Instance { get; private set; }
 
     private void Awake()
@@ -19,10 +18,9 @@ public class CuttingInventory : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject); // Opcional: para mantener entre escenas
+            DontDestroyOnLoad(this.gameObject);
         }
     }
-    // --- Fin Singleton ---
 
     [Header("Inventario")]
     [Tooltip("Lista actual de items en el inventario.")]
@@ -36,26 +34,23 @@ public class CuttingInventory : MonoBehaviour
     /// <param name="amount">La cantidad de rebanadas a añadir.</param>
     public void AddSlices(string key, GameObject slicePrefab, int amount)
     {
-        // 1. Buscar si el item ya existe
         foreach (CuttingInventoryItem item in items)
         {
             if (item.itemKey == key)
             {
-                // 2. Si existe, solo añade la cantidad
                 item.quantity += amount;
                 Debug.Log($"[CuttingInventory] Apilado: +{amount} de '{key}'. Total: {item.quantity}");
                 return;
             }
         }
 
-        // 3. Si no existe, crea una nueva entrada
         CuttingInventoryItem newItem = new CuttingInventoryItem(key, slicePrefab, amount);
         items.Add(newItem);
         Debug.Log($"[CuttingInventory] Añadido Nuevo: {amount} de '{key}'.");
     }
 
     /// <summary>
-    /// (Opcional) Obtiene la cantidad de un item por su clave.
+    /// Obtiene la cantidad de un item por su clave.
     /// </summary>
     public int GetQuantity(string key)
     {

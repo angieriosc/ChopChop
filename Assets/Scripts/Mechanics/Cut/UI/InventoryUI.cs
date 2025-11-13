@@ -27,8 +27,6 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("Referencia a la estación de corte donde se colocará el ingrediente.")]
     private SlicingStation slicingStation;
 
-    // --- Private ---
-
     /// <summary>
     /// Ingrediente actualmente generado en la escena.
     /// </summary>
@@ -50,10 +48,9 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        // Asignar el evento de selección a cada botón
         for (int i = 0; i < ingredientButtons.Count; i++)
         {
-            int index = i; // Captura el índice local para el lambda
+            int index = i;
             ingredientButtons[i].onClick.AddListener(() => OnIngredientSelected(index));
         }
     }

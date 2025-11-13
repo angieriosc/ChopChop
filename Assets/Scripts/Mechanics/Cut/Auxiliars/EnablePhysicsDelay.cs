@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Activa la física de un Rigidbody después de un retraso especificado.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class EnablePhysicsDelay : MonoBehaviour
 {

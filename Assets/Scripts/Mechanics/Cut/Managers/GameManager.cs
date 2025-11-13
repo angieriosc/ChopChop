@@ -40,10 +40,6 @@ public class GameManager : MonoBehaviour
             taskImageDisplay.gameObject.SetActive(false);
         }
     }
-
-    /// <summary>
-    /// --- GoToNextTask() method is no longer needed and has been REMOVED ---
-    /// </summary>
     
     /// <summary>
     /// Llamado cuando un objeto ha sido cortado.
@@ -60,21 +56,14 @@ public class GameManager : MonoBehaviour
             taskText.text = $"Success! You cut {pieceCount} pieces.";
         }
 
-        // We can reuse one of the coroutines to handle the reset
         StartCoroutine(ResetAfterCut());
     }
 
     /// <summary>
-    /// --- HandleSuccess() method is no longer needed and has been REMOVED ---
-    /// </summary>
-
-    /// <summary>
     /// Coroutine that handles resetting the board after a cut.
-    /// (Renamed from HandleFailure)
     /// </summary>
     private IEnumerator ResetAfterCut()
     {
-        // Wait for 2 seconds to show the message
         yield return new WaitForSeconds(2.0f);
 
         if (currentSlicingStation != null)
@@ -83,10 +72,8 @@ public class GameManager : MonoBehaviour
             currentSlicingStation = null;
         }
 
-        // Clear the pieces
         ClearBoard();
 
-        // Reset the text
         if (taskText != null)
         {
             taskText.text = "Place an item on the station to cut.";

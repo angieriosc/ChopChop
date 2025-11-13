@@ -118,7 +118,6 @@ public class SliceControlsUI : MonoBehaviour
     /// </summary>
     private void UpdateUI(int count)
     {
-        // Limita la cantidad de cortes dentro del rango permitido
         int clampedCount = Mathf.Clamp(count, minSlices, maxSlices);
 
         if (slicingStation != null)
