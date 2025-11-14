@@ -26,6 +26,14 @@ public class PlayerPickup : MonoBehaviour
     private ToppingStation nearbyToppingStation = null;
     private PouringStation nearbyPouringStation = null;
 
+    // Referencia al controlador del carrito
+    private PlayerCartController cartController = null;
+
+    private void Awake()
+    {
+        cartController = GetComponent<PlayerCartController>();
+    }
+
     private BowlStation nearbyBowlStation = null;
     private SlicingStation nearbySlicingStation = null; // Re-añadido
 
@@ -118,6 +126,13 @@ public class PlayerPickup : MonoBehaviour
     private void HandleGrabInput()
     {
         if (!Input.GetKeyDown(grabKey)) return;
+
+        // Si el jugador tiene el carrito, no puede agarrar objetos normales
+        if (cartController != null && cartController.HasCart())
+        {
+            Debug.Log("💡 No puedes agarrar objetos mientras empujas el carrito");
+            return;
+        }
 
         if (pickedObject != null)
         {
