@@ -101,7 +101,6 @@ public class PlayerPickup : MonoBehaviour
         if (pickedObject != null && Input.GetKeyDown(dropKey))
             DropObject();
     }
-
     /// <summary>
     /// Maneja la tecla de agarrar o interactuar.
     /// </summary>
@@ -109,40 +108,63 @@ public class PlayerPickup : MonoBehaviour
     {
         if (!Input.GetKeyDown(grabKey)) return;
 
-        if (pickedObject != null)
+        // ----------------------------------------
+        // 1. MANO VACÍA → SALIR DE TOPPING STATION
+        // ----------------------------------------
+        if (pickedObject == null)
         {
-            // 1. Mano llena: Intenta colocar en estación
-            if (!PlaceInStation())
-                Debug.Log("💡 No nearby station or can't place this object.");
-        }
-        else
-        {
-            // 2. Mano vacía: Intenta tomar de estación
-            if (TakeFromStation())
+            if (nearbyToppingStation != null &&
+                nearbyToppingStation.HasPizza() &&
+                nearbyToppingStation.IsPlayerInside())
             {
-                return; // Salió con éxito
-            }
-            
-            // --- LÓGICA MODIFICADA ---
-            // 3. Mano vacía: Intenta entrar a Slicing Station
-            if (nearbySlicingStation != null && nearbySlicingStation.IsAvailable())
-            {
-                nearbySlicingStation.EnterStation(); // Llama al nuevo método
-                return;
-            }
-            // --- FIN ---
-
-            // 4. Mano vacía: Intenta agarrar objeto del mundo
-            if (nearbyObject != null)
-            {
-                float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
-                if (distance < detectionRange)
+                GameObject pizza = nearbyToppingStation.TakePizza();
+                if (pizza != null)
                 {
-                    GrabObject(nearbyObject.gameObject);
+                    GrabObject(pizza);
+                    return; // <- YA AGARRÓ LA PIZZA
                 }
             }
         }
+
+        // ----------------------------------------
+        // 2. MANO LLENA → INTENTAR COLOCAR EN ESTACIONES
+        // ----------------------------------------
+        if (pickedObject != null)
+        {
+            if (!PlaceInStation())
+                Debug.Log("No nearby station or can't place this object.");
+            return;
+        }
+
+        // ----------------------------------------
+        // 3. MANO VACÍA → ENTRAR A TOPPING STATION
+        // ----------------------------------------
+        if (pickedObject == null &&
+            nearbyToppingStation != null &&
+            nearbyToppingStation.IsAvailable())
+        {
+            nearbyToppingStation.TryPlace();
+            return;
+        }
+
+        // ----------------------------------------
+        // 4. MANO VACÍA → OTRAS ESTACIONES
+        // ----------------------------------------
+        if (TakeFromStation()) return;
+
+        // ----------------------------------------
+        // 5. MANO VACÍA → AGARRAR OBJETO DEL MUNDO
+        // ----------------------------------------
+        if (pickedObject == null && nearbyObject != null)
+        {
+            float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
+            if (distance < detectionRange)
+            {
+                GrabObject(nearbyObject.gameObject);
+            }
+        }
     }
+
 
     /// <summary>
     /// Intenta colocar el objeto en una estación cercana.
@@ -188,9 +210,8 @@ public class PlayerPickup : MonoBehaviour
         if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() &&
             interactable.HasCapability(ObjectCapabilities.Toppingable))
         {
-            if (nearbyToppingStation.TryPlace(pickedObject))
+            if (nearbyToppingStation.TryPlace())
             {
-                pickedObject = null;
                 return true;
             }
         }
@@ -282,7 +303,7 @@ public class PlayerPickup : MonoBehaviour
             !interactable.HasCapability(ObjectCapabilities.Grabbable))
             return;
 
-        pickedObject = interactable.gameObject;
+        pickedObject = obj;
         nearbyObject = null;
 
         Vector3 originalScale = pickedObject.transform.localScale;
