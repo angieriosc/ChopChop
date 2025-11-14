@@ -67,7 +67,7 @@ public class ShoppingCart : MonoBehaviour
             }
         }
     }
-    
+
     /// <summary>
     /// Intenta agregar un ingrediente al carrito.
     /// </summary>
@@ -78,23 +78,23 @@ public class ShoppingCart : MonoBehaviour
             Debug.Log("⚠️ Ingrediente es nulo");
             return false;
         }
-        
+
         if (ingredient.IsInCart)
         {
             Debug.Log("⚠️ Este ingrediente específico ya está en el carrito");
             return false;
         }
-        
+
         if (cartItems.Count >= maxItems)
         {
             Debug.Log("⚠️ Carrito lleno");
             return false;
         }
-        
+
         // Marcar como agregado ANTES de añadirlo
         ingredient.AddToCart();
         cartItems.Add(ingredient);
-        
+
         // Posicionar el ingrediente en el carrito
         if (itemsContainer != null)
         {
@@ -102,7 +102,7 @@ public class ShoppingCart : MonoBehaviour
             ingredient.transform.localPosition = Vector3.up * (cartItems.Count - 1) * itemSpacing;
             ingredient.transform.localRotation = Quaternion.identity;
         }
-        
+
         // Desactivar física del ingrediente
         Rigidbody rb = ingredient.GetComponent<Rigidbody>();
         if (rb != null)
@@ -110,25 +110,39 @@ public class ShoppingCart : MonoBehaviour
             rb.isKinematic = true;
             rb.useGravity = false;
         }
-        
+
         // Desactivar collider para evitar detección múltiple
         Collider col = ingredient.GetComponent<Collider>();
         if (col != null)
         {
             col.enabled = false;
         }
-        
+
         ingredient.ShowHighlight(false);
-        
-        // Notificar al SupermarketManager para actualizar la UI
+
+        ingredient.ShowHighlight(false);
+
+        // Notificar al SupermarketManager para actualizar la UI y descontar dinero
         if (SupermarketManager.Instance != null)
         {
-            SupermarketManager.Instance.MarkItemAddedToCart(ingredient.IngredientName, ingredient.Price);
+            SupermarketManager.Instance.MarkItemAddedToCart(
+                ingredient.IngredientName,
+                ingredient.Price,
+                ingredient.transform.position // ← AGREGAR ESTE TERCER PARÁMETRO
+            );
         }
-        
+
+        // Reproducir sonido de pickup
+        if (SupermarketAudioManager.Instance != null)
+        {
+            SupermarketAudioManager.Instance.PlayPickupSound();
+        }
+
         Debug.Log($"✅ {ingredient.IngredientName} agregado al carrito");
         return true;
+
     }
+    
     
     /// <summary>
     /// Obtiene la lista de ingredientes en el carrito.
@@ -150,18 +164,24 @@ public class ShoppingCart : MonoBehaviour
         }
         return total;
     }
-    
+
     /// <summary>
-    /// Vacía el carrito después de la compra.
+    /// Vacía el carrito después de la compra y destruye los ingredientes.
     /// </summary>
     public void ClearCart()
     {
         foreach (var item in cartItems)
         {
-            item.MarkAsPurchased();
+            if (item != null)
+            {
+                item.MarkAsPurchased();
+                // Destruir el ingrediente (va al "inventario")
+                Destroy(item.gameObject);
+            }
         }
         cartItems.Clear();
     }
+
     
     /// <summary>
     /// Marca que el jugador está empujando el carrito.

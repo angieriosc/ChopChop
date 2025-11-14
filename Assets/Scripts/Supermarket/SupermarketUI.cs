@@ -16,12 +16,35 @@ public class SupermarketUI : MonoBehaviour
     [Header("Shopping List")]
     [SerializeField] private Transform shoppingListContainer;
     [SerializeField] private GameObject shoppingListItemPrefab;
+    [SerializeField] private GameObject shoppingListPanel; // Panel completo para mostrar/ocultar
     
     [Header("Cart Info")]
     [SerializeField] private TextMeshProUGUI cartTotalText;
     [SerializeField] private TextMeshProUGUI cartItemCountText;
     
     private List<GameObject> listItemInstances = new List<GameObject>();
+    
+    /// <summary>
+    /// Muestra la lista de compras.
+    /// </summary>
+    public void ShowShoppingList()
+    {
+        if (shoppingListPanel != null)
+        {
+            shoppingListPanel.SetActive(true);
+        }
+    }
+    
+    /// <summary>
+    /// Oculta la lista de compras.
+    /// </summary>
+    public void HideShoppingList()
+    {
+        if (shoppingListPanel != null)
+        {
+            shoppingListPanel.SetActive(false);
+        }
+    }
     
     /// <summary>
     /// Actualiza el texto del dinero disponible.

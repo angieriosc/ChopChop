@@ -149,8 +149,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -285,8 +285,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -521,7 +521,7 @@ MonoBehaviour:
   checkmark: {fileID: 3607510469689432632}
   strikethrough: {fileID: 5042177813339128194}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
-  purchasedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  purchasedColor: {r: 0.6075471, g: 0.6075471, b: 0.6075471, a: 1}
 --- !u!1 &7183817585718322181
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,12 +19,15 @@ public class PlayerCartController : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
-    [SerializeField] private LayerMask cartLayer;
     
     private ShoppingCart currentCart = null;
     private ShoppingCart nearbyCart = null;
     private BuyableIngredient nearbyIngredient = null;
     private Vector3 cartTargetPosition;
+    private Vector3 cartInitialPosition;
+    private Quaternion cartInitialRotation;
+    private bool hasGrabbedCartBefore = false;
+    private Vector3 lastPlayerPosition;
     
     private void Awake()
     {
@@ -41,6 +44,8 @@ public class PlayerCartController : MonoBehaviour
             holdPoint.transform.localPosition = new Vector3(0, 0.5f, cartOffset);
             cartHoldPoint = holdPoint.transform;
         }
+        
+        lastPlayerPosition = transform.position;
     }
     
     private void Update()
@@ -52,7 +57,10 @@ public class PlayerCartController : MonoBehaviour
         if (currentCart != null)
         {
             UpdateCartPosition();
+            HandleCartAudio();
         }
+        
+        lastPlayerPosition = transform.position;
     }
     
     /// <summary>
@@ -63,7 +71,7 @@ public class PlayerCartController : MonoBehaviour
         Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, cartDetectionRange);
         
         bool cartFound = false;
-        nearbyIngredient = null; // Resetear cada frame
+        nearbyIngredient = null;
         float closestIngredientDist = float.MaxValue;
         
         foreach (var col in nearbyColliders)
@@ -136,6 +144,20 @@ public class PlayerCartController : MonoBehaviour
         currentCart.SetBeingPushed(true);
         nearbyCart = null;
         
+        // Guardar posición inicial del carrito
+        if (!hasGrabbedCartBefore)
+        {
+            cartInitialPosition = cart.transform.position;
+            cartInitialRotation = cart.transform.rotation;
+            hasGrabbedCartBefore = true;
+            
+            // Mostrar lista de compras por primera vez
+            if (SupermarketManager.Instance != null)
+            {
+                SupermarketManager.Instance.ShowShoppingListFirstTime();
+            }
+        }
+        
         // Desactivar colisiones entre el jugador y el carrito
         Collider cartCollider = currentCart.GetComponent<Collider>();
         Collider playerCollider = GetComponent<Collider>();
@@ -159,7 +181,7 @@ public class PlayerCartController : MonoBehaviour
     /// <summary>
     /// Suelta el carrito.
     /// </summary>
-    private void ReleaseCart()
+    public void ReleaseCart()
     {
         if (currentCart == null) return;
         
@@ -184,6 +206,12 @@ public class PlayerCartController : MonoBehaviour
             cartRb.angularVelocity = Vector3.zero;
         }
         
+        // Detener el sonido del carrito
+        if (SupermarketAudioManager.Instance != null)
+        {
+            SupermarketAudioManager.Instance.StopCartRollingSound();
+        }
+        
         Debug.Log("🛒 Carrito soltado");
         currentCart = null;
     }
@@ -197,7 +225,7 @@ public class PlayerCartController : MonoBehaviour
         
         // Calcular posición objetivo del carrito (frente al jugador)
         Vector3 targetPos = cartHoldPoint.position;
-        targetPos.y = currentCart.transform.position.y; // Mantener altura del carrito
+        targetPos.y = currentCart.transform.position.y;
         
         // Mover suavemente el carrito a la posición objetivo
         currentCart.transform.position = Vector3.Lerp(
@@ -213,6 +241,29 @@ public class PlayerCartController : MonoBehaviour
             targetRotation,
             Time.deltaTime * cartFollowSpeed
         );
+    }
+    
+    /// <summary>
+    /// Maneja el audio del carrito basado en el movimiento del jugador.
+    /// </summary>
+    private void HandleCartAudio()
+    {
+        if (SupermarketAudioManager.Instance == null) return;
+        
+        // Calcular si el jugador se está moviendo
+        float moveDistance = Vector3.Distance(transform.position, lastPlayerPosition);
+        bool isMoving = moveDistance > 0.001f;
+        
+        if (isMoving)
+        {
+            // Si el jugador se mueve, reproducir/reanudar el sonido
+            SupermarketAudioManager.Instance.PlayCartRollingSound();
+        }
+        else
+        {
+            // Si el jugador está quieto, pausar el sonido
+            SupermarketAudioManager.Instance.PauseCartRollingSound();
+        }
     }
     
     /// <summary>
@@ -247,7 +298,20 @@ public class PlayerCartController : MonoBehaviour
         if (added)
         {
             Debug.Log($"✅ {nearbyIngredient.IngredientName} agregado al carrito (${price:F2})");
-            nearbyIngredient = null; // Resetear para buscar el siguiente
+            nearbyIngredient = null;
+        }
+    }
+    
+    /// <summary>
+    /// Regresa el carrito a su posición inicial.
+    /// </summary>
+    public void ResetCartPosition()
+    {
+        if (currentCart != null)
+        {
+            currentCart.transform.position = cartInitialPosition;
+            currentCart.transform.rotation = cartInitialRotation;
+            Debug.Log("🛒 Carrito regresado a su posición inicial");
         }
     }
     
