@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 52b68845906bb6f4da89ffd84127aa03
+guid: 899e30e7ddb5e734f9e7207b60d2ff49
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,18 +7,18 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Body_Hazel.004
-    second: {fileID: 2100000, guid: c32053e99586db146a2687e52c3fc62f, type: 2}
+      name: Body_Fox
+    second: {fileID: 2100000, guid: 7e1e5be15f42fe640b695255d8efa44e, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Hazel_Head.004
-    second: {fileID: 2100000, guid: 8b100be59e6210547a975b68ee3a5720, type: 2}
+      name: Head_Fox
+    second: {fileID: 2100000, guid: e6d05cd8899e053408e58e046b044eee, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Hazel_Tail.004
-    second: {fileID: 2100000, guid: 1d240083cf48e9949a032047eec13899, type: 2}
+      name: Tail_Fox
+    second: {fileID: 2100000, guid: 6f52e04af58963f4ba1807d746b74aa5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -46,44 +46,15 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: IDLE_anim.001
-      takeName: IDLE_anim.001
-      internalID: 608344006409348151
-      firstFrame: 0
-      lastFrame: 319
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 1
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: RUNNING_anim.001
+      name: RUNNING_anim.001 (1)
       takeName: RUNNING_anim.001
-      internalID: -3967862822783961352
+      internalID: 608344006409348151
       firstFrame: 0
       lastFrame: 31
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 1
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -106,13 +77,42 @@ ModelImporter:
     - serializedVersion: 16
       name: VICTORY.EMOTE.01_anim.001
       takeName: VICTORY.EMOTE.01_anim.001
-      internalID: 6142304384660682077
+      internalID: -3967862822783961352
       firstFrame: 0
       lastFrame: 229
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 1
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: IDLE_anim.001
+      takeName: IDLE_anim.001
+      internalID: 6142304384660682077
+      firstFrame: 0
+      lastFrame: 319
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -135,7 +135,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.5
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -190,7 +190,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 1
+    globalScale: 0.5
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0

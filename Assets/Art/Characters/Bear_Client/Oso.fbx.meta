@@ -1,24 +1,9 @@
 fileFormatVersion: 2
-guid: 52b68845906bb6f4da89ffd84127aa03
+guid: ecc6e7d17c6551a43a9b7faa5d509b9b
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Body_Hazel.004
-    second: {fileID: 2100000, guid: c32053e99586db146a2687e52c3fc62f, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Hazel_Head.004
-    second: {fileID: 2100000, guid: 8b100be59e6210547a975b68ee3a5720, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Hazel_Tail.004
-    second: {fileID: 2100000, guid: 1d240083cf48e9949a032047eec13899, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -46,15 +31,15 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: IDLE_anim.001
-      takeName: IDLE_anim.001
-      internalID: 608344006409348151
+      name: ' Walking.001'
+      takeName: ' Walking.001'
+      internalID: -5175051578512107855
       firstFrame: 0
-      lastFrame: 319
+      lastFrame: 12
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 1
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -75,15 +60,15 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: RUNNING_anim.001
-      takeName: RUNNING_anim.001
-      internalID: -3967862822783961352
+      name: Tibb_Idle.001
+      takeName: Tibb_Idle.001
+      internalID: 6044832867552464526
       firstFrame: 0
       lastFrame: 31
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 1
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -104,15 +89,15 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: VICTORY.EMOTE.01_anim.001
-      takeName: VICTORY.EMOTE.01_anim.001
-      internalID: 6142304384660682077
+      name: Tibb_Sit
+      takeName: Tibb_Sit
+      internalID: 3663786786017478759
       firstFrame: 0
-      lastFrame: 229
+      lastFrame: 143
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
-      cycleOffset: 1
+      cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
@@ -135,7 +120,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 3
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -190,7 +175,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 1
+    globalScale: 3
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
