@@ -15,6 +15,11 @@ public class FractionPanelUI : MonoBehaviour
     [Header("Contenedor visual de los botones")]
     [SerializeField] private Transform buttonContainer;
 
+    [Header("Scroll view que contiene a los botones")]
+    [SerializeField] public GameObject buttonsScrollView;
+
+    [SerializeField] public GameObject imageFractionCups;
+
     [Header("Script que realiza la división")]
     [SerializeField] private IngredientDivider ingredientDivider;
 
@@ -34,6 +39,7 @@ public class FractionPanelUI : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        imageFractionCups?.SetActive(false);
         foreach (var (label, parts) in fractions)
         {
             GameObject button = Instantiate(buttonPrefab, buttonContainer);
@@ -52,8 +58,12 @@ public class FractionPanelUI : MonoBehaviour
             button.GetComponent<Button>().onClick.AddListener(() =>
             {
                 bool isCupValid = cupTracker.SelectCup(fraction);
-                if (isCupValid)
+                if (isCupValid) 
+                { 
                     ingredientDivider.DivideIntoCups(parts, $"1/{parts}");
+                    buttonsScrollView?.SetActive(false);
+                    imageFractionCups?.SetActive(true);
+                }
             });
         }
     }

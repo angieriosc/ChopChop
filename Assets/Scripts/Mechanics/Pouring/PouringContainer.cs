@@ -180,6 +180,7 @@ public class PouringContainer : MonoBehaviour
             amountText.text = $"{currentML:F0}";
             yield return null;
         }
+        cupTracker.UpdateCups();
 
         // 🔹 Actualizar UI y estado final
         currentML = 0f;
@@ -201,7 +202,6 @@ public class PouringContainer : MonoBehaviour
         currentML = 0f;
         amountText.text = "0 ml";
         Destroy(gameObject);
-        cupTracker.UpdateCups();
     }
 
     // ──────────────────────────────── EVENTOS DE INTERACCIÓN ──────────────────────
