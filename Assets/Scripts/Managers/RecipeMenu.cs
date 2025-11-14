@@ -29,19 +29,37 @@ public class RecipeMenu : MonoBehaviour
     [Tooltip("Panel que muestra los detalles de la receta seleccionada.")]
     [SerializeField] private GameObject recipeDetailsPanel;
 
+    [SerializeField] private GameObject stateView;
+
     [Tooltip("Texto para mostrar ingredientes de la receta.")]
     [SerializeField] private TextMeshProUGUI ingredientsText;
 
     [Tooltip("Botón para volver al listado de recetas.")]
     [SerializeField] private Button backButton;
 
+    [Tooltip("UI del manejo de fracciones")]
+    [SerializeField] public GameObject fractionPanel;
+
+    [Header("Botón de salida de la estación")]
+
+    [SerializeField] private Button exitButton;
+
+    [Header("Controlador de recetas")]
+    public RecipeController recipeController;
+
+
     /// <summary>Valores equivalentes de cada fracción en mililitros.</summary>
     private readonly float[] cupValues = { 500f, 333f, 250f, 200f, 166.5f };
+
+    // <summary> Lista de cantidades necesarias
+    public Dictionary<string, string> ingredientRequireStrings = new Dictionary<string, string>();
+
 
     private RecipeData currentRecipe;
 
     private void Start()
     {
+        recipeController = FindFirstObjectByType<RecipeController>();
         // Asignar listeners a los botones de receta
         for (int i = 0; i < recipeButtons.Length && i < recipes.Length; i++)
         {
@@ -58,9 +76,18 @@ public class RecipeMenu : MonoBehaviour
         if (backButton != null)
             backButton.onClick.AddListener(OnBackToList);
 
+        // Listerner del botón de salir
+        if (exitButton != null) {
+            exitButton.onClick.AddListener(ExitMenu);
+        }
+
         // Asegurar estados iniciales
         recipeDetailsPanel?.SetActive(false);
         scrollView?.SetActive(true);
+        fractionPanel?.SetActive(false);
+        backButton.gameObject.SetActive(false);
+        stateView?.SetActive(false);
+
     }
 
     /// <summary>
@@ -84,10 +111,16 @@ public class RecipeMenu : MonoBehaviour
             pouringStation.CurrentReceiving.AssignRecipe(selected);
         }
 
-        UnityEngine.Object.FindFirstObjectByType<RecipeController>()?.StartRecipeFlow(selected);
-
+        FindFirstObjectByType<RecipeController>()?.StartRecipeFlow(selected);
+    
 
         ShowRecipeDetails(selected);
+        fractionPanel?.SetActive(true);
+        backButton.gameObject.SetActive(true);
+
+        
+        recipeController.ShowMessage(ingredientRequireStrings[selected.ingredients[0].ingredientName]);
+        
     }
 
     /// <summary>
@@ -102,13 +135,22 @@ public class RecipeMenu : MonoBehaviour
         scrollView?.SetActive(false);
 
         // Mostrar panel de detalles
-        recipeDetailsPanel.SetActive(true);
+        recipeDetailsPanel.SetActive(false);
+
+        // Mostrar estado
+        stateView?.SetActive(true);
 
         // Construir texto con ingredientes
         string info = $"<b>{recipe.recipeName}</b>\n\nIngredientes requeridos:\n";
-        foreach (var ing in recipe.ingredients) {
-            info += $"{ing.ingredientName}: {GetCupFraction(ing.amountML)}";
+
+        ingredientRequireStrings.Clear();
+        foreach (var ing in recipe.ingredients)
+        {
+            string line = $"Agrega <color=yellow>{GetCupFraction(ing.amountML)}</color> de {ing.ingredientName}";
+            info += line;
+            ingredientRequireStrings.Add(ing.ingredientName, line);
         }
+        
         ingredientsText.text = info;
     }
 
@@ -120,13 +162,17 @@ public class RecipeMenu : MonoBehaviour
         scrollView?.SetActive(true);
         recipeDetailsPanel?.SetActive(false);
 
-        Debug.Log("Volviendo a la lista de recetas.");
+        recipeDetailsPanel?.SetActive(false);
+        scrollView?.SetActive(true);
+        stateView?.SetActive(false);
+        fractionPanel?.SetActive(false);
+        backButton.gameObject.SetActive(false);
     }
 
     /// <summary>
     /// Obtiene la fracción de taza correspondiente al tamaño en ml.
     /// </summary>
-    public string  GetCupFraction(float ml)
+    public string GetCupFraction(float ml)
     {
         Dictionary<float, string> map = new()
         {
@@ -152,11 +198,29 @@ public class RecipeMenu : MonoBehaviour
                 if (kv.Key == randomValue)
                     fracctionCup = kv.Value;
             }
-            return $"{ml / randomValue}/{fracctionCup} de taza\n";
+            return $"{ml / randomValue}/{fracctionCup}";
         }
         else
         {
             return "0";
         }
+    }
+
+    /// <summary>
+    /// Cierra el menú y desbloquea jugador y cámara.
+    /// </summary>
+    private void ExitMenu()
+    {
+        Animator anim = exitButton.GetComponent<Animator>();
+
+        anim.SetBool("isPressed", false);
+        anim.SetTrigger("Normal");
+        anim.SetInteger("state", 0);
+
+
+        gameObject.SetActive(false);
+
+        pouringStation?.UnlockPlayer();
+
     }
 }

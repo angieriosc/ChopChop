@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.UI;
 
 /// <summary>
 /// Supervisa el vertido de tazas y verifica si la fracción seleccionada
@@ -18,6 +19,9 @@ public class CupTracker : MonoBehaviour
     [Header("Recipe Controller")]
     [SerializeField] public RecipeController recipeController;
 
+    [Header("Panel de fracciones")]
+    [SerializeField] public FractionPanelUI fractionPanelUI;
+
     /// <summary>Nombre del ingrediente activo en la receta.</summary>
     public string activeIngredientName;
 
@@ -33,6 +37,7 @@ public class CupTracker : MonoBehaviour
     /// <summary>Tolerancia de error al comparar cantidades (en ml).</summary>
     private const float tolerance = 0.5f;
 
+
     /// <summary>
     /// Se ejecuta cuando el jugador selecciona una fracción.
     /// Valida si coincide con la receta activa.
@@ -47,9 +52,9 @@ public class CupTracker : MonoBehaviour
 
         if (container == null || recipe == null)
         {
-            StartCoroutine(ShowMessage(
+            ChangeMessage(
                 "No hay receta activa o recipiente asignado."
-            ));
+            );
             return false;
         }
 
@@ -62,8 +67,8 @@ public class CupTracker : MonoBehaviour
 
         if (!IsCupValid(required, cupSize))
         {
-            StartCoroutine(ShowMessage(
-                $"La fracción es incorrecta, itenta con otra."
+            StartCoroutine(TemporalShowMessage(
+                $"Incorrecto, itenta con otra.", messageText.text
             ));
             return false;
         }
@@ -79,9 +84,8 @@ public class CupTracker : MonoBehaviour
             progressText.text =
             $"Tazas vertidas: {pouredCups} / {totalCups}\n";
 
-            StartCoroutine(ShowMessage(
-                $"Da click a las tazas, para verterlas en el recipiente."
-            ));
+            ChangeMessage("Da <color=yellow>click</color> a las tazas");
+
         }
         return true;
     }
@@ -105,7 +109,7 @@ public class CupTracker : MonoBehaviour
         int pouredCups = Mathf.FloorToInt(current / cupSize);
 
         progressText.text =
-            $"Tazas vertidas: {pouredCups} / {totalCups}\n";
+            $"Tazas vertidas: <color=yellow>{pouredCups} / {totalCups}</color>\n";
 
         bool isComplete = current >= required - tolerance;
 
@@ -113,6 +117,7 @@ public class CupTracker : MonoBehaviour
         {
             recipeController ??= FindFirstObjectByType<RecipeController>();
             recipeController?.OnIngredientCompleted();
+            fractionPanelUI.imageFractionCups.SetActive(false);
         }
     }
 
@@ -133,21 +138,29 @@ public class CupTracker : MonoBehaviour
     public void ResetTracker()
     {
         progressText.text = "";
-        messageText.text = "";
     }
 
     /// <summary>
     /// Muestra un mensaje temporal en pantalla.
     /// </summary>
-    public IEnumerator ShowMessage(string msg)
+    public IEnumerator TemporalShowMessage(string newmsg, string oldmsg)
     {
         if (messageText == null) yield break;
+        if (newmsg == oldmsg) yield break;
 
         messageText.gameObject.SetActive(true);
+        messageText.text = newmsg;
+
+        yield return new WaitForSeconds(3f);
+
+        messageText.text = oldmsg;
+    }
+
+    /// <summary>
+    /// Cambia el mensaje
+    /// </summary>
+    public void ChangeMessage(string msg)
+    {
         messageText.text = msg;
-
-        yield return new WaitForSeconds(7f);
-
-        messageText.gameObject.SetActive(false);
     }
 }
