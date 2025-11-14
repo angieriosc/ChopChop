@@ -97,6 +97,7 @@ public class ToppingStation : MonoBehaviour
         return pizzaResult;
     }
 
+    /// <summary>Muestra si el jugador entro a la estación</summary>
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -106,6 +107,7 @@ public class ToppingStation : MonoBehaviour
         }
     }
 
+    /// <summary>Muestra si el jugador salio de la estación</summary>
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -115,6 +117,7 @@ public class ToppingStation : MonoBehaviour
         }
     }
 
+    /// <summary>Esconde las instrucciones</summary>
     public void HideInstruction()
     {
         if (_instructionImage != null)

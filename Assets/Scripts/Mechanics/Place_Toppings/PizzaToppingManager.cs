@@ -141,22 +141,18 @@ public class PizzaToppingManager : MonoBehaviour
         }
         else
         {
-            // Ya hay masa colocada: NO permitir poner otra masa
             if (isBaseDoughSelected)
                 return;
         }
 
-        // --- Elegir sobre qué collider hacemos raycast ---
         Collider surfaceCollider = null;
 
         if (_baseDoughPlaced && _pizzaRoot != null)
         {
-            // Después de la masa, raycast sobre la MASA
             surfaceCollider = _pizzaRoot.GetComponentInChildren<Collider>();
         }
         else
         {
-            // Antes de la masa, raycast sobre la MESA
             surfaceCollider = PizzaSurfaceCollider;
         }
 
@@ -197,7 +193,6 @@ public class PizzaToppingManager : MonoBehaviour
 
         Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
 
-        // Si es la masa
         if (!_baseDoughPlaced && _currentToppingIndex == _baseDoughToppingIndex)
         {
             GameObject dough = Instantiate(prefab, position, rot);
@@ -208,10 +203,6 @@ public class PizzaToppingManager : MonoBehaviour
             _baseDoughPlaced = true;
             Debug.Log("[PizzaToppingManager] Masa colocada en la estación.");
 
-            // Opcional: consumir 1 del inventario de masa
-            // CuttingInventory.Instance?.Consume(_baseDoughInventoryKey, 1);
-
-            // Ocultar instrucción después de la primera masa
             ToppingStation station = FindObjectOfType<ToppingStation>();
             if (station != null)
                 station.HideInstruction();
@@ -219,28 +210,27 @@ public class PizzaToppingManager : MonoBehaviour
             return;
         }
 
-        // Si NO es la masa, debe existir ya PizzaRoot (masa colocada)
         if (_pizzaRoot == null)
         {
             Debug.LogWarning("[PizzaToppingManager] Intento de colocar toppings sin masa.");
             return;
         }
 
-        // Stats opcionales
         if (prefab.name == "pimiento") _numPeppersPlaced++;
         if (prefab.name == "tomatoSlice") _numTomatoesPlaced++;
 
         GameObject go = Instantiate(prefab, position, rot, _pizzaRoot);
         go.transform.localScale = Vector3.Scale(go.transform.localScale, _extraScale);
 
-        // Ocultar instrucción (por si no se ocultó antes)
         {
             ToppingStation station = FindObjectOfType<ToppingStation>();
             if (station != null)
                 station.HideInstruction();
         }
     }
-
+    /// <summary>
+    /// Destruye el topping fantasma al desactivar el manager.
+    /// </summary>
     private void OnDisable()
     {
         if (_ghostInstance != null)
@@ -253,6 +243,9 @@ public class PizzaToppingManager : MonoBehaviour
         Cursor.visible = true;
     }
 
+    /// <summary>
+    /// Muestra el topping fantasma.
+    /// </summary>
     private void SetGhostVisible(bool visible)
     {
         _ghostVisible = visible;
@@ -260,7 +253,6 @@ public class PizzaToppingManager : MonoBehaviour
         if (_ghostInstance != null && _ghostInstance.activeSelf != visible)
             _ghostInstance.SetActive(visible);
 
-        // Cursor SIEMPRE visible dentro de la estación
         Cursor.visible = true;
     }
 
