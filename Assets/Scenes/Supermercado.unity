@@ -87082,7 +87082,7 @@ Transform:
   m_GameObject: {fileID: 6452699709199031061}
   serializedVersion: 2
   m_LocalRotation: {x: -6.1232356e-17, y: 1, z: -3.1698565e-15, w: 0}
-  m_LocalPosition: {x: -0.0049395175, y: 0, z: 0}
+  m_LocalPosition: {x: 0.07, y: 0, z: 26.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -90982,13 +90982,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6282396316689422345}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.29, z: 0.95}
+  m_LocalRotation: {x: 0.2164036, y: -0.0000000032596286, z: -0.0005670334, w: 0.9763038}
+  m_LocalPosition: {x: -0.07, y: 13.59, z: -22.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7416409419398868160}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 24.996, y: -0.016, z: -0.07}
 --- !u!1 &2400671255084645277
 GameObject:
   m_ObjectHideFlags: 0
@@ -94310,13 +94310,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 965fbfd16dbd04d6fae2c85065bb3536, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cutterPrefab: {fileID: 7716952966445682932, guid: c5306269f95854daf891e5e9e2a52675, type: 3}
-  interactableLayer:
-    serializedVersion: 2
-    m_Bits: 1
-  targetCuts: 4
-  yOffset: 0.25
-  cutterInstance: {fileID: 0}
 --- !u!114 &4225185410253049857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97368,6 +97361,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2146839142693048867, guid: f0481afa82802df4d9023cb66dd4fc66, type: 3}
+      propertyPath: m_Text
+      value: "Pur\xE9 de \ntomate\n$ 499"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3988749628161284962, guid: f0481afa82802df4d9023cb66dd4fc66, type: 3}
+      propertyPath: m_Text
+      value: 'Harina
+
+        $ 499'
+      objectReference: {fileID: 0}
     - target: {fileID: 4037636945182779283, guid: f0481afa82802df4d9023cb66dd4fc66, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.771957
@@ -98058,10 +98061,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fbfc8642d45a46399c82a4d15c7367f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countText: {fileID: 0}
-  checkmarkImageObject: {fileID: 0}
-  exitButton: {fileID: 0}
-  cuttingStation: {fileID: 0}
 --- !u!1 &6037218985163853876
 GameObject:
   m_ObjectHideFlags: 0
@@ -100334,12 +100333,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fbc7009a57f42b4a41cbd2dd9c603f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToGrab: {fileID: 1346290002364991043}
-  scriptToEnable: {fileID: 4215730196470663321}
-  pickupLayer:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  targetCamera: {fileID: 1709640730047260041}
 --- !u!33 &6958474153884442289
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -100478,13 +100471,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f16c4b4899640d945a6a5040230e6bee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CuttingStation
-  stationCamera: {fileID: 1709640730047260041}
-  player: {fileID: 0}
-  playerMovement: {fileID: 0}
-  cameraFollow: {fileID: 0}
-  cameraController: {fileID: 0}
-  cuttingPanel: {fileID: 0}
-  objectGrabbing: {fileID: 6946521175090236025}
 --- !u!23 &6985698391959440534
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -101421,7 +101407,7 @@ Transform:
   m_GameObject: {fileID: 7901479501426669178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.0013101257, z: -0, w: 0.99999917}
-  m_LocalPosition: {x: 7.5771947, y: 0.24000001, z: 25.63}
+  m_LocalPosition: {x: 6.27, y: 0.24000001, z: 29.37}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -102460,6 +102446,7 @@ GameObject:
   - component: {fileID: 7618686259326665454}
   - component: {fileID: 2084775479}
   - component: {fileID: 8739442455915816656}
+  - component: {fileID: 8739442455915816657}
   m_Layer: 6
   m_Name: Hazel
   m_TagString: Untagged
@@ -104128,6 +104115,14 @@ MonoBehaviour:
   dropCartKey: 113
   addToCartKey: 102
   playerMovement: {fileID: 2084775479}
+--- !u!81 &8739442455915816657
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7901479501426669178}
+  m_Enabled: 1
 --- !u!114 &8779283646414904100
 MonoBehaviour:
   m_ObjectHideFlags: 0
