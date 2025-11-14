@@ -25,6 +25,16 @@ public class PlayerPickup : MonoBehaviour
     private MixerStation nearbyMixer = null;
     private ToppingStation nearbyToppingStation = null;
     private PouringStation nearbyPouringStation = null;
+
+    // Referencia al controlador del carrito
+    private PlayerCartController cartController = null;
+
+    private void Awake()
+    {
+        cartController = GetComponent<PlayerCartController>();
+    }
+
+    private BowlStation nearbyBowlStation = null;
     private SlicingStation nearbySlicingStation = null; // Re-añadido
 
     private void Update()
@@ -45,6 +55,7 @@ public class PlayerPickup : MonoBehaviour
         bool mixerFound = false;
         bool pouringStationFound = false;
         bool toppingStationFound = false;
+        bool bowlStationFound = false;
         bool slicingStationFound = false; // Re-añadido
 
         foreach (var col in nearbyColliders)
@@ -75,6 +86,12 @@ public class PlayerPickup : MonoBehaviour
                 nearbyToppingStation = toppingStation;
                 toppingStationFound = true;
             }
+            BowlStation bowlStation = col.GetComponent<BowlStation>();
+            if (bowlStation != null)
+            {
+                nearbyBowlStation = bowlStation;
+                bowlStationFound = true;
+            }
             
             // --- LÓGICA RE-AÑADIDA ---
             SlicingStation slicer = col.GetComponent<SlicingStation>();
@@ -90,6 +107,7 @@ public class PlayerPickup : MonoBehaviour
         if (!mixerFound) nearbyMixer = null;
         if (!pouringStationFound) nearbyPouringStation = null;
         if (!toppingStationFound) nearbyToppingStation = null;
+        if (!bowlStationFound) nearbyBowlStation = null;
         if (!slicingStationFound) nearbySlicingStation = null; // Re-añadido
     }
 
@@ -107,6 +125,13 @@ public class PlayerPickup : MonoBehaviour
     private void HandleGrabInput()
     {
         if (!Input.GetKeyDown(grabKey)) return;
+
+        // Si el jugador tiene el carrito, no puede agarrar objetos normales
+        if (cartController != null && cartController.HasCart())
+        {
+            Debug.Log("💡 No puedes agarrar objetos mientras empujas el carrito");
+            return;
+        }
 
         // ----------------------------------------
         // 1. MANO VACÍA → SALIR DE TOPPING STATION
@@ -268,6 +293,24 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
+        if (nearbyBowlStation != null && pickedObject == null)
+        {
+            if (nearbyBowlStation.activeBowl == null)
+            {
+                nearbyBowlStation.TrySpawnBowl();
+                GrabObject(nearbyBowlStation.activeBowl);
+                nearbyBowlStation.activeBowl = null;
+                nearbyBowlStation.TrySpawnBowl();
+            }
+            else
+            {
+               GrabObject(nearbyBowlStation.activeBowl);
+               nearbyBowlStation.activeBowl = null; 
+               nearbyBowlStation.TrySpawnBowl();
+
+            }
+        }
+
 
         return false;
     }

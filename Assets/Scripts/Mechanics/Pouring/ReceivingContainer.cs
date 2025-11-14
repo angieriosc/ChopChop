@@ -22,7 +22,7 @@ public class ReceivingContainer : MonoBehaviour
     [Header("CupTracker (para notificar cambios)")]
     [Tooltip("Referencia al componente CupTracker que detecta variaciones.")]
     [SerializeField] 
-    private CupTracker cupTracker;
+    public CupTracker cupTracker;
 
     // Cantidades actuales registradas por nombre de ingrediente.
     private Dictionary<string, float> ingredientAmounts =
