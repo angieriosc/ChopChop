@@ -25,12 +25,13 @@ public class SupermarketManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private SupermarketUI uiController;
-
+    
     [Header("Floating Text")]
     [SerializeField] private GameObject floatingPriceTextPrefab;
-
+    
     public static SupermarketManager Instance { get; private set; }
-    private bool shoppingListVisible = false; 
+    private bool shoppingListVisible = false;
+    
     private void Awake()
     {
         if (Instance == null)
@@ -46,7 +47,7 @@ public class SupermarketManager : MonoBehaviour
         currentMoney = initialBudget;
         InitializeShoppingList();
     }
-
+    
     private void Start()
     {
         // Inicialmente ocultar la lista de compras
@@ -54,10 +55,10 @@ public class SupermarketManager : MonoBehaviour
         {
             uiController.HideShoppingList();
         }
-
+        
         UpdateUI();
     }
-
+    
     /// <summary>
     /// Muestra la lista de compras por primera vez.
     /// </summary>
@@ -70,14 +71,14 @@ public class SupermarketManager : MonoBehaviour
             Debug.Log("📋 Lista de compras activada");
         }
     }
-
-
+    
     /// <summary>
     /// Inicializa la lista de compras con los ingredientes requeridos.
     /// </summary>
     private void InitializeShoppingList()
     {
     
+
         // Asignar iconos desde los prefabs si están disponibles
     foreach (var item in shoppingList)
     {
@@ -89,65 +90,67 @@ public class SupermarketManager : MonoBehaviour
     }
     
     /// <summary>
-/// Procesa la compra del carrito.
-/// </summary>
-public bool ProcessPurchase(ShoppingCart cart)
-{
-    if (cart == null || cart.ItemCount == 0)
+    /// Procesa la compra del carrito.
+    /// </summary>
+    public bool ProcessPurchase(ShoppingCart cart)
     {
-        Debug.Log("⚠️ El carrito está vacío");
+        if (cart == null || cart.ItemCount == 0)
+        {
+            Debug.Log("⚠️ El carrito está vacío");
+            if (SupermarketAudioManager.Instance != null)
+            {
+                SupermarketAudioManager.Instance.PlayPaymentFailSound();
+            }
+            return false;
+        }
+        
+        float totalPrice = cart.GetTotalPrice();
+        
+        // Verificar si tiene suficiente dinero ANTES de cobrar
+        if (totalPrice > currentMoney)
+        {
+            Debug.Log($"⚠️ Fondos insuficientes. Total: ${totalPrice:F2}, Disponible: ${currentMoney:F2}");
+            if (SupermarketAudioManager.Instance != null)
+            {
+                SupermarketAudioManager.Instance.PlayPaymentFailSound();
+            }
+            return false;
+        }
+        
+        // AQUÍ es donde se descuenta el dinero
+        currentMoney -= totalPrice;
+        
+        // Procesar cada item del carrito
+        List<BuyableIngredient> cartItems = cart.GetCartItems();
+        foreach (var ingredient in cartItems)
+        {
+            MarkItemAsPurchased(ingredient.IngredientName);
+        }
+        
+        // Limpiar carrito (esto destruirá los ingredientes)
+        cart.ClearCart();
+        
+        Debug.Log($"✅ Compra exitosa! Total pagado: ${totalPrice:F2}. Dinero restante: ${currentMoney:F2}");
+        
+        // Sonido de éxito
         if (SupermarketAudioManager.Instance != null)
         {
-            SupermarketAudioManager.Instance.PlayPaymentFailSound();
+            SupermarketAudioManager.Instance.PlayPaymentSuccessSound();
         }
-        return false;
+        
+        UpdateUI();
+        
+        return true;
     }
     
-    float totalPrice = cart.GetTotalPrice();
-    
-    // Ya no necesitamos descontar aquí porque se descuenta al agregar
-    if (currentMoney < 0)
-    {
-        Debug.Log($"⚠️ Fondos insuficientes");
-        if (SupermarketAudioManager.Instance != null)
-        {
-            SupermarketAudioManager.Instance.PlayPaymentFailSound();
-        }
-        return false;
-    }
-    
-    // Procesar cada item del carrito
-    List<BuyableIngredient> cartItems = cart.GetCartItems();
-    foreach (var ingredient in cartItems)
-    {
-        MarkItemAsPurchased(ingredient.IngredientName);
-    }
-    
-    // Limpiar carrito (esto destruirá los ingredientes)
-    cart.ClearCart();
-    
-    Debug.Log($"✅ Compra exitosa! Dinero restante: ${currentMoney:F2}");
-    
-    // Sonido de éxito
-    if (SupermarketAudioManager.Instance != null)
-    {
-        SupermarketAudioManager.Instance.PlayPaymentSuccessSound();
-    }
-    
-    UpdateUI();
-    
-    return true;
-}
-
     /// <summary>
     /// Marca un item de la lista como comprado cuando se agrega al carrito.
-    /// También descuenta el dinero inmediatamente y muestra el texto flotante.
+    /// NO descuenta dinero, solo marca el item.
     /// </summary>
     public void MarkItemAddedToCart(string ingredientName, float price, Vector3 itemPosition)
     {
-        // Descontar dinero inmediatamente
-        currentMoney -= price;
-
+        // NO descontar dinero aquí, solo al pagar
+        
         // Mostrar texto flotante
         if (floatingPriceTextPrefab != null)
         {
@@ -159,12 +162,12 @@ public bool ProcessPurchase(ShoppingCart cart)
                 floatingText.Initialize(price, textPosition);
             }
         }
-
+        
         // Marcar en la lista
         foreach (var item in shoppingList)
         {
-            if (!item.isPurchased &&
-                (item.itemName.ToLower().Contains(ingredientName.ToLower()) ||
+            if (!item.isPurchased && 
+                (item.itemName.ToLower().Contains(ingredientName.ToLower()) || 
                  Mathf.Abs(item.itemPrice - price) < 0.01f))
             {
                 item.isPurchased = true;
@@ -172,10 +175,9 @@ public bool ProcessPurchase(ShoppingCart cart)
                 break;
             }
         }
-
+        
         UpdateUI();
     }
-
     
     /// <summary>
     /// Marca un item de la lista como comprado (método legacy para compatibilidad).
@@ -193,11 +195,12 @@ public bool ProcessPurchase(ShoppingCart cart)
     }
     
     /// <summary>
-    /// Verifica si el jugador puede comprar un item específico.
+    /// Verifica si el jugador puede agregar un item al carrito sin pasarse del presupuesto.
     /// </summary>
-    public bool CanAfford(float price)
+    public bool CanAfford(float additionalPrice, float currentCartTotal)
     {
-        return price <= currentMoney;
+        float futureTotal = currentCartTotal + additionalPrice;
+        return futureTotal <= currentMoney;
     }
     
     /// <summary>
@@ -228,4 +231,5 @@ public bool ProcessPurchase(ShoppingCart cart)
     // Getters
     public float CurrentMoney => currentMoney;
     public List<ShoppingListItem> ShoppingList => shoppingList;
+    public SupermarketUI UIController => uiController;
 }

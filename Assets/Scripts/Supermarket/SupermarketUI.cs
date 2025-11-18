@@ -11,15 +11,16 @@ public class SupermarketUI : MonoBehaviour
 {
     [Header("Money Display")]
     [SerializeField] private TextMeshProUGUI moneyText;
-    [SerializeField] private string moneyPrefix = "Dinero: $";
+    [SerializeField] private TextMeshProUGUI cartTotalText;
+    [SerializeField] private string moneyPrefix = "Presupuesto: $";
+    [SerializeField] private string cartTotalPrefix = "Total Carrito: $";
     
     [Header("Shopping List")]
     [SerializeField] private Transform shoppingListContainer;
     [SerializeField] private GameObject shoppingListItemPrefab;
-    [SerializeField] private GameObject shoppingListPanel; // Panel completo para mostrar/ocultar
+    [SerializeField] private GameObject shoppingListPanel;
     
     [Header("Cart Info")]
-    [SerializeField] private TextMeshProUGUI cartTotalText;
     [SerializeField] private TextMeshProUGUI cartItemCountText;
     
     private List<GameObject> listItemInstances = new List<GameObject>();
@@ -97,7 +98,7 @@ public class SupermarketUI : MonoBehaviour
         if (cart == null)
         {
             if (cartTotalText != null)
-                cartTotalText.text = "Total: $0.00";
+                cartTotalText.text = $"{cartTotalPrefix}0.00";
             
             if (cartItemCountText != null)
                 cartItemCountText.text = "Items: 0";
@@ -105,9 +106,24 @@ public class SupermarketUI : MonoBehaviour
             return;
         }
         
+        float total = cart.GetTotalPrice();
+        
         if (cartTotalText != null)
         {
-            cartTotalText.text = $"Total: ${cart.GetTotalPrice():F2}";
+            cartTotalText.text = $"{cartTotalPrefix}{total:F2}";
+            
+            // Cambiar color si se pasa del presupuesto
+            if (SupermarketManager.Instance != null)
+            {
+                if (total > SupermarketManager.Instance.CurrentMoney)
+                {
+                    cartTotalText.color = Color.red;
+                }
+                else
+                {
+                    cartTotalText.color = Color.white;
+                }
+            }
         }
         
         if (cartItemCountText != null)
