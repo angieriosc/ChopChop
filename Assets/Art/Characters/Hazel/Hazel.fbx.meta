@@ -46,7 +46,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: IDLE_anim.001 (1)
+      name: IDLE_anim.001
       takeName: IDLE_anim.001
       internalID: 608344006409348151
       firstFrame: 0

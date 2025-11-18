@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.EditorTools;
 
 /// <summary>
 /// Controla el flujo automatizado de preparación de una receta.
@@ -34,9 +35,15 @@ public class RecipeController : MonoBehaviour
     [Tooltip("Punto de aparición para los ingredientes.")]
     [SerializeField] private Transform spawnPoint;
 
+    [Tooltip("Panel de fracciones")]
+    [SerializeField] private FractionPanelUI fractionPanelUI;
     private RecipeData currentRecipe;
     private int currentIngredientIndex = 0;
     private GameObject currentIngredientGO;
+
+    [Header("Menu de recetas")]
+    [Tooltip ("UI Menu de recetas")]
+    public RecipeMenu recipeMenu;
 
     /// <summary>
     /// Inicia el flujo de preparación de una receta específica.
@@ -48,6 +55,9 @@ public class RecipeController : MonoBehaviour
 
         currentRecipe = recipe;
         currentIngredientIndex = 0;
+        fractionPanelUI = FindFirstObjectByType<FractionPanelUI>(
+            FindObjectsInactive.Include
+        );
 
         AssignCurrentIngredient();
     }
@@ -108,9 +118,13 @@ public class RecipeController : MonoBehaviour
         cupTracker.activeIngredientName = ingredient.ingredientName;
         cupTracker.ResetTracker();
 
-        StartCoroutine(ShowMessage(
-            $"Añade {ingredient.ingredientName}"
-        ));
+
+        if (recipeMenu.ingredientRequireStrings.ContainsKey(ingredient.ingredientName))
+        {
+            ShowMessage(recipeMenu.ingredientRequireStrings[ingredient.ingredientName]);
+        }
+            
+        fractionPanelUI.buttonsScrollView?.SetActive(true);
     }
 
     /// <summary>
@@ -127,7 +141,7 @@ public class RecipeController : MonoBehaviour
     /// </summary>
     private void RecipeCompleted()
     {
-        StartCoroutine(ShowMessage("Receta completada!"));
+        ShowMessage("Receta completada!");
 
         // Eliminar último ingrediente
         if (currentIngredientGO != null)
@@ -151,14 +165,12 @@ public class RecipeController : MonoBehaviour
     /// </summary>
     /// <param name="msg">Texto a mostrar.</param>
     /// <param name="duration">Duración en segundos del mensaje.</param>
-    private IEnumerator ShowMessage(string msg, float duration = 3f)
+    public void ShowMessage(string msg, float duration = 3f)
     {
         if (messageText != null)
         {
             messageText.gameObject.SetActive(true);
             messageText.text = msg;
-            yield return new WaitForSeconds(duration);
-            messageText.gameObject.SetActive(false);
         }
     }
 }

@@ -1,12 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// Administra la lógica de colocar y retirar la pizza en la estación de toppings.
-/// Activa/desactiva cámaras y UI, y habilita el PizzaToppingManager.
+/// Administra la lógica de entrar/salir de la estación de toppings.
+/// Ya no requiere llevar una pizza en la mano.
+/// La primera masa que coloques se convierte en el root de la pizza
+/// y al salir se devuelve ese objeto (masa + toppings hijos).
 /// </summary>
 public class ToppingStation : MonoBehaviour
 {
-    // 1. Variables públicas y serializadas
     [Header("Cámaras y UI")]
     [SerializeField] private Camera _playerCamera;
     [SerializeField] private Camera _stationCamera;
@@ -15,87 +16,72 @@ public class ToppingStation : MonoBehaviour
     [Header("Manager de Toppings")]
     [SerializeField] private PizzaToppingManager _toppingManager;
 
-    [Header("Punto donde se coloca la pizza")]
-    [SerializeField] private Transform _ingredientPoint;
-    [SerializeField] private Vector3 _offset;
-    [SerializeField] private float _snapYOffset = 0.01f;
+    [Header("Superficie de la mesa (para el raycast INICIAL)")]
+    [SerializeField] private Collider _pizzaSurfaceCollider;
 
-    // 2. Variables privadas
-    private GameObject _currentPizza;
-    private Rigidbody _rb;
-    private Collider _col;
-    private bool _hasPizza;
+    [Header("UI instrucciones")]
+    [SerializeField] private GameObject _instructionImage;
+
+    [SerializeField] private bool _playerInStation = false;
+    private bool _hasPizza = false;  // en este flujo = "estación en uso"
 
     /// <summary>
-    /// Intenta colocar la pizza en la estación. Valida que sea un objeto utilizable y la centra.
+    /// Entra a la estación, configura el manager (raycast en mesa) y activa cámaras/UI.
     /// </summary>
-    /// <param name="pizzaObj">Instancia de la pizza que se intenta colocar.</param>
-    /// <returns>True si se colocó correctamente; false en caso contrario.</returns>
-    public bool TryPlace(GameObject pizzaObj)
+    public bool TryPlace()
     {
-        if (_hasPizza || pizzaObj == null) return false;
+        if (_hasPizza) return false;
+        if (!_playerInStation) return false;
 
-        var identifiers = pizzaObj.GetComponentInParent<PizzaIdentifiers>();
-        Transform root = identifiers != null ? identifiers.PizzaRoot : pizzaObj.transform;
-
-        // Guardar referencia y congelar físicas
-        _currentPizza = root.gameObject;
-        _hasPizza = true;
-
-        _rb = root.GetComponent<Rigidbody>();
-        if (_rb != null)
+        if (_toppingManager != null)
         {
-            _rb.useGravity = false;
-            _rb.isKinematic = true;
+            _toppingManager.PizzaRoot = null; // todavía no hay masa
+            _toppingManager.PizzaCenter = null;
+            _toppingManager.PizzaSurfaceCollider = _pizzaSurfaceCollider;
+            _toppingManager.WorkCamera = _stationCamera;
+            _toppingManager.SetEnabled(true);
         }
 
-        _col = root.GetComponent<Collider>();
-        if (_col != null) _col.enabled = false;
+        if (_playerCamera != null) _playerCamera.gameObject.SetActive(false);
+        if (_stationCamera != null) _stationCamera.gameObject.SetActive(true);
+        if (_stationCanvas != null) _stationCanvas.SetActive(true);
+        if (_instructionImage != null) _instructionImage.SetActive(true);
 
-        // Colocación exacta en el centro de la estación
-        root.SetParent(_ingredientPoint, true);
-        Vector3 worldPos = _ingredientPoint.TransformPoint(_offset + Vector3.up * _snapYOffset);
-        root.position = worldPos;
-        root.rotation = _ingredientPoint.rotation;
-        
-        // Configurar el manager de toppings
-        if (identifiers != null)
-        {
-            _toppingManager.PizzaRoot = identifiers.PizzaRoot;
-            _toppingManager.PizzaSurfaceCollider = identifiers.PizzaSurface;
-            _toppingManager.PizzaCenter = identifiers.PizzaCenter != null ? identifiers.PizzaCenter : identifiers.PizzaRoot;
-        }
+        Cursor.visible = true;
 
-        _toppingManager.WorkCamera = _stationCamera;
-        _toppingManager.SetEnabled(true);
-
-        // Activar UI y cámara de estación
-        _playerCamera.gameObject.SetActive(false);
-        _stationCamera.gameObject.SetActive(true);
-        _stationCanvas.SetActive(true);
-
+        _hasPizza = true; // Estamos usando la estación (creando una pizza)
+        Debug.Log("[ToppingStation] Entrando a estación de toppings.");
         return true;
     }
 
     /// <summary>
-    /// Libera la pizza y restaura cámaras, físicas y UI.
+    /// Sale de la estación y devuelve la pizza completa (masa + toppings) si existe.
     /// </summary>
     public GameObject TakePizza()
     {
-        if (!_hasPizza || _currentPizza == null) return null;
+        if (!_hasPizza) return null;
 
-        var root = _currentPizza.transform;
+        GameObject pizzaResult = null;
 
-        if (_rb != null)
+        if (_toppingManager.PizzaRoot != null)
         {
-            _rb.isKinematic = false;
-            _rb.useGravity = true;
+            pizzaResult = _toppingManager.PizzaRoot.gameObject;
+            pizzaResult.transform.SetParent(null, true);
+
+            // Activar físicas
+            var rb = pizzaResult.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+            }
+
+            var col = pizzaResult.GetComponent<Collider>();
+            if (col != null)
+                col.enabled = true;
         }
 
-        if (_col != null) _col.enabled = true;
-
-        root.SetParent(null, true);
-
+        // Apagar cámara y manager
         _toppingManager.SetEnabled(false);
         _toppingManager.WorkCamera = null;
         _toppingManager.ClearSelection();
@@ -104,15 +90,46 @@ public class ToppingStation : MonoBehaviour
         _stationCamera.gameObject.SetActive(false);
         _stationCanvas.SetActive(false);
 
-        _hasPizza = false;
-        _currentPizza = null;
+        Cursor.visible = false;
 
-        return root.gameObject;
+        _hasPizza = false;
+
+        return pizzaResult;
+    }
+
+    /// <summary>Muestra si el jugador entro a la estación</summary>
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            _playerInStation = true;
+            Debug.Log("[ToppingStation] Jugador entró en la estación");
+        }
+    }
+
+    /// <summary>Muestra si el jugador salio de la estación</summary>
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            _playerInStation = false;
+            Debug.Log("[ToppingStation] Jugador salió de la estación");
+        }
+    }
+
+    /// <summary>Esconde las instrucciones</summary>
+    public void HideInstruction()
+    {
+        if (_instructionImage != null)
+            _instructionImage.SetActive(false);
     }
 
     /// <summary>Indica si la estación está libre.</summary>
     public bool IsAvailable() => !_hasPizza;
 
-    /// <summary>Indica si hay una pizza actualmente en la estación.</summary>
+    /// <summary>En este flujo: true = estación en uso (hay pizza en construcción o ya hecha).</summary>
     public bool HasPizza() => _hasPizza;
+
+    /// <summary>Indica si un jugador está actualmente en la estación.</summary>
+    public bool IsPlayerInside() => _playerInStation;
 }
