@@ -69,12 +69,21 @@ public class CheckoutZone : MonoBehaviour
             Debug.Log($"💰 Intentando procesar pago de ${totalPrice:F2}");
         }
 
-        if (!SupermarketManager.Instance.CanAfford(totalPrice))
+        // CORRECCIÓN: Verificar si tiene suficiente dinero
+        // Como ya tenemos el total del carrito, simplemente comparamos con el dinero disponible
+        if (totalPrice > SupermarketManager.Instance.CurrentMoney)
         {
-            Debug.Log($"⚠️ Fondos insuficientes. Total: ${totalPrice:F2}");
+            Debug.Log($"⚠️ Fondos insuficientes. Total: ${totalPrice:F2}, Disponible: ${SupermarketManager.Instance.CurrentMoney:F2}");
+            
+            // Sonido de error
+            if (SupermarketAudioManager.Instance != null)
+            {
+                SupermarketAudioManager.Instance.PlayPaymentFailSound();
+            }
             return;
         }
 
+        // Procesar la compra
         bool success = SupermarketManager.Instance.ProcessPurchase(currentCart);
 
         if (success)
@@ -92,6 +101,12 @@ public class CheckoutZone : MonoBehaviour
             if (paymentPrompt != null)
             {
                 paymentPrompt.SetActive(false);
+            }
+            
+            // Soltar el carrito automáticamente después del pago
+            if (playerInZone != null)
+            {
+                playerInZone.ReleaseCart();
             }
         }
     }

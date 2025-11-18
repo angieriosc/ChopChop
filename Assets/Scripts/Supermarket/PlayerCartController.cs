@@ -58,6 +58,12 @@ public class PlayerCartController : MonoBehaviour
         {
             UpdateCartPosition();
             HandleCartAudio();
+            
+            // Actualizar UI del carrito en tiempo real
+            if (SupermarketManager.Instance != null && SupermarketManager.Instance.UIController != null)
+            {
+                SupermarketManager.Instance.UIController.UpdateCartInfo(currentCart);
+            }
         }
         
         lastPlayerPosition = transform.position;
@@ -284,11 +290,12 @@ public class PlayerCartController : MonoBehaviour
         }
         
         float price = nearbyIngredient.Price;
+        float currentCartTotal = currentCart.GetTotalPrice();
         
-        // Verificar si el jugador puede pagar
-        if (!SupermarketManager.Instance.CanAfford(price))
+        // Verificar si el jugador puede pagar (sin exceder presupuesto)
+        if (!SupermarketManager.Instance.CanAfford(price, currentCartTotal))
         {
-            Debug.Log($"⚠️ No tienes suficiente dinero para {nearbyIngredient.IngredientName}");
+            Debug.Log($"⚠️ No puedes agregar {nearbyIngredient.IngredientName}. Se pasaría del presupuesto de ${SupermarketManager.Instance.CurrentMoney:F2}");
             return;
         }
         
