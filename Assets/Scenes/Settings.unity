@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: fde3303ddff75264ead3e600a6dc4905, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1543,7 +1543,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.26593092, g: 0.6792453, b: 0.2919084, a: 0.48235294}
+  m_Color: {r: 0.11943753, g: 0.5754717, b: 0.14549658, a: 0.48235294}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2794,7 +2794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.42352945, g: 0.14901961, b: 0.10980393, a: 0.8627451}
+  m_Color: {r: 0.38679248, g: 0.0866634, b: 0.04378782, a: 0.8627451}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2849,6 +2849,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1093704833}
     m_Modifications:
+    - target: {fileID: 606969477887032756, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_Color.b
+      value: 0.058072276
+      objectReference: {fileID: 0}
+    - target: {fileID: 606969477887032756, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_Color.g
+      value: 0.2735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 606969477887032756, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_Color.r
+      value: 0.08550116
+      objectReference: {fileID: 0}
     - target: {fileID: 6428754202170883284, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
