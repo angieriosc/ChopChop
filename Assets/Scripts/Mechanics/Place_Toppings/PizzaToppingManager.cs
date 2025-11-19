@@ -44,6 +44,9 @@ public class PizzaToppingManager : MonoBehaviour
     private int _numPeppersPlaced = 0;
     private int _numTomatoesPlaced = 0;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource toppingAudio; 
+
     [Header("Lógica de masa/base")]
     [Tooltip("Index en la lista de toppings que corresponde a la masa/base (slot 1 en la UI).")]
     [SerializeField] private int _baseDoughToppingIndex = 0;
@@ -189,6 +192,11 @@ public class PizzaToppingManager : MonoBehaviour
     /// </summary>
     private void SpawnTopping(Vector3 position, Vector3 normal, GameObject prefab)
     {
+        if (toppingAudio != null)
+        {
+            toppingAudio.Play();                  
+        }
+
         if (prefab == null) return;
 
         Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
