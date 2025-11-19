@@ -68,6 +68,12 @@ public class ToppingStation : MonoBehaviour
             pizzaResult = _toppingManager.PizzaRoot.gameObject;
             pizzaResult.transform.SetParent(null, true);
 
+            InteractableObject interactable = pizzaResult.GetComponent<InteractableObject>();
+            if (interactable != null)
+            {
+                interactable.RemoveCapability(ObjectCapabilities.Toppingable);
+            }
+
             // Activar físicas
             var rb = pizzaResult.GetComponent<Rigidbody>();
             if (rb != null)
