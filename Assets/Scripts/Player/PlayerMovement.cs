@@ -33,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (ToppingLock.IsLocked)
+            return;
+            
         HandleMovement();
         HandleJump();
         ApplyGravity();
