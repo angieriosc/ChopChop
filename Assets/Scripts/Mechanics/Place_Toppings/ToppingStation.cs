@@ -91,6 +91,7 @@ public class ToppingStation : MonoBehaviour
         _playerCamera.gameObject.SetActive(true);
         _stationCamera.gameObject.SetActive(false);
         _stationCanvas.SetActive(false);
+        ToppingLock.IsLocked = false;
 
         Cursor.visible = false;
 
