@@ -15,6 +15,7 @@ public class Customer : MonoBehaviour
     public Animator animator;                      // Animator reference (can assign in inspector)
     public string walkStateName = "Running";          // Animator state name for walking
     public string idleStateName = "Idle State";          // Animator state name for idle
+    public string sittingStateName = "Sitting";  
     public float crossfadeDuration = 0.12f;        // crossfade time for smooth transitions
 
     private RecipeDataMenu currentRecipe;
@@ -69,7 +70,7 @@ public class Customer : MonoBehaviour
         // Go back to Idle state
         if (animator != null)
         {
-            animator.CrossFade(idleStateName, crossfadeDuration);
+            animator.CrossFade(sittingStateName, crossfadeDuration);
         }
 
         hasReachedCounter = true;
