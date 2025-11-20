@@ -25,6 +25,7 @@ public class CustomerManager : MonoBehaviour
     private Customer currentCounterCustomer;
     private List<GameObject> spawnedTableCustomers = new List<GameObject>();
     private RecipeDataMenu activeRecipe;
+    public RecipeDataMenu ActiveRecipe => activeRecipe;
 
     [SerializeField] private PizzaToppingManager toppingManager;
 
