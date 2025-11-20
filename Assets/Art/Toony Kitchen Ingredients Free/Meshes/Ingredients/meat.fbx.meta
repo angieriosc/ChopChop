@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: 367bab942037468409d91209a6d73770
+AssetOrigin:
+  serializedVersion: 1
+  productId: 301805
+  packageName: Toony Kitchen & Ingredients Model FREE
+  packageVersion: 1.0
+  assetPath: Assets/Art/Toony Kitchen Ingredients Free/Meshes/Ingredients/meat.fbx
+  uploadId: 708770
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -21,8 +28,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -37,7 +42,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
@@ -112,10 +117,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 301805
-  packageName: Toony Kitchen & Ingredients Model FREE
-  packageVersion: 1.0
-  assetPath: Assets/Art/Toony Kitchen Ingredients Free/Meshes/Ingredients/meat.fbx
-  uploadId: 708770

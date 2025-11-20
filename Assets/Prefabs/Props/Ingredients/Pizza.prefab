@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 5011412916275934763}
   - component: {fileID: 8247845759434721322}
   - component: {fileID: 5193528963134584596}
+  - component: {fileID: -5054597377020823519}
   m_Layer: 0
   m_Name: Pizza
   m_TagString: Untagged
@@ -188,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ebcba29a97da024aba12d5ccef12f83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  capabilities: 2115
+  capabilities: 2119
 --- !u!114 &5011412916275934763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,3 +261,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-5054597377020823519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7208889348628162446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abb44d14e365841d29f88dfdd8c6cdaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliceResultPrefab: {fileID: 3931219076284134238, guid: 6b27b9c449a84424c8eaa9a7db0fd099, type: 3}

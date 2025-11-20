@@ -171,6 +171,7 @@ public class OvenStation : MonoBehaviour
         if (_currentIngredient == null) return null;
 
         GameObject ingredient = _currentIngredient;
+        InteractableObject interactable = ingredient.GetComponent<InteractableObject>();
 
         switch (_currentStage)
         {
@@ -186,6 +187,12 @@ public class OvenStation : MonoBehaviour
                 break;
         }
 
+        if (interactable != null)
+        {
+            interactable.RemoveCapability(ObjectCapabilities.Bakeable);
+            interactable.AddCapability(ObjectCapabilities.Cuttable);
+        }
+
         ingredient.transform.SetParent(null);
         ingredient.transform.position = _originalPosition;
 
@@ -195,6 +202,7 @@ public class OvenStation : MonoBehaviour
         Rigidbody rb = ingredient.GetComponent<Rigidbody>();
         if (rb != null)
         {
+            Debug.Log("Restoring Rigidbody properties.");
             rb.isKinematic = false;
             rb.useGravity = true;
         }

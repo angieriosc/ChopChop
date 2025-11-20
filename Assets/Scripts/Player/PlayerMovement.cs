@@ -36,6 +36,9 @@ public class PlayerMovement : MonoBehaviour
         if (DialogueLock.IsLocked)
             return;
 
+        if (ToppingLock.IsLocked)
+            return;
+            
         HandleMovement();
         HandleJump();
         ApplyGravity();
