@@ -93,7 +93,7 @@ public class ToppingStation : MonoBehaviour
         _stationCanvas.SetActive(false);
         ToppingLock.IsLocked = false;
 
-        Cursor.visible = false;
+        Cursor.visible = true;
 
         _hasPizza = false;
 
