@@ -15,6 +15,15 @@ MonoBehaviour:
   recipeName: Pizza Vegetal
   numberOfPizzas: 1
   numberOfCustomers: 6
+  toppingLimits:
+  - toppingId: 1
+    maxQuantity: 1
+  - toppingId: 2
+    maxQuantity: 8
+  - toppingId: 3
+    maxQuantity: 12
+  - toppingId: 4
+    maxQuantity: 0
   recipeScrollImage: {fileID: 0}
   dishIcon: {fileID: 21300000, guid: 0164f6cc9883d6047bef0d1d865f1c3b, type: 3}
   slicedPizzaIcon: {fileID: 21300000, guid: 8be5b8d77613da042b7588808a8143d1, type: 3}
