@@ -39,6 +39,9 @@ public class PlayerPickup : MonoBehaviour
 
     private void Update()
     {
+        if (DialogueLock.IsLocked)
+            return;
+            
         DetectNearbyStations();
 
         HandleDropInput();
