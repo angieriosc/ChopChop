@@ -63,4 +63,29 @@ public class CuttingInventory : MonoBehaviour
         }
         return 0;
     }
+/// <summary>
+/// Resta cantidad de un item. Si llega a 0, lo elimina.
+/// </summary>
+public bool Consume(string key, int amount)
+{
+    foreach (CuttingInventoryItem item in items)
+    {
+        if (item.itemKey == key)
+        {
+            if (item.quantity < amount)
+                return false;
+
+            item.quantity -= amount;
+
+            if (item.quantity == 0)
+                items.Remove(item);
+
+            Debug.Log($"[CuttingInventory] Consumido: -{amount} de '{key}'. Restante: {item.quantity}");
+            return true;
+        }
+    }
+
+    return false;
+}
+
 }

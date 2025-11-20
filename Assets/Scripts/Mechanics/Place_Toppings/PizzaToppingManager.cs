@@ -2,19 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Controla el spawn de toppings sobre la pizza.
-/// Obliga a poner la masa primero (usando inventario) y luego toppings.
-/// Después de poner la masa, el raycast se hace sobre la masa, no la mesa.
-/// </summary>
 public class PizzaToppingManager : MonoBehaviour
 {
     [Header("Cámara de trabajo asignada por ToppingStation")]
     [SerializeField] private Camera _workCamera;
 
     [Header("Referencias de pizza / superficie")]
-    [SerializeField] private Transform _pizzaRoot;           // Se asigna dinámicamente a la masa
-    [SerializeField] private Collider _pizzaSurfaceCollider; // Superficie de la mesa INICIAL
+    [SerializeField] private Transform _pizzaRoot;
+    [SerializeField] private Collider _pizzaSurfaceCollider;
     [SerializeField] private Transform _pizzaCenter;
     [SerializeField] private float _surfaceYOffset = 0.01f;
 
@@ -40,24 +35,23 @@ public class PizzaToppingManager : MonoBehaviour
     private GameObject _ghostInstance;
     private bool _ghostVisible = false;
 
-    [Header("Stats (opcional)")]
-    private int _numPeppersPlaced = 0;
-    private int _numTomatoesPlaced = 0;
+    private Dictionary<string, int> _maxPerTopping = new();
+    private Dictionary<string, int> _placedPerTopping = new();
+    public System.Action OnToppingCountsChanged;
 
     [Header("Audio")]
-    [SerializeField] private AudioSource toppingAudio; 
+    [SerializeField] private AudioSource toppingAudio;
 
     [Header("Lógica de masa/base")]
-    [Tooltip("Index en la lista de toppings que corresponde a la masa/base (slot 1 en la UI).")]
     [SerializeField] private int _baseDoughToppingIndex = 0;
-
-    [Tooltip("Clave de inventario (CuttingInventory.itemKey) que representa la masa/base.")]
     [SerializeField] private string _baseDoughInventoryKey = "WedgeSlice";
 
     private bool _baseDoughPlaced = false;
     private int _currentToppingIndex = -1;
 
-    /// <summary>Activa o desactiva el manager (se usa al entrar/salir de la estación).</summary>
+    /// <summary>
+    /// Activa o desactiva el manager al entrar o salir de la estación.
+    /// </summary>
     public void SetEnabled(bool value)
     {
         _enabled = value;
@@ -71,7 +65,9 @@ public class PizzaToppingManager : MonoBehaviour
         }
     }
 
-    /// <summary>Selecciona un topping desde UI.</summary>
+    /// <summary>
+    /// Selecciona un topping según su índice en la UI.
+    /// </summary>
     public void SelectToppingByIndex(int index)
     {
         if (index < 0 || index >= _toppings.Count) return;
@@ -96,7 +92,9 @@ public class PizzaToppingManager : MonoBehaviour
         SetGhostVisible(false);
     }
 
-    /// <summary>Limpia la selección actual de topping.</summary>
+    /// <summary>
+    /// Limpia la selección actual de topping.
+    /// </summary>
     public void ClearSelection()
     {
         _currentToppingPrefab = null;
@@ -112,6 +110,9 @@ public class PizzaToppingManager : MonoBehaviour
         Cursor.visible = true;
     }
 
+    /// <summary>
+    /// Actualiza el raycast y el cursor fantasma para colocar toppings.
+    /// </summary>
     private void Update()
     {
         if (!_enabled || WorkCamera == null || _currentToppingPrefab == null)
@@ -119,28 +120,19 @@ public class PizzaToppingManager : MonoBehaviour
 
         bool isBaseDoughSelected = (_currentToppingIndex == _baseDoughToppingIndex);
 
-        // --- Reglas de masa/base ---
         if (!_baseDoughPlaced)
         {
-            // Si aún no hay masa, solo se permite si el topping seleccionado ES la masa
             if (!isBaseDoughSelected)
                 return;
 
-            // Revisar inventario de masa
             if (CuttingInventory.Instance != null)
             {
                 int qty = CuttingInventory.Instance.GetQuantity(_baseDoughInventoryKey);
                 if (qty <= 0)
-                {
-                    Debug.Log($"[PizzaToppingManager] No hay masa '{_baseDoughInventoryKey}' en CuttingInventory.");
                     return;
-                }
             }
             else
-            {
-                Debug.LogWarning("[PizzaToppingManager] No existe CuttingInventory.Instance en la escena.");
                 return;
-            }
         }
         else
         {
@@ -148,16 +140,9 @@ public class PizzaToppingManager : MonoBehaviour
                 return;
         }
 
-        Collider surfaceCollider = null;
-
-        if (_baseDoughPlaced && _pizzaRoot != null)
-        {
-            surfaceCollider = _pizzaRoot.GetComponentInChildren<Collider>();
-        }
-        else
-        {
-            surfaceCollider = PizzaSurfaceCollider;
-        }
+        Collider surfaceCollider = _baseDoughPlaced && _pizzaRoot != null
+            ? _pizzaRoot.GetComponentInChildren<Collider>()
+            : PizzaSurfaceCollider;
 
         if (surfaceCollider == null)
             return;
@@ -187,57 +172,63 @@ public class PizzaToppingManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Instancia un topping sobre la pizza en la posición indicada.
-    /// Si es la masa, establece la masa como PizzaRoot.
+    /// Instancia la masa o un topping normal según reglas actuales.
     /// </summary>
     private void SpawnTopping(Vector3 position, Vector3 normal, GameObject prefab)
     {
-        if (toppingAudio != null)
-        {
-            toppingAudio.Play();                  
-        }
-
         if (prefab == null) return;
 
-        Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
+        if (_currentToppingIndex < 0 || _currentToppingIndex >= _toppings.Count)
+            return;
+
+        string toppingId = _toppings[_currentToppingIndex].id;
 
         if (!_baseDoughPlaced && _currentToppingIndex == _baseDoughToppingIndex)
         {
+            Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
+
             GameObject dough = Instantiate(prefab, position, rot);
             dough.transform.localScale = Vector3.Scale(dough.transform.localScale, _extraScale);
 
             _pizzaRoot = dough.transform;
             _pizzaCenter = _pizzaRoot;
             _baseDoughPlaced = true;
-            Debug.Log("[PizzaToppingManager] Masa colocada en la estación.");
+
+            var col = dough.GetComponentInChildren<Collider>();
+            if (col != null)
+                PizzaSurfaceCollider = col;
+
+            if (CuttingInventory.Instance != null)
+                CuttingInventory.Instance.Consume(_baseDoughInventoryKey, 1);
 
             ToppingStation station = FindObjectOfType<ToppingStation>();
             if (station != null)
                 station.HideInstruction();
 
+            OnToppingCountsChanged?.Invoke();
             return;
         }
 
         if (_pizzaRoot == null)
-        {
-            Debug.LogWarning("[PizzaToppingManager] Intento de colocar toppings sin masa.");
             return;
-        }
 
-        if (prefab.name == "pimiento") _numPeppersPlaced++;
-        if (prefab.name == "tomatoSlice") _numTomatoesPlaced++;
+        if (!CanPlaceTopping(toppingId))
+            return;
 
-        GameObject go = Instantiate(prefab, position, rot, _pizzaRoot);
+        if (toppingAudio != null)
+            toppingAudio.Play();
+
+        Quaternion toppingRot = Quaternion.LookRotation(Vector3.forward, normal);
+        GameObject go = Instantiate(prefab, position, toppingRot, _pizzaRoot);
         go.transform.localScale = Vector3.Scale(go.transform.localScale, _extraScale);
 
-        {
-            ToppingStation station = FindObjectOfType<ToppingStation>();
-            if (station != null)
-                station.HideInstruction();
-        }
+        _placedPerTopping[toppingId] = GetPlacedForTopping(toppingId) + 1;
+
+        OnToppingCountsChanged?.Invoke();
     }
+
     /// <summary>
-    /// Destruye el topping fantasma al desactivar el manager.
+    /// Limpia el ghost cursor al desactivar el manager.
     /// </summary>
     private void OnDisable()
     {
@@ -252,7 +243,7 @@ public class PizzaToppingManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Muestra el topping fantasma.
+    /// Activa o desactiva el ghost del topping.
     /// </summary>
     private void SetGhostVisible(bool visible)
     {
@@ -264,11 +255,55 @@ public class PizzaToppingManager : MonoBehaviour
         Cursor.visible = true;
     }
 
+    /// <summary>
+    /// Aplica los límites de toppings definidos por la receta actual.
+    /// </summary>
+    public void ApplyRecipeLimits(RecipeDataMenu recipe)
+    {
+        _maxPerTopping.Clear();
+        _placedPerTopping.Clear();
+
+        if (recipe == null)
+            return;
+
+        foreach (var limit in recipe.toppingLimits)
+        {
+            _maxPerTopping[limit.toppingId] = limit.maxQuantity;
+            _placedPerTopping[limit.toppingId] = 0;
+        }
+
+        OnToppingCountsChanged?.Invoke();
+    }
+
+    /// <summary>Obtiene el máximo permitido para un topping.</summary>
+    public int GetMaxForTopping(string toppingId)
+    {
+        return _maxPerTopping.TryGetValue(toppingId, out int max) ? max : 0;
+    }
+
+    /// <summary>Obtiene cuántos toppings de este tipo ya fueron colocados.</summary>
+    public int GetPlacedForTopping(string toppingId)
+    {
+        return _placedPerTopping.TryGetValue(toppingId, out int count) ? count : 0;
+    }
+
+    /// <summary>Verifica si aún se puede colocar este topping según la receta.</summary>
+    public bool CanPlaceTopping(string toppingId)
+    {
+        if (_maxPerTopping.TryGetValue(toppingId, out int max))
+        {
+            int current = GetPlacedForTopping(toppingId);
+            return current < max;
+        }
+
+        return false;
+    }
 }
 
 [System.Serializable]
 public class ToppingOption
 {
+    public string id;
     public string name;
     public GameObject prefab;
 }

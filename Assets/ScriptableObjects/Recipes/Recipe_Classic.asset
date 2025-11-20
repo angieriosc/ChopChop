@@ -15,6 +15,17 @@ MonoBehaviour:
   recipeName: "Pizza Cl\xE1sica"
   numberOfPizzas: 1
   numberOfCustomers: 4
+  toppingLimits:
+  - toppingId: 0
+    maxQuantity: 1
+  - toppingId: 1
+    maxQuantity: 1
+  - toppingId: 2
+    maxQuantity: 8
+  - toppingId: 3
+    maxQuantity: 0
+  - toppingId: 4
+    maxQuantity: 10
   recipeScrollImage: {fileID: 21300000, guid: c1effc54f8a478046b86dee8a04f6df3, type: 3}
   dishIcon: {fileID: 21300000, guid: 84853b589575cd14db7392289bf78645, type: 3}
   slicedPizzaIcon: {fileID: 21300000, guid: 3aa33657e2c6d474e82965ea60d06c40, type: 3}

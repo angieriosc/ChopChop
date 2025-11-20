@@ -15,6 +15,17 @@ MonoBehaviour:
   recipeName: Pizza de Queso
   numberOfPizzas: 1
   numberOfCustomers: 2
+  toppingLimits:
+  - toppingId: 0
+    maxQuantity: 1
+  - toppingId: 1
+    maxQuantity: 1
+  - toppingId: 2
+    maxQuantity: 8
+  - toppingId: 3
+    maxQuantity: 0
+  - toppingId: 4
+    maxQuantity: 0
   recipeScrollImage: {fileID: 21300000, guid: c461e02e1ffdf874aabeee1ef3c8a983, type: 3}
   dishIcon: {fileID: 21300000, guid: 7f3f892d0f2ac62409e8cb0952970141, type: 3}
   slicedPizzaIcon: {fileID: 21300000, guid: 96a4a7d4b58ecab408ef16f53c24b6a3, type: 3}
