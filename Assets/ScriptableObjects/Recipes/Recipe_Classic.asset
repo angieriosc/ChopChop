@@ -16,8 +16,6 @@ MonoBehaviour:
   numberOfPizzas: 1
   numberOfCustomers: 4
   toppingLimits:
-  - toppingId: 0
-    maxQuantity: 1
   - toppingId: 1
     maxQuantity: 1
   - toppingId: 2

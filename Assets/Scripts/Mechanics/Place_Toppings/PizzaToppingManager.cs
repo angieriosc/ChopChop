@@ -45,6 +45,8 @@ public class PizzaToppingManager : MonoBehaviour
     [Header("Lógica de masa/base")]
     [SerializeField] private int _baseDoughToppingIndex = 0;
     [SerializeField] private string _baseDoughInventoryKey = "WedgeSlice";
+    public string BaseDoughInventoryKey => _baseDoughInventoryKey;
+
 
     private bool _baseDoughPlaced = false;
     private int _currentToppingIndex = -1;

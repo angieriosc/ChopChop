@@ -25,6 +25,7 @@ public class ToppingStation : MonoBehaviour
     [SerializeField] private bool _playerInStation = false;
     private bool _hasPizza = false;  // en este flujo = "estación en uso"
 
+
     /// <summary>
     /// Entra a la estación, configura el manager (raycast en mesa) y activa cámaras/UI.
     /// </summary>
@@ -46,6 +47,7 @@ public class ToppingStation : MonoBehaviour
         if (_stationCamera != null) _stationCamera.gameObject.SetActive(true);
         if (_stationCanvas != null) _stationCanvas.SetActive(true);
         if (_instructionImage != null) _instructionImage.SetActive(true);
+        ToppingLock.IsLocked = true;
 
         Cursor.visible = true;
 
@@ -112,11 +114,11 @@ public class ToppingStation : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            ToppingLock.IsLocked = false;
             _playerInStation = false;
             Debug.Log("[ToppingStation] Jugador salió de la estación");
         }
     }
-
     /// <summary>Esconde las instrucciones</summary>
     public void HideInstruction()
     {

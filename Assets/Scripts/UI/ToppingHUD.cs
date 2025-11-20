@@ -1,6 +1,8 @@
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Actualiza el HUD del inventario/toppings según los límites de la receta.
@@ -20,11 +22,24 @@ public class ToppingHUD : MonoBehaviour
 
     [Header("Referencias")]
     [SerializeField] private PizzaToppingManager toppingManager;
+    [SerializeField] private GameObject toppingCanvas;
+    [SerializeField] private Camera _playerCamera;
+    [SerializeField] private Camera _stationCamera;
 
     [Header("Slots visuales del HUD")]
     [SerializeField] private List<SlotUI> slots = new();
 
+    [Header("Botón de salida de la estación")]
+    [SerializeField] private Button exitButton;
 
+
+    private void Start()
+        {
+            // Listerner del botón de salir
+            if (exitButton != null) {
+                exitButton.onClick.AddListener(ExitMenu);
+            }
+        }
     private void OnEnable()
     {
         if (toppingManager != null)
@@ -49,6 +64,17 @@ public class ToppingHUD : MonoBehaviour
 
         foreach (SlotUI slot in slots)
         {
+            if (slot.toppingId == toppingManager.BaseDoughInventoryKey)
+            {
+                int doughQty = CuttingInventory.Instance != null 
+                    ? CuttingInventory.Instance.GetQuantity(slot.toppingId)
+                    : 0;
+
+                slot.quantityText.text = doughQty.ToString();
+                continue;
+            }
+
+            // 2) Ingredientes normales → usar límites de la receta
             int used = toppingManager.GetPlacedForTopping(slot.toppingId);
             int max = toppingManager.GetMaxForTopping(slot.toppingId);
 
@@ -62,4 +88,22 @@ public class ToppingHUD : MonoBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Cierra el menú y desbloquea jugador y cámara.
+    /// </summary>
+private void ExitMenu()
+{
+    Animator anim = exitButton.GetComponent<Animator>();
+
+    anim.SetBool("isPressed", false);
+    anim.SetTrigger("Normal");
+    anim.SetInteger("state", 0);
+
+    toppingCanvas.SetActive(false);
+    _playerCamera.gameObject.SetActive(true);
+    _stationCamera.gameObject.SetActive(false);
+    ToppingLock.IsLocked = false;
+}
+
 }
