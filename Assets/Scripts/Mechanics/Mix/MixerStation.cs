@@ -97,6 +97,15 @@ public class MixerStation : MonoBehaviour
         mixerCanvas?.SetActive(false);
         ResetMixerState();
 
+        
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==3)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
+
+
         return bowl;
     }
 
