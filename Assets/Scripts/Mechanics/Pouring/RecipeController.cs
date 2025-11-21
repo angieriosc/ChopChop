@@ -158,6 +158,13 @@ public class RecipeController : MonoBehaviour
 
         // Liberar jugador
         pouringStation.UnlockPlayer();
+
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==2)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
     }
 
     /// <summary>
