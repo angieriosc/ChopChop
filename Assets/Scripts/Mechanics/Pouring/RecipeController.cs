@@ -143,13 +143,6 @@ public class RecipeController : MonoBehaviour
     {
         ShowMessage("Receta completada!");
 
-        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
-        if (sequenceManager.stepIndex==2)
-        {
-            //Continuar cinematica
-            StartCoroutine(sequenceManager.ContinueSequence());
-        }
-
         // Eliminar último ingrediente
         if (currentIngredientGO != null)
             Destroy(currentIngredientGO);
@@ -165,6 +158,13 @@ public class RecipeController : MonoBehaviour
 
         // Liberar jugador
         pouringStation.UnlockPlayer();
+
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==2)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
     }
 
     /// <summary>
