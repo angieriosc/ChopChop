@@ -69,9 +69,9 @@ public class Customer : MonoBehaviour
         Debug.Log("Cliente llegó al mostrador y espera interacción");
 
         // Registrar este cliente en la zona de interacción
-        InteractionZone zone = FindFirstObjectByType<InteractionZone>();
+        CustomerInteractionZone zone = FindFirstObjectByType<CustomerInteractionZone>();
         if (zone != null)
-            zone.currentCustomer = this;
+            zone.SetCustomer(this);
 
         hasReachedCounter = true;
     }
@@ -106,7 +106,7 @@ public class Customer : MonoBehaviour
 
     IEnumerator TurnAround()
     {
-        InteractionZone zone = FindFirstObjectByType<InteractionZone>();
+        CustomerInteractionZone zone = FindFirstObjectByType<CustomerInteractionZone>();
         if (zone != null)
             zone.ClearCustomer();
 
@@ -125,6 +125,11 @@ public class Customer : MonoBehaviour
         }
 
         transform.rotation = endRotation;
+
+        //Continuar cinematica
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        StartCoroutine(sequenceManager.ContinueSequence());
+
     }
 
     IEnumerator WalkBackToSpawn()
@@ -158,6 +163,7 @@ public class Customer : MonoBehaviour
 
         // Destruir este cliente
         Destroy(gameObject);
+
     }
 
     public RecipeDataMenu GetCurrentRecipe()

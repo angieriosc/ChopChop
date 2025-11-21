@@ -13,7 +13,7 @@ public class DialogueSequenceRunner : MonoBehaviour
     public DialogueSystem dialogue;
     public CameraFocus cameraFocus;
 
-    private int stepIndex = 0;
+    public int stepIndex = 0;
     private bool waitingForInput = false;
 
     public GameObject continuePanel;
@@ -70,7 +70,7 @@ public class DialogueSequenceRunner : MonoBehaviour
 
             if (continuePanel != null)
                 continuePanel.SetActive(false); // Apagar panel
-            StartCoroutine(ContinueAfterInput());
+            ManageInput();
         }
     }
 
@@ -97,16 +97,20 @@ public class DialogueSequenceRunner : MonoBehaviour
             Destroy(currentPointer);
     }
 
-    IEnumerator ContinueAfterInput()
+    void ManageInput()
     {
+        CreatePointer(stepIndex);
+
         dialogue.HideDialogue();
 
         DialogueLock.IsLocked = false;
 
         // Regresar la cámara
         cameraFocus.ReturnToPrevious();
-        CreatePointer(stepIndex);
+    }
 
+    public IEnumerator ContinueSequence()
+    {
         stepIndex++;
         RunStep(stepIndex);
 
