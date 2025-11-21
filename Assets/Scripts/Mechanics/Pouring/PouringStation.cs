@@ -127,6 +127,9 @@ public class PouringStation : MonoBehaviour
         if (playerLocked) return;
         playerLocked = true;
 
+        // 🔒 Bloquear la tecla E
+        InputLock.IsLocked = true;
+
         ingredientPanel?.SetActive(true);
 
         if (playerMovement != null) playerMovement.enabled = false;
@@ -139,6 +142,7 @@ public class PouringStation : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// Desbloquea al jugador, desactiva la UI y restaura la cámara anterior.
     /// </summary>
@@ -146,6 +150,8 @@ public class PouringStation : MonoBehaviour
     {
         if (!playerLocked) return;
         playerLocked = false;
+        InputLock.IsLocked = false; // 🔓 Ahora puede usar E otra vez
+
 
         ingredientPanel?.SetActive(false);
 

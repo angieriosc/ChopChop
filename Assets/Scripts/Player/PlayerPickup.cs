@@ -42,6 +42,15 @@ public class PlayerPickup : MonoBehaviour
         if (DialogueLock.IsLocked)
             return;
             
+        if (InputLock.IsLocked) 
+            return;
+
+        if (InputCooldown.BlockNextE)
+        {
+            InputCooldown.BlockNextE = false; // se limpia SOLO 1 frame
+            return;
+        }
+
         DetectNearbyStations();
 
         HandleDropInput();

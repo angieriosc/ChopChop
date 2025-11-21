@@ -103,10 +103,11 @@ public class DialogueSequenceRunner : MonoBehaviour
 
         dialogue.HideDialogue();
 
-        DialogueLock.IsLocked = false;
-
         // Regresar la cámara
         cameraFocus.ReturnToPrevious();
+
+        InputCooldown.BlockNextE = true;
+        DialogueLock.IsLocked = false;
     }
 
     public IEnumerator ContinueSequence()
