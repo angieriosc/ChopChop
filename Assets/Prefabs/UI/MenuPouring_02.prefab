@@ -2771,6 +2771,14 @@ PrefabInstance:
       propertyPath: m_fontStyle
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6160974602218852870, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6869710962413673947, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7866093903296380763, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
       propertyPath: m_SizeDelta.x
       value: -144.3069
@@ -2790,6 +2798,14 @@ PrefabInstance:
     - target: {fileID: 8390270024347209639, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
       propertyPath: m_Name
       value: Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 8390270024347209639, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8521066323220823878, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8967924574954389511, guid: cb8007c3472395d43a048c0d9c607632, type: 3}
       propertyPath: m_Pivot.x
