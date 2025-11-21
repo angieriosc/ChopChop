@@ -230,6 +230,13 @@ public class SlicingStation : MonoBehaviour
 
         if (originalBowlObject != null)
         {
+
+            BowlStation bowlStation = FindFirstObjectByType<BowlStation>();
+            if (bowlStation != null)
+            {
+                bowlStation.RegisterBowlDestruction();
+            }
+
             Destroy(originalBowlObject);
             originalBowlObject = null;
         }
