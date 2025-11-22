@@ -121,4 +121,14 @@ public class BowlStation : MonoBehaviour
         lastSpawnTime = Time.time;
         activeBowl = newBowl;
     }
+
+    /// <summary>
+    /// Método llamado cuando un bowl se destruye.
+    /// Reduce el contador global para permitir que aparezcan nuevos.
+    /// </summary>
+    public void RegisterBowlDestruction()
+    {
+        currentBowls = Mathf.Max(0, currentBowls - 1);
+        Debug.Log($"[BowlStation] Bowl destruido externamente. Bowls actuales: {currentBowls}");
+    }
 }
