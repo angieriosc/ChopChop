@@ -185,9 +185,6 @@ public class MixerStation : MonoBehaviour
         float progress = (float)currentTaps / tapsRequired;
         progressBar.fillAmount = progress;
         progressBar.color = mixingColor;
-        
-        int tapsLeft = tapsRequired - currentTaps;
-        stateText.text = $"Presiona '{interactKey}'! {tapsLeft} faltantes";
     }
 
     /// <summary>
@@ -203,7 +200,6 @@ public class MixerStation : MonoBehaviour
 
         progressBar.fillAmount = 1f;
         progressBar.color = readyColor;
-        stateText.text = "READY! Take out bowl";
 
         InputCooldown.TriggerCooldown(0.5f);
     }
@@ -244,7 +240,7 @@ public class MixerStation : MonoBehaviour
         currentTaps = 0;
         currentStage = MixingStage.Mixing;
         showingReady = false;
-        stateText.text = $"Press '{interactKey}' to mix";
+        stateText.text = $"Presiona '{interactKey}' repetidas veces para mezclar";
     }
 
     /// <summary>

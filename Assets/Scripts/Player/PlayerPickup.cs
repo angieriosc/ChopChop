@@ -56,6 +56,9 @@ public class PlayerPickup : MonoBehaviour
         HandleGrabInput();
     }
 
+    /// <summary>
+    /// Detecta estaciones cercanas y actualiza las referencias.
+    /// </summary>
     private void DetectNearbyStations()
     {
         Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRange);
@@ -103,12 +106,18 @@ public class PlayerPickup : MonoBehaviour
         if (!slicingStationFound) nearbySlicingStation = null;
     }
 
+    /// <summary>
+    /// Maneja la entrada para soltar el objeto recogido.
+    /// </summary>
     private void HandleDropInput()
     {
         if (pickedObject != null && Input.GetKeyDown(dropKey))
             DropObject();
     }
 
+    /// <summary>
+    /// Maneja la entrada para agarrar o interactuar con objetos y estaciones.
+    /// </summary>
     private void HandleGrabInput()
     {
         if (!Input.GetKeyDown(grabKey)) return;
@@ -159,6 +168,13 @@ public class PlayerPickup : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Intenta colocar el objeto recogido en una estación cercana.
+    /// </summary>
+    /// <returns>
+    /// True si el objeto fue colocado exitosamente en una estación.
+    /// False si no se pudo colocar en ninguna estación.
+    /// </returns>
     private bool PlaceInStation()
     {
         if (pickedObject == null) return false;
@@ -242,6 +258,10 @@ public class PlayerPickup : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Detecta objetos grabbables cercanos.
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         var interactable = other.GetComponent<InteractableObject>();
@@ -249,6 +269,9 @@ public class PlayerPickup : MonoBehaviour
             nearbyObject = interactable;
     }
 
+    /// <summary>
+    /// Limpia la referencia al objeto cercano si salimos de su rango.
+    /// </summary>
     private void OnTriggerExit(Collider other)
     {
         if (nearbyObject == null) return;
@@ -256,6 +279,9 @@ public class PlayerPickup : MonoBehaviour
         if (distance > detectionRange) nearbyObject = null;
     }
 
+    /// <summary>
+    /// Agarra un objeto y lo posiciona en la mano del jugador.
+    /// </summary>
     public void GrabObject(GameObject obj)
     {
         var interactable = obj.GetComponentInParent<InteractableObject>() ?? obj.GetComponentInChildren<InteractableObject>();
@@ -275,6 +301,9 @@ public class PlayerPickup : MonoBehaviour
         pickedObject.transform.localRotation = Quaternion.identity;
     }
 
+    /// <summary>
+    /// Suelta el objeto que el jugador tiene en la mano.
+    /// </summary>
     public void DropObject()
     {
         if (pickedObject == null) return;
@@ -297,9 +326,19 @@ public class PlayerPickup : MonoBehaviour
         pickedObject = null;
     }
 
+    /// <summary>
+    /// Revisa si el jugador tiene un objeto en la mano.
+    /// </summary>
     public bool HasObjectInHand() => pickedObject != null;
+
+    /// <summary>
+    /// Obtiene el objeto que el jugador tiene en la mano.
+    /// </summary>
     public GameObject GetObjectInHand() => pickedObject;
 
+    /// <summary>
+    /// Dibuja el rango de detección en la escena.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
