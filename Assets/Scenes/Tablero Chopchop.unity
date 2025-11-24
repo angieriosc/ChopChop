@@ -2935,6 +2935,64 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 866946943}
   m_SourcePrefab: {fileID: 100100000, guid: 27382e91d746dbe4aa607c75669edc5a, type: 3}
+--- !u!1 &60687403
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 60687404}
+  - component: {fileID: 60687405}
+  m_Layer: 0
+  m_Name: DeliveryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &60687404
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60687403}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 13.617445, y: 4.340958, z: 14.067297}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 238547158}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &60687405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60687403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d65ed5677fd99343aae59b026fee5ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _workCamera: {fileID: 1347083918}
+  _slicesPizza:
+  - id: Recipe_CheeseSimple
+    name: PiizaQueso
+    prefab: {fileID: 0}
+  - id: Recipe_Classic
+    name: PizzaTomate
+    prefab: {fileID: 0}
+  - id: Recipe_Vegetal
+    name: PizzaVegetales
+    prefab: {fileID: 0}
+  _surfaceYOffset: 0.01
+  _deliverAudio: {fileID: 0}
+  sliceInventory: 000000000000000000000000
 --- !u!4 &62491409 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 452592, guid: 81af326d4221af147abb1dba43469b66, type: 3}
@@ -10207,6 +10265,32 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 449432, guid: 390c2bf1514a09e49a2aa0361d9e314c, type: 3}
   m_PrefabInstance: {fileID: 242933845}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &244168927 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8315508985755573492, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+  m_PrefabInstance: {fileID: 2243021784474924144}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &244168935
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244168927}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.1980842, y: 0.58844125, z: 1.1980852}
+  m_Center: {x: 0.0000009536743, y: 0.29422063, z: -0.000004529953}
 --- !u!1001 &247585466
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24974,7 +25058,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4987236859520109113, guid: 99e0c6832bc774746be7072d9fe21b3e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 49.299683
+      value: 49.29956
       objectReference: {fileID: 0}
     - target: {fileID: 6971904591440639764, guid: 99e0c6832bc774746be7072d9fe21b3e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -26152,7 +26236,7 @@ GameObject:
   - component: {fileID: 695069371}
   - component: {fileID: 695069370}
   - component: {fileID: 695069369}
-  - component: {fileID: 695069368}
+  - component: {fileID: 695069374}
   m_Layer: 0
   m_Name: InventoryPizza
   m_TagString: Untagged
@@ -26182,30 +26266,6 @@ RectTransform:
   m_AnchoredPosition: {x: -157288, y: -11497}
   m_SizeDelta: {x: 54.7, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &695069368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 695069366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cae98f02c8ab9f243b51b9c6424719f2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  toppingManager: {fileID: 0}
-  toppingCanvas: {fileID: 361930681}
-  _playerCamera: {fileID: 4425669894593523886}
-  _stationCamera: {fileID: 0}
-  slots:
-  - toppingId: PizzaRecipe1
-    quantityText: {fileID: 1654456103}
-  - toppingId: PizzaRecipe2
-    quantityText: {fileID: 1060203925}
-  - toppingId: PizzaRecipe3
-    quantityText: {fileID: 1585031701}
-  exitButton: {fileID: 1126813409}
 --- !u!114 &695069369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26298,6 +26358,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 695069366}
   m_CullTransparentMesh: 1
+--- !u!114 &695069374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695069366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89eb157d4d36c1540abbe64d0a0e2e2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deliveryManager: {fileID: 60687405}
+  deliveryCanvas: {fileID: 361930681}
+  _playerCamera: {fileID: 4425669894593523886}
+  _stationCamera: {fileID: 1347083918}
+  slots:
+  - sliceIndex: 0
+    quantityText: {fileID: 1654456103}
+  - sliceIndex: 1
+    quantityText: {fileID: 1060203925}
+  - sliceIndex: 2
+    quantityText: {fileID: 1585031701}
+  exitButton: {fileID: 1126813409}
 --- !u!1001 &695866817
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40290,7 +40374,7 @@ GameObject:
   - component: {fileID: 1060203926}
   - component: {fileID: 1060203925}
   m_Layer: 0
-  m_Name: cantidad2
+  m_Name: cantidad2P
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48022,6 +48106,32 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 434962, guid: 46c53497e3001f54a99bbdccd3d1a96f, type: 3}
   m_PrefabInstance: {fileID: 1260016336}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1260542108 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3527611831392082294, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+  m_PrefabInstance: {fileID: 2243021784474924144}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &1260542116
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260542108}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.1980842, y: 0.58844125, z: 1.1980852}
+  m_Center: {x: -0.0000038146973, y: 0.29422063, z: 0.000006914139}
 --- !u!1001 &1261747122
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51265,7 +51375,7 @@ GameObject:
   - component: {fileID: 1347083918}
   - component: {fileID: 1347083919}
   m_Layer: 0
-  m_Name: CameraDelivery
+  m_Name: CameraDelivery3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51280,7 +51390,7 @@ Transform:
   m_GameObject: {fileID: 1347083915}
   serializedVersion: 2
   m_LocalRotation: {x: 0.11194755, y: 0.76224405, z: -0.62082446, w: 0.1450132}
-  m_LocalPosition: {x: -17.71, y: 3.25, z: -18.86}
+  m_LocalPosition: {x: -17.71, y: 3.279, z: -18.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -59985,6 +60095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deliveryCanvas: {fileID: 361930681}
   _stationCamera: {fileID: 1347083918}
+  _deliveryManager: {fileID: 0}
   _playerTag: Player
   _hideCanvasOnExit: 1
   _hideCameraOnExit: 1
@@ -62431,7 +62542,7 @@ GameObject:
   - component: {fileID: 1585031702}
   - component: {fileID: 1585031701}
   m_Layer: 0
-  m_Name: cantidad3
+  m_Name: cantidad3P
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64822,7 +64933,7 @@ GameObject:
   - component: {fileID: 1654456104}
   - component: {fileID: 1654456103}
   m_Layer: 0
-  m_Name: cantidad1
+  m_Name: cantidad1P
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88109,6 +88220,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -19.869455
       objectReference: {fileID: 0}
+    - target: {fileID: 3527611831392082294, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      propertyPath: m_Name
+      value: Cliente2Mesa
+      objectReference: {fileID: 0}
     - target: {fileID: 3727189795549177116, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -17.338076
@@ -88137,6 +88252,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -19.369455
       objectReference: {fileID: 0}
+    - target: {fileID: 8315508985755573492, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      propertyPath: m_Name
+      value: Cliente1Mesa
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -88146,7 +88265,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2582900920578365964, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1347083916}
-    m_AddedComponents: []
+    - targetCorrespondingSourceObject: {fileID: 2582900920578365964, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 60687404}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3527611831392082294, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1260542116}
+    - targetCorrespondingSourceObject: {fileID: 8315508985755573492, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 244168935}
   m_SourcePrefab: {fileID: 100100000, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
 --- !u!1001 &2253253815416108563
 PrefabInstance:
