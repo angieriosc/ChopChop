@@ -19,6 +19,10 @@ public class MixerStation : MonoBehaviour
     [Tooltip("Tiempo que permanece el mensaje de 'Ready' antes de ocultar la UI.")]
     [SerializeField] private float displayReadyTime = 3f;
 
+    [Header("Interaction Check")]
+    [Tooltip("Distancia máxima a la que el jugador puede estar para operar la máquina.")]
+    [SerializeField] private float interactionRange = 3f;
+
     [Header("UI References")]
     [SerializeField] private GameObject mixerCanvas;
     [SerializeField] private Image progressBar;
@@ -37,6 +41,7 @@ public class MixerStation : MonoBehaviour
     [SerializeField] private float bladeSpeed = 1000f;
 
     // --- VARIABLES INTERNAS ---
+    private Transform playerTransform;
     private float currentBladeVelocity = 0f;
     private float currentSpinAngle = 0f;
 
@@ -59,6 +64,17 @@ public class MixerStation : MonoBehaviour
     private void Start()
     {
         if (!CheckUIAssignments()) return;
+
+        /// Buscar referencia al jugador
+        PlayerPickup player = FindFirstObjectByType<PlayerPickup>();
+        if (player != null)
+        {
+            playerTransform = player.transform;
+        }
+        else
+        {
+            Debug.LogWarning("MixerStation: No se encontró PlayerPickup en la escena. La validación de rango podría fallar.");
+        }
 
         mixerCanvas.SetActive(false);
         if (mixerBladeVisual != null) mixerBladeVisual.SetActive(false);
@@ -139,6 +155,18 @@ public class MixerStation : MonoBehaviour
     /// </summary>
     private void HandleManualMixing()
     {
+        // 1. Verificamos distancia antes de aceptar input
+        if (playerTransform != null)
+        {
+            float distance = Vector3.Distance(transform.position, playerTransform.position);
+            if (distance > interactionRange)
+            {
+                // El jugador está muy lejos, ignoramos el input
+                return;
+            }
+        }
+
+        // 2. Procesamos el input
         if (Input.GetKeyDown(interactKey))
         {
             currentTaps++;
@@ -159,7 +187,7 @@ public class MixerStation : MonoBehaviour
         progressBar.color = mixingColor;
         
         int tapsLeft = tapsRequired - currentTaps;
-        stateText.text = $"Mash '{interactKey}'! {tapsLeft} left";
+        stateText.text = $"Presiona '{interactKey}'! {tapsLeft} faltantes";
     }
 
     /// <summary>
@@ -252,7 +280,6 @@ public class MixerStation : MonoBehaviour
 
     /// <summary>
     /// Aplica rotación visual a las aspas basada en la velocidad actual e inercia.
-    /// Utiliza una rotación local corregida para modelos importados (0, Y, -90).
     /// </summary>
     private void AnimateBlade()
     {
