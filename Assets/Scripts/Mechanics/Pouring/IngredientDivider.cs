@@ -139,7 +139,7 @@ public class IngredientDivider : MonoBehaviour
         }
 
         original.currentML = 0f;
-        original.amountText.text = "Vacio";
+        original.amountText.text = "0";
     }
 
     /// <summary>
