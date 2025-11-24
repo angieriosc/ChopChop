@@ -17,12 +17,20 @@ public class PizzaDeliveryManager : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource _deliverAudio;
 
+    [Header("Lógica de pizzas (keys en CuttingInventory)")]
+    [SerializeField] private string _PizzaInventoryKey1 = "Recipe_CheeseSimple";
+    [SerializeField] private string _PizzaInventoryKey2 = "Recipe_Classic";
+    [SerializeField] private string _PizzaInventoryKey3 = "Recipe_Vegetal";
+
+    public string PizzaInventoryKey1 => _PizzaInventoryKey1;
+    public string PizzaInventoryKey2 => _PizzaInventoryKey2;
+    public string PizzaInventoryKey3 => _PizzaInventoryKey3;
+
     // --- Estado interno ---
     private bool _enabled = false;
     private int _currentSliceIndex = -1; // índice de la rebanada seleccionada
-    public event Action OnInventoryChanged;
 
-    [SerializeField] private int[] sliceInventory = new int[3];
+    public event Action OnInventoryChanged;
 
     // slotIndex -> lista de instancias de rebanadas colocadas
     private readonly Dictionary<int, List<GameObject>> _slicesPerSlot =
@@ -60,12 +68,14 @@ public class PizzaDeliveryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Devuelve cuántas rebanadas hay en un punto de entrega.
+    /// Devuelve cuántas rebanadas hay colocadas en un punto de entrega.
     /// </summary>
     public int GetSliceCountForSlot(int slotIndex)
     {
         return _slicesPerSlot.TryGetValue(slotIndex, out var list) ? list.Count : 0;
     }
+
+    // ----------- LOOP PRINCIPAL -----------
 
     private void Update()
     {
@@ -86,6 +96,20 @@ public class PizzaDeliveryManager : MonoBehaviour
             return;
         }
 
+        // 1) Revisar inventario en CuttingInventory
+        string invKey = GetInventoryKeyForIndex(_currentSliceIndex);
+
+        if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(invKey))
+        {
+            int qty = CuttingInventory.Instance.GetQuantity(invKey);
+            if (qty <= 0)
+            {
+                Debug.Log($"[PizzaDeliveryManager] No hay más rebanadas disponibles para '{invKey}'.");
+                return;
+            }
+        }
+
+        // 2) Raycast sobre la mesa
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = _workCamera.ScreenPointToRay(mousePos);
 
@@ -100,9 +124,20 @@ public class PizzaDeliveryManager : MonoBehaviour
             }
 
             Vector3 spawnPos = hit.point + hit.normal * _surfaceYOffset;
+
+            // 3) Colocar rebanada físicamente
             PlaceSliceOnArea(area, spawnPos);
+
+            // 4) Consumir del inventario (CuttingInventory)
+            if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(invKey))
+            {
+                CuttingInventory.Instance.Consume(invKey, 1);
+                OnInventoryChanged?.Invoke(); // avisar al HUD que cambió el inventario
+            }
         }
     }
+
+    // ----------- LÓGICA INTERNA -----------
 
     private void PlaceSliceOnArea(DeliveryArea area, Vector3 position)
     {
@@ -133,22 +168,52 @@ public class PizzaDeliveryManager : MonoBehaviour
 
         Debug.Log($"[PizzaDeliveryManager] Colocada '{option.name}' en slot {slotIndex}, total = {list.Count}");
     }
+
+    // ----------- API PARA EL HUD -----------
+
+    /// <summary>
+    /// Devuelve la cantidad disponible de una rebanada según su índice,
+    /// leyendo directamente de CuttingInventory.
+    /// </summary>
     public int GetInventoryQuantity(int index)
     {
-        if (index < 0 || index >= sliceInventory.Length)
+        string key = GetInventoryKeyForIndex(index);
+
+        if (CuttingInventory.Instance == null || string.IsNullOrEmpty(key))
             return 0;
 
-        return sliceInventory[index];
+        return CuttingInventory.Instance.GetQuantity(key);
     }
 
+    /// <summary>
+    /// Consume 1 unidad de la rebanada en CuttingInventory y dispara el evento.
+    /// Puedes llamarlo si prefieres explícitamente desde fuera.
+    /// </summary>
     public void ReduceInventory(int index)
     {
-        if (index < 0 || index >= sliceInventory.Length)
+        string key = GetInventoryKeyForIndex(index);
+
+        if (CuttingInventory.Instance == null || string.IsNullOrEmpty(key))
             return;
 
-        sliceInventory[index] = Mathf.Max(0, sliceInventory[index] - 1);
-
+        CuttingInventory.Instance.Consume(key, 1);
         OnInventoryChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Mapea el índice de rebanada (0,1,2,...) a la key correspondiente en CuttingInventory.
+    /// </summary>
+    private string GetInventoryKeyForIndex(int index)
+    {
+        switch (index)
+        {
+            case 0: return _PizzaInventoryKey1;
+            case 1: return _PizzaInventoryKey2;
+            case 2: return _PizzaInventoryKey3;
+            default:
+                Debug.LogWarning($"[PizzaDeliveryManager] No hay InventoryKey configurada para index {index}.");
+                return null;
+        }
     }
 }
 

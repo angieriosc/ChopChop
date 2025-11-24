@@ -2983,13 +2983,13 @@ MonoBehaviour:
   _slicesPizza:
   - id: Recipe_CheeseSimple
     name: PiizaQueso
-    prefab: {fileID: 0}
+    prefab: {fileID: 3931219076284134238, guid: 6b27b9c449a84424c8eaa9a7db0fd099, type: 3}
   - id: Recipe_Classic
     name: PizzaTomate
-    prefab: {fileID: 0}
+    prefab: {fileID: 563199599058930023, guid: 221f5af5315048542a8df9e19fbee5d2, type: 3}
   - id: Recipe_Vegetal
     name: PizzaVegetales
-    prefab: {fileID: 0}
+    prefab: {fileID: 1550322232839126973, guid: a91b465cb3de06448ba6b78ee617eea5, type: 3}
   _surfaceYOffset: 0.01
   _deliverAudio: {fileID: 0}
   sliceInventory: 000000000000000000000000
@@ -10291,6 +10291,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.1980842, y: 0.58844125, z: 1.1980852}
   m_Center: {x: 0.0000009536743, y: 0.29422063, z: -0.000004529953}
+--- !u!114 &244168937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244168927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c90da4a40076a4e4e8d11d9cf33e5f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotIndex: 0
 --- !u!1001 &247585466
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13864,7 +13877,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &361930682
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15770,27 +15783,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -19
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1527754161510445305, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: slotIndex
@@ -15811,18 +15824,18 @@ PrefabInstance:
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 185009682}
+      objectReference: {fileID: 60687405}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SelectToppingByIndex
+      value: SelectSlice
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PizzaToppingManager, Assembly-CSharp
+      value: PizzaDeliveryManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
@@ -43693,27 +43706,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -16
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1919080437216392393, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_Name
@@ -43730,18 +43743,18 @@ PrefabInstance:
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 185009682}
+      objectReference: {fileID: 60687405}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SelectToppingByIndex
+      value: SelectSlice
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PizzaToppingManager, Assembly-CSharp
+      value: PizzaDeliveryManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -48132,6 +48145,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.1980842, y: 0.58844125, z: 1.1980852}
   m_Center: {x: -0.0000038146973, y: 0.29422063, z: 0.000006914139}
+--- !u!114 &1260542118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260542108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c90da4a40076a4e4e8d11d9cf33e5f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotIndex: 1
 --- !u!1001 &1261747122
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -60095,7 +60121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deliveryCanvas: {fileID: 361930681}
   _stationCamera: {fileID: 1347083918}
-  _deliveryManager: {fileID: 0}
+  _deliveryManager: {fileID: 60687405}
   _playerTag: Player
   _hideCanvasOnExit: 1
   _hideCameraOnExit: 1
@@ -65603,27 +65629,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 467328717968787945, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1527754161510445305, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: slotIndex
@@ -65644,18 +65670,18 @@ PrefabInstance:
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 185009682}
+      objectReference: {fileID: 60687405}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SelectToppingByIndex
+      value: SelectSlice
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PizzaToppingManager, Assembly-CSharp
+      value: PizzaDeliveryManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3344428704671785047, guid: 9fead25cada44004797acb3755ed14c4, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
@@ -88272,9 +88298,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3527611831392082294, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1260542116}
+    - targetCorrespondingSourceObject: {fileID: 3527611831392082294, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1260542118}
     - targetCorrespondingSourceObject: {fileID: 8315508985755573492, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 244168935}
+    - targetCorrespondingSourceObject: {fileID: 8315508985755573492, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 244168937}
   m_SourcePrefab: {fileID: 100100000, guid: ba367934366738f42a0e4b2a408bf83a, type: 3}
 --- !u!1001 &2253253815416108563
 PrefabInstance:

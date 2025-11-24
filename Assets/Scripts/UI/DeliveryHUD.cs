@@ -38,7 +38,7 @@ public class DeliveryHUD : MonoBehaviour
         if (deliveryManager != null)
             deliveryManager.OnInventoryChanged += RefreshHUD;
 
-        RefreshHUD();
+        RefreshHUD();   // Actualizar al abrir el menú
     }
 
     private void OnDisable()
@@ -57,6 +57,9 @@ public class DeliveryHUD : MonoBehaviour
 
         foreach (SlotUI slot in slots)
         {
+            if (slot.quantityText == null)
+                continue;
+
             int qty = deliveryManager.GetInventoryQuantity(slot.sliceIndex);
             slot.quantityText.text = qty.ToString();
         }
