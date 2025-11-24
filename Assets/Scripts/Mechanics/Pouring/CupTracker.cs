@@ -68,7 +68,7 @@ public class CupTracker : MonoBehaviour
         if (!IsCupValid(required, cupSize))
         {
             StartCoroutine(TemporalShowMessage(
-                $"Incorrecto, itenta con otra.", messageText.text
+                $"Incorrecto, intenta con otra.", messageText.text
             ));
             return false;
         }
