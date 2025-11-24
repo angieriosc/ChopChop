@@ -29,10 +29,14 @@ public class CubeMover : MonoBehaviour
 
         moving = true;
 
-        // Animación corriendo
+        // Forzar la animación correcta de correr
         if (animator)
+        {
+            animator.CrossFade("Running", 0.15f);
             animator.SetFloat(speedHash, 1f);
+        }
     }
+
 
     void Update()
     {
