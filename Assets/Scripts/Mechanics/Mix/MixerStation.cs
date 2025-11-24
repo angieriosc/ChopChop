@@ -201,7 +201,7 @@ public class MixerStation : MonoBehaviour
         progressBar.fillAmount = 1f;
         progressBar.color = readyColor;
 
-        InputCooldown.TriggerCooldown(0.5f);
+        InputCooldown.TriggerCooldown(2.0f);
     }
 
     /// <summary>
