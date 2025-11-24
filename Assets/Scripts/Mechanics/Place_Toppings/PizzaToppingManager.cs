@@ -203,7 +203,7 @@ public class PizzaToppingManager : MonoBehaviour
             if (CuttingInventory.Instance != null)
                 CuttingInventory.Instance.Consume(_baseDoughInventoryKey, 1);
 
-            ToppingStation station = FindObjectOfType<ToppingStation>();
+            ToppingStation station = FindFirstObjectByType<ToppingStation>();
             if (station != null)
                 station.HideInstruction();
 

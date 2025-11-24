@@ -1,208 +1,235 @@
 using System;
 using System.Collections.Generic;
+using System.Linq; // Necesario para imprimir las keys del diccionario
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PizzaDeliveryManager : MonoBehaviour
 {
+    public static PizzaDeliveryManager Instance { get; private set; }
+
     [Header("Cámara usada en la estación de entrega")]
     [SerializeField] private Camera _workCamera;
 
-    [Header("Rebanadas disponibles (ligadas al inventario)")]
+    [Header("Rebanadas disponibles (Solo para UI y nombres)")]
     [SerializeField] private List<PizzaOption> _slicesPizza = new();
 
-    [Header("Altura sobre la mesa")]
+    [Header("Configuración Física")]
     [SerializeField] private float _surfaceYOffset = 0.01f;
-
-    [Header("Audio")]
+    [SerializeField] private Transform _storageContainer; 
     [SerializeField] private AudioSource _deliverAudio;
 
-    [Header("Lógica de pizzas (keys en CuttingInventory)")]
+    [Header("Mapeo de Keys (Deben coincidir con SlicingStation)")]
     [SerializeField] private string _PizzaInventoryKey1 = "Recipe_CheeseSimple";
     [SerializeField] private string _PizzaInventoryKey2 = "Recipe_Classic";
     [SerializeField] private string _PizzaInventoryKey3 = "Recipe_Vegetal";
 
-    public string PizzaInventoryKey1 => _PizzaInventoryKey1;
-    public string PizzaInventoryKey2 => _PizzaInventoryKey2;
-    public string PizzaInventoryKey3 => _PizzaInventoryKey3;
+    // --- Inventario de Objetos Reales ---
+    private Dictionary<string, Queue<GameObject>> _realSliceStorage = new Dictionary<string, Queue<GameObject>>();
 
-    // --- Estado interno ---
     private bool _enabled = false;
-    private int _currentSliceIndex = -1; // índice de la rebanada seleccionada
+    private int _currentSliceIndex = -1; 
 
     public event Action OnInventoryChanged;
 
-    // slotIndex -> lista de instancias de rebanadas colocadas
-    private readonly Dictionary<int, List<GameObject>> _slicesPerSlot =
-        new Dictionary<int, List<GameObject>>();
+    private readonly Dictionary<int, List<GameObject>> _slicesPerSlot = new Dictionary<int, List<GameObject>>();
 
-    public Camera WorkCamera
+    public Camera WorkCamera { get => _workCamera; set => _workCamera = value; }
+
+    private void Awake()
     {
-        get => _workCamera;
-        set => _workCamera = value;
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        if (_storageContainer == null)
+        {
+            GameObject container = new GameObject("RealSliceStorage");
+            container.transform.SetParent(this.transform);
+            _storageContainer = container.transform;
+        }
     }
 
     /// <summary>
-    /// Activar / desactivar el sistema (lo llama DeliveryStation al entrar/salir).
+    /// Debug: Muestra qué tiene el inventario ahora mismo.
     /// </summary>
+    private void PrintDebugInventory()
+    {
+        string content = "";
+        foreach (var kvp in _realSliceStorage)
+        {
+            content += $"Key: '{kvp.Key}' = {kvp.Value.Count} objetos. | ";
+        }
+        Debug.Log($"[DEBUG INVENTARIO] Estado actual: {content}");
+    }
+
+    // -----------------------------------------------------------------------------------
+    // 1. GUARDADO (Llamado desde SlicingStation)
+    // -----------------------------------------------------------------------------------
+    public void StoreRealSlice(string inventoryKey, GameObject sliceObject)
+    {
+        Debug.Log($"[DEBUG] StoreRealSlice LLAMADO. Key recibida: '{inventoryKey}'. Objeto: {sliceObject.name}");
+
+        sliceObject.transform.SetParent(_storageContainer);
+        sliceObject.transform.localPosition = Vector3.zero;
+        sliceObject.SetActive(false);
+
+        if (!_realSliceStorage.ContainsKey(inventoryKey))
+        {
+            _realSliceStorage[inventoryKey] = new Queue<GameObject>();
+            Debug.Log($"[DEBUG] Nueva Key creada en diccionario: '{inventoryKey}'");
+        }
+
+        _realSliceStorage[inventoryKey].Enqueue(sliceObject);
+        
+        Debug.Log($"[DEBUG] Objeto guardado exitosamente. Cantidad actual para '{inventoryKey}': {_realSliceStorage[inventoryKey].Count}");
+        PrintDebugInventory();
+    }
+
     public void SetEnabled(bool value)
     {
         _enabled = value;
+        Debug.Log($"[DEBUG] PizzaDeliveryManager Habilitado: {value}");
     }
 
-    /// <summary>
-    /// Selecciona la rebanada según el índice que viene del inventario (0,1,2...).
-    /// Llamar esto desde los botones 1,2,3 del inventario.
-    /// </summary>
+    // -----------------------------------------------------------------------------------
+    // 2. SELECCIÓN (Llamado desde botones UI)
+    // -----------------------------------------------------------------------------------
     public void SelectSlice(int sliceIndex)
     {
+        Debug.Log($"[DEBUG] Botón presionado. Index: {sliceIndex}");
+
         if (sliceIndex < 0 || sliceIndex >= _slicesPizza.Count)
         {
-            Debug.LogWarning($"[PizzaDeliveryManager] Índice de slice inválido: {sliceIndex}");
+            Debug.LogError($"[DEBUG ERROR] Index {sliceIndex} fuera de rango.");
             _currentSliceIndex = -1;
             return;
         }
-
         _currentSliceIndex = sliceIndex;
-        Debug.Log($"[PizzaDeliveryManager] Slice seleccionado: {_slicesPizza[sliceIndex].name}");
+        string expectedKey = GetInventoryKeyForIndex(sliceIndex);
+        Debug.Log($"[DEBUG] Slice seleccionado: Indice {sliceIndex} -> Espera Key: '{expectedKey}'");
     }
 
-    /// <summary>
-    /// Devuelve cuántas rebanadas hay colocadas en un punto de entrega.
-    /// </summary>
     public int GetSliceCountForSlot(int slotIndex)
     {
         return _slicesPerSlot.TryGetValue(slotIndex, out var list) ? list.Count : 0;
     }
 
-    // ----------- LOOP PRINCIPAL -----------
-
+    // -----------------------------------------------------------------------------------
+    // 3. UPDATE (Clic en la mesa)
+    // -----------------------------------------------------------------------------------
     private void Update()
     {
-        if (!_enabled || _workCamera == null)
-            return;
+        if (!_enabled) return;
+        if (_workCamera == null) return;
+        if (Mouse.current == null) return;
 
-        if (Mouse.current == null)
-            return;
+        // Solo debuggeamos si hace clic izquierdo
+        if (!Mouse.current.leftButton.wasPressedThisFrame) return;
 
-        // Esperamos al click izquierdo del mouse
-        if (!Mouse.current.leftButton.wasPressedThisFrame)
-            return;
+        Debug.Log("--------------------------------------------------");
+        Debug.Log("[DEBUG] Clic detectado. Iniciando proceso de entrega...");
 
-        // Debe haber una rebanada seleccionada
+        // CHEQUEO 1: ¿Hay algo seleccionado?
         if (_currentSliceIndex < 0 || _currentSliceIndex >= _slicesPizza.Count)
         {
-            Debug.Log("[PizzaDeliveryManager] No hay slice seleccionada en el inventario.");
+            Debug.LogWarning("[DEBUG] Cancelado: No hay rebanada seleccionada en la UI (Index es -1).");
             return;
         }
 
-        // 1) Revisar inventario en CuttingInventory
+        // CHEQUEO 2: ¿Cuál es la Key?
         string invKey = GetInventoryKeyForIndex(_currentSliceIndex);
+        Debug.Log($"[DEBUG] Intentando entregar Key: '{invKey}'");
 
-        if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(invKey))
+        if (string.IsNullOrEmpty(invKey)) 
         {
-            int qty = CuttingInventory.Instance.GetQuantity(invKey);
-            if (qty <= 0)
-            {
-                Debug.Log($"[PizzaDeliveryManager] No hay más rebanadas disponibles para '{invKey}'.");
-                return;
-            }
+            Debug.LogError("[DEBUG ERROR] La Key es nula o vacía. Revisa el inspector de PizzaDeliveryManager.");
+            return;
         }
 
-        // 2) Raycast sobre la mesa
+        // CHEQUEO 3: ¿Tenemos el objeto real?
+        bool hasKey = _realSliceStorage.ContainsKey(invKey);
+        int count = hasKey ? _realSliceStorage[invKey].Count : 0;
+
+        Debug.Log($"[DEBUG] Verificando almacenamiento... ExisteKey: {hasKey}, Cantidad: {count}");
+
+        if (!hasKey || count == 0)
+        {
+            Debug.LogError($"[DEBUG FALLO CRÍTICO] NO TENGO OBJETOS FÍSICOS DE '{invKey}'.");
+            Debug.LogError($"[DEBUG INFO] Keys disponibles en mi caja ahora mismo: {string.Join(", ", _realSliceStorage.Keys)}");
+            Debug.LogError("CONSEJO: Verifica que el nombre en SlicingStation sea IDÉNTICO letra por letra a la Key en PizzaDeliveryManager.");
+            return; 
+        }
+
+        // CHEQUEO 4: Raycast
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = _workCamera.ScreenPointToRay(mousePos);
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100f))
         {
-            // ¿Golpeamos una zona de entrega?
+            Debug.Log($"[DEBUG] Raycast golpeó: {hit.collider.name}");
+
             DeliveryArea area = hit.collider.GetComponent<DeliveryArea>();
-            if (area == null)
+            if (area != null)
             {
-                // clic en la mesa pero no en una zona válida
-                return;
+                Debug.Log("[DEBUG] ¡Es una DeliveryArea válida! Procediendo a colocar.");
+                
+                // Sacamos el objeto real
+                GameObject realSlice = _realSliceStorage[invKey].Dequeue();
+
+                PlaceSliceOnArea(area, hit.point + hit.normal * _surfaceYOffset, realSlice);
+
+                // Consumo numérico (UI)
+                if (CuttingInventory.Instance != null)
+                {
+                    CuttingInventory.Instance.Consume(invKey, 1);
+                    OnInventoryChanged?.Invoke(); 
+                }
             }
-
-            Vector3 spawnPos = hit.point + hit.normal * _surfaceYOffset;
-
-            // 3) Colocar rebanada físicamente
-            PlaceSliceOnArea(area, spawnPos);
-
-            // 4) Consumir del inventario (CuttingInventory)
-            if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(invKey))
+            else
             {
-                CuttingInventory.Instance.Consume(invKey, 1);
-                OnInventoryChanged?.Invoke(); // avisar al HUD que cambió el inventario
+                Debug.LogWarning("[DEBUG] El objeto golpeado NO tiene el componente 'DeliveryArea'.");
             }
+        }
+        else
+        {
+            Debug.LogWarning("[DEBUG] El Raycast no golpeó nada (¿La cámara apunta bien?).");
         }
     }
 
-    // ----------- LÓGICA INTERNA -----------
-
-    private void PlaceSliceOnArea(DeliveryArea area, Vector3 position)
+    private void PlaceSliceOnArea(DeliveryArea area, Vector3 position, GameObject sliceObj)
     {
-        PizzaOption option = _slicesPizza[_currentSliceIndex];
-        if (option.prefab == null)
+        if (sliceObj == null)
         {
-            Debug.LogWarning($"[PizzaDeliveryManager] Prefab vacío para slice '{option.name}'.");
+            Debug.LogError("[DEBUG ERROR] El objeto recuperado de la cola es NULL. ¿Fue destruido?");
             return;
         }
 
-        // Rotamos la rebanada respetando la normal de la mesa
-        Quaternion rot = Quaternion.LookRotation(Vector3.forward, area.transform.up);
-
-        GameObject instance = Instantiate(option.prefab, position, rot);
-        instance.transform.SetParent(area.transform, true);
+        sliceObj.SetActive(true);
+        sliceObj.transform.position = position;
+        sliceObj.transform.rotation = Quaternion.LookRotation(Vector3.forward, area.transform.up);
+        sliceObj.transform.SetParent(area.transform, true);
 
         int slotIndex = area.slotIndex;
-
         if (!_slicesPerSlot.TryGetValue(slotIndex, out var list))
         {
             list = new List<GameObject>();
             _slicesPerSlot[slotIndex] = list;
         }
-        list.Add(instance);
+        list.Add(sliceObj);
 
-        if (_deliverAudio != null)
-            _deliverAudio.Play();
+        if (_deliverAudio != null) _deliverAudio.Play();
 
-        Debug.Log($"[PizzaDeliveryManager] Colocada '{option.name}' en slot {slotIndex}, total = {list.Count}");
+        Debug.Log($"[DEBUG ÉXITO] Rebanada colocada en mesa. Restantes de este tipo: {_realSliceStorage[GetInventoryKeyForIndex(_currentSliceIndex)].Count}");
     }
 
-    // ----------- API PARA EL HUD -----------
-
-    /// <summary>
-    /// Devuelve la cantidad disponible de una rebanada según su índice,
-    /// leyendo directamente de CuttingInventory.
-    /// </summary>
+    // API UI
     public int GetInventoryQuantity(int index)
     {
         string key = GetInventoryKeyForIndex(index);
-
-        if (CuttingInventory.Instance == null || string.IsNullOrEmpty(key))
-            return 0;
-
+        if (CuttingInventory.Instance == null || string.IsNullOrEmpty(key)) return 0;
         return CuttingInventory.Instance.GetQuantity(key);
     }
 
-    /// <summary>
-    /// Consume 1 unidad de la rebanada en CuttingInventory y dispara el evento.
-    /// Puedes llamarlo si prefieres explícitamente desde fuera.
-    /// </summary>
-    public void ReduceInventory(int index)
-    {
-        string key = GetInventoryKeyForIndex(index);
-
-        if (CuttingInventory.Instance == null || string.IsNullOrEmpty(key))
-            return;
-
-        CuttingInventory.Instance.Consume(key, 1);
-        OnInventoryChanged?.Invoke();
-    }
-
-    /// <summary>
-    /// Mapea el índice de rebanada (0,1,2,...) a la key correspondiente en CuttingInventory.
-    /// </summary>
     private string GetInventoryKeyForIndex(int index)
     {
         switch (index)
@@ -210,9 +237,7 @@ public class PizzaDeliveryManager : MonoBehaviour
             case 0: return _PizzaInventoryKey1;
             case 1: return _PizzaInventoryKey2;
             case 2: return _PizzaInventoryKey3;
-            default:
-                Debug.LogWarning($"[PizzaDeliveryManager] No hay InventoryKey configurada para index {index}.");
-                return null;
+            default: return null;
         }
     }
 }
@@ -222,5 +247,4 @@ public class PizzaOption
 {
     public string id;
     public string name;
-    public GameObject prefab;
 }
