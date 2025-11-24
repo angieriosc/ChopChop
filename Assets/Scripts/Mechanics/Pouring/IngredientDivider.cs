@@ -145,64 +145,82 @@ public class IngredientDivider : MonoBehaviour
     /// <summary>
     /// Ejecuta la animación y llenado de una taza individual.
     /// </summary>
-    private IEnumerator AnimatePour(
-        PouringContainer original, Vector3 targetPos,
-        float perCup, PouringContainer cup, string fractionLabel)
+    private IEnumerator AnimatePour(PouringContainer original, 
+    Vector3 targetPos,
+    float perCup, 
+    PouringContainer cup, 
+    string fractionLabel)
     {
-        //  Offset local de la punta (respecto al pivote)
-        Vector3 localTipOffset =
-            original.transform.InverseTransformPoint(original.origin.position);
+        // Si el original ya no existe, cancelar la animación
+        if (IsDestroyed(original))
+            yield break;
 
-        // Calcular posición objetivo para que la punta quede en el centro de la taza
-        Vector3 desiredTipWorld = targetPos; // el centro exacto de la taza
+        Vector3 localTipOffset = original.transform.InverseTransformPoint(original.origin.position);
+
+        Vector3 desiredTipWorld = targetPos;
         Vector3 liftedPos =
             desiredTipWorld - original.transform.TransformVector(localTipOffset)
             + Vector3.up * moveHeight;
 
         liftedPos += Vector3.right * 0.19f;
 
-        // Guardar rotaciones
         Quaternion startRot = original.transform.rotation;
         Quaternion targetRot = Quaternion.Euler(0f, 0f, tiltAngle);
 
-        // Movimiento hacia la taza
+        // Movimiento hacia arriba
         float t = 0f;
         while (t < moveDuration)
         {
+            if (IsDestroyed(original)) yield break;
+
             t += Time.deltaTime;
             float norm = Mathf.Clamp01(t / moveDuration);
+
             original.transform.position =
                 Vector3.Lerp(original.transform.position, liftedPos, norm);
+
             original.transform.rotation =
                 Quaternion.Slerp(startRot, targetRot, norm);
+
             yield return null;
         }
 
-        // Iniciar vertido
+        if (IsDestroyed(original)) yield break;
+
         original.StartStream();
 
         float poured = 0f;
         while (poured < perCup)
         {
+            if (IsDestroyed(original) || IsDestroyed(cup)) yield break;
+
             float delta = original.pourRateMLPerSec * Time.deltaTime;
             poured = Mathf.Min(poured + delta, perCup);
+
             cup.currentML = poured;
             cup.amountText.text = $"{fractionLabel}";
+
             yield return null;
         }
 
-        original.EndStream();
+        if (!IsDestroyed(original))
+            original.EndStream();
 
-        // 6️⃣ Regresar
+        // Regresar el objeto
         t = 0f;
         while (t < moveDuration)
         {
+            if (IsDestroyed(original)) yield break;
+
             t += Time.deltaTime;
             float norm = Mathf.Clamp01(t / moveDuration);
+
             original.transform.position =
                 Vector3.Lerp(liftedPos, original.transform.position, norm);
+
             original.transform.rotation =
                 Quaternion.Slerp(targetRot, startRot, norm);
+
             yield return null;
         }
     }
@@ -243,4 +261,16 @@ public class IngredientDivider : MonoBehaviour
         foreach (var cup in existingCups)
             Destroy(cup.gameObject);
     }
+
+    /// <summary>
+    /// Comprueba si un objeto aún existe.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+
+    private bool IsDestroyed(Object obj)
+    {
+        return obj == null || obj.Equals(null);
+    }
+
 }
