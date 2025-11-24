@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7376216552396683590}
   - component: {fileID: 2731844632385965093}
   - component: {fileID: 1483321770807801175}
-  - component: {fileID: 5380903574594994014}
+  - component: {fileID: 762692637569587443}
   m_Layer: 5
   m_Name: Bttn_ResumeGame
   m_TagString: Untagged
@@ -29,7 +29,7 @@ RectTransform:
   m_GameObject: {fileID: 157901355163986275}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2.4541, y: 2.4541, z: 2.4541}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6144965948592828352}
@@ -37,7 +37,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.762, y: 3.8}
+  m_AnchoredPosition: {x: 21.762, y: 51}
   m_SizeDelta: {x: 199.58, y: 76.2411}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7376216552396683590
@@ -134,7 +134,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!95 &5380903574594994014
+--- !u!95 &762692637569587443
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -189,10 +189,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3792725052054069919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4077343932873892833
 CanvasRenderer:
@@ -383,7 +383,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 10.849915, y: -3.1960144}
+  m_AnchoredPosition: {x: 10.8498535, y: -3.196045}
   m_SizeDelta: {x: -2.9136, y: -70.1462}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1628746440682469752
@@ -457,10 +457,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2734787487141134496}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4842684127092147616
 CanvasRenderer:
@@ -724,7 +724,7 @@ GameObject:
   - component: {fileID: 1706338290648742580}
   - component: {fileID: 2881245159298813902}
   - component: {fileID: 1158625251502660971}
-  - component: {fileID: 5318351148969201017}
+  - component: {fileID: 1859377659416129455}
   m_Layer: 5
   m_Name: Bttn_ExitGame
   m_TagString: Untagged
@@ -741,7 +741,7 @@ RectTransform:
   m_GameObject: {fileID: 2689795711106819008}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2.4499, y: 2.4499, z: 2.4499}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6476356958339172439}
@@ -749,7 +749,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.76199, y: -154.87631}
+  m_AnchoredPosition: {x: 21.76199, y: -321}
   m_SizeDelta: {x: 199.5769, y: 68.7422}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1706338290648742580
@@ -846,7 +846,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!95 &5318351148969201017
+--- !u!95 &1859377659416129455
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -1157,10 +1157,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7592635818723202049}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000015258789}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2420567582563087372
 CanvasRenderer:
@@ -1344,7 +1344,7 @@ RectTransform:
   m_GameObject: {fileID: 8785527310862324854}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5.446247, y: 3.6921766, z: 0.89835}
+  m_LocalScale: {x: 13.005638, y: 8.816917, z: 2.1452599}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7074318938454182925}
@@ -1406,7 +1406,7 @@ GameObject:
   - component: {fileID: 8189710863445220452}
   - component: {fileID: 3907912708442668157}
   - component: {fileID: 8325787414512631267}
-  - component: {fileID: 5669561491752882143}
+  - component: {fileID: 1778156358227694196}
   m_Layer: 5
   m_Name: Bttn_Options
   m_TagString: Untagged
@@ -1423,7 +1423,7 @@ RectTransform:
   m_GameObject: {fileID: 8797520927548532134}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2.4939, y: 2.4939, z: 2.4939}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7247520628847993382}
@@ -1431,7 +1431,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.762, y: -82.176315}
+  m_AnchoredPosition: {x: 21.762, y: -138}
   m_SizeDelta: {x: 199.58, y: 41.3948}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8189710863445220452
@@ -1528,7 +1528,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!95 &5669561491752882143
+--- !u!95 &1778156358227694196
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
