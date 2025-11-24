@@ -39,6 +39,18 @@ public class PlayerPickup : MonoBehaviour
 
     private void Update()
     {
+        if (DialogueLock.IsLocked)
+            return;
+            
+        if (InputLock.IsLocked) 
+            return;
+
+        if (InputCooldown.BlockNextE)
+        {
+            InputCooldown.BlockNextE = false; // se limpia SOLO 1 frame
+            return;
+        }
+
         DetectNearbyStations();
 
         HandleDropInput();
@@ -93,14 +105,14 @@ public class PlayerPickup : MonoBehaviour
                 bowlStationFound = true;
             }
             
-            // --- LÓGICA RE-AÑADIDA ---
+    
             SlicingStation slicer = col.GetComponent<SlicingStation>();
             if (slicer != null)
             {
                 nearbySlicingStation = slicer;
                 slicingStationFound = true;
             }
-            // --- FIN ---
+     
         }
 
         if (!ovenFound) nearbyOven = null;
@@ -133,9 +145,6 @@ public class PlayerPickup : MonoBehaviour
             return;
         }
 
-        // ----------------------------------------
-        // 1. MANO VACÍA → SALIR DE TOPPING STATION
-        // ----------------------------------------
         if (pickedObject == null)
         {
             if (nearbyToppingStation != null &&
@@ -146,14 +155,11 @@ public class PlayerPickup : MonoBehaviour
                 if (pizza != null)
                 {
                     GrabObject(pizza);
-                    return; // <- YA AGARRÓ LA PIZZA
+                    return; 
                 }
             }
         }
 
-        // ----------------------------------------
-        // 2. MANO LLENA → INTENTAR COLOCAR EN ESTACIONES
-        // ----------------------------------------
         if (pickedObject != null)
         {
             if (!PlaceInStation())
@@ -161,9 +167,6 @@ public class PlayerPickup : MonoBehaviour
             return;
         }
 
-        // ----------------------------------------
-        // 3. MANO VACÍA → ENTRAR A TOPPING STATION
-        // ----------------------------------------
         if (pickedObject == null &&
             nearbyToppingStation != null &&
             nearbyToppingStation.IsAvailable())
@@ -172,14 +175,8 @@ public class PlayerPickup : MonoBehaviour
             return;
         }
 
-        // ----------------------------------------
-        // 4. MANO VACÍA → OTRAS ESTACIONES
-        // ----------------------------------------
         if (TakeFromStation()) return;
 
-        // ----------------------------------------
-        // 5. MANO VACÍA → AGARRAR OBJETO DEL MUNDO
-        // ----------------------------------------
         if (pickedObject == null && nearbyObject != null)
         {
             float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
@@ -241,7 +238,6 @@ public class PlayerPickup : MonoBehaviour
             }
         }
         
-        // --- LÓGICA RE-AÑADIDA ---
         if (nearbySlicingStation != null &&
             interactable.HasCapability(ObjectCapabilities.Cuttable))
         {
@@ -251,7 +247,6 @@ public class PlayerPickup : MonoBehaviour
                 return true;
             }
         }
-        // --- FIN ---
 
         return false;
     }
@@ -393,15 +388,11 @@ public class PlayerPickup : MonoBehaviour
         pickedObject = null;
     }
 
-    // -----------------------------
     // Métodos públicos
-    // -----------------------------
     public bool HasObjectInHand() => pickedObject != null;
     public GameObject GetObjectInHand() => pickedObject;
 
-    // -----------------------------
     // Visualización
-    // -----------------------------
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;

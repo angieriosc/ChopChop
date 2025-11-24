@@ -15,11 +15,15 @@ public class Customer : MonoBehaviour
     public Animator animator;                      // Animator reference (can assign in inspector)
     public string walkStateName = "Running";          // Animator state name for walking
     public string idleStateName = "Idle State";          // Animator state name for idle
+    public string sittingStateName = "Sitting";  
     public float crossfadeDuration = 0.12f;        // crossfade time for smooth transitions
 
     private RecipeDataMenu currentRecipe;
     private CustomerManager manager;
     private bool hasReachedCounter = false;
+
+    private bool interacted = false;
+
 
     void Start()
     {
@@ -42,60 +46,70 @@ public class Customer : MonoBehaviour
         StartCoroutine(WalkToCounter());
     }
 
-    IEnumerator WalkToCounter()
+   IEnumerator WalkToCounter()
     {
         Debug.Log("Cliente caminando al mostrador");
 
-        // Play walk animation state if animator exists
         if (animator != null)
-        {
-            // Crossfade into the walk state
             animator.CrossFade(walkStateName, crossfadeDuration);
-        }
 
-        // Caminar hacia el mostrador
         while (Vector3.Distance(transform.position, counterPoint.position) > 0.1f)
         {
-            // Rotar hacia el objetivo
             Vector3 direction = (counterPoint.position - transform.position).normalized;
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
 
-            // Mover hacia adelante
             transform.position = Vector3.MoveTowards(transform.position, counterPoint.position, walkSpeed * Time.deltaTime);
             yield return null;
         }
 
-        // Go back to Idle state
         if (animator != null)
-        {
-            animator.CrossFade(idleStateName, crossfadeDuration);
-        }
+            animator.CrossFade(sittingStateName, crossfadeDuration);
+
+        Debug.Log("Cliente llegó al mostrador y espera interacción");
+
+        // Registrar este cliente en la zona de interacción
+        CustomerInteractionZone zone = FindFirstObjectByType<CustomerInteractionZone>();
+        if (zone != null)
+            zone.SetCustomer(this);
 
         hasReachedCounter = true;
-        Debug.Log("Cliente llegó al mostrador");
+    }
 
-        // Mostrar el pergamino con la receta
+    public void OnInteract()
+    {
+        if (interacted) return; // evitar doble interacción
+        interacted = true;
+
+        Debug.Log("Jugador interactuó con el cliente");
+
+        StartCoroutine(DeliverRecipeAndLeave());
+    }
+
+    IEnumerator DeliverRecipeAndLeave()
+    {
+        // Mostrar el pergamino
         manager.ShowRecipeScroll(currentRecipe);
 
-        // Esperar 2-3 segundos
         yield return new WaitForSeconds(2.5f);
 
-        // Ocultar pergamino y mostrar UI de receta
         manager.HideRecipeScroll();
         manager.ShowRecipeUI(currentRecipe);
 
-        Debug.Log("Pergamino ocultado, UI de receta mostrada");
+        Debug.Log("UI mostrada después de interactuar");
 
-        // Dar la vuelta (rotar 180 grados)
+        // Girar y retirarse
         yield return StartCoroutine(TurnAround());
-
-        // Caminar de vuelta al spawn
         yield return StartCoroutine(WalkBackToSpawn());
     }
 
+
     IEnumerator TurnAround()
     {
+        CustomerInteractionZone zone = FindFirstObjectByType<CustomerInteractionZone>();
+        if (zone != null)
+            zone.ClearCustomer();
+
         Debug.Log("Cliente dándose la vuelta");
 
         Quaternion startRotation = transform.rotation;
@@ -111,6 +125,11 @@ public class Customer : MonoBehaviour
         }
 
         transform.rotation = endRotation;
+
+        //Continuar cinematica
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        StartCoroutine(sequenceManager.ContinueSequence());
+
     }
 
     IEnumerator WalkBackToSpawn()
@@ -144,6 +163,7 @@ public class Customer : MonoBehaviour
 
         // Destruir este cliente
         Destroy(gameObject);
+
     }
 
     public RecipeDataMenu GetCurrentRecipe()

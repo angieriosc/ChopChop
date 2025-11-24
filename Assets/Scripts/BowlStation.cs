@@ -23,6 +23,8 @@ public class BowlStation : MonoBehaviour
     private int currentBowls;
     public GameObject activeBowl;
 
+    public bool tutorialBowlUsed= false;
+
     private void Start()
     {
         if (!ValidateSetup()) return;
@@ -34,6 +36,14 @@ public class BowlStation : MonoBehaviour
     /// </summary>
     public void TrySpawnBowl()
     {
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (!tutorialBowlUsed  && sequenceManager.stepIndex==1)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+            tutorialBowlUsed = true;
+        }
+
         if (!CanSpawn()) return;
         SpawnNewBowl();
     }
@@ -45,6 +55,7 @@ public class BowlStation : MonoBehaviour
     {
         currentBowls = Mathf.Max(0, currentBowls - 1);
         activeBowl = null;
+
     }
 
     /// <summary>
@@ -109,5 +120,15 @@ public class BowlStation : MonoBehaviour
         currentBowls++;
         lastSpawnTime = Time.time;
         activeBowl = newBowl;
+    }
+
+    /// <summary>
+    /// Método llamado cuando un bowl se destruye.
+    /// Reduce el contador global para permitir que aparezcan nuevos.
+    /// </summary>
+    public void RegisterBowlDestruction()
+    {
+        currentBowls = Mathf.Max(0, currentBowls - 1);
+        Debug.Log($"[BowlStation] Bowl destruido externamente. Bowls actuales: {currentBowls}");
     }
 }
