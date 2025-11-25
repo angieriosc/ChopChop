@@ -72,6 +72,7 @@ public class CubeMover : MonoBehaviour
 
             // Idle
             if (animator)
+                animator.CrossFade("Talking", 0.15f);
                 animator.SetFloat(speedHash, 0f);
 
             // --- GIRAR HACIA LA CÁMARA ---
