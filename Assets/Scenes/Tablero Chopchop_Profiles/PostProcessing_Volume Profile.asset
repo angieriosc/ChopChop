@@ -74,7 +74,7 @@ MonoBehaviour:
     value: 1.93
   contrast:
     overrideState: 1
-    value: 0
+    value: -18
   mixerRedOutRedIn:
     overrideState: 0
     value: 100
@@ -1431,7 +1431,7 @@ MonoBehaviour:
   active: 1
   enabled:
     overrideState: 1
-    value: 1
+    value: 0
   intensity:
     overrideState: 1
     value: 3.61
@@ -1442,13 +1442,13 @@ MonoBehaviour:
     overrideState: 1
     value: 1
   clamp:
-    overrideState: 1
+    overrideState: 0
     value: 65472
   diffusion:
-    overrideState: 1
+    overrideState: 0
     value: 4.8
   anamorphicRatio:
-    overrideState: 1
+    overrideState: 0
     value: 0.35
   color:
     overrideState: 0
@@ -1534,10 +1534,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b77c5407dc277943b591ade9e6b18c5, type: 3}
   m_Name: LensDistortion
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
-    value: 1
+    value: 0
   intensity:
     overrideState: 0
     value: 0
@@ -1596,19 +1596,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 556797029e73b2347956b6579e77e05b, type: 3}
   m_Name: DepthOfField
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   enabled:
     overrideState: 1
-    value: 1
+    value: 0
   focusDistance:
-    overrideState: 1
+    overrideState: 0
     value: 2.62
   aperture:
     overrideState: 1
     value: 6.9
   focalLength:
     overrideState: 0
-    value: 36
+    value: 1
   kernelSize:
     overrideState: 0
     value: 1
@@ -1624,7 +1624,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6050e2d5de785ce4d931e4dbdbf2d755, type: 3}
   m_Name: ChromaticAberration
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
@@ -1659,10 +1659,10 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 2.05
+    value: 0.92
   color:
     overrideState: 1
-    value: {r: 1, g: 1, b: 1, a: 1}
+    value: {r: 0.2722499, g: 0.2971698, b: 0.1990477, a: 1}
   ambientOnly:
     overrideState: 1
     value: 1
@@ -1677,10 +1677,10 @@ MonoBehaviour:
     value: -12
   thicknessModifier:
     overrideState: 1
-    value: 3.03
+    value: 10
   zBias:
     overrideState: 1
-    value: 0.000197
+    value: 0.00004
   directLightingStrength:
     overrideState: 0
     value: 0
