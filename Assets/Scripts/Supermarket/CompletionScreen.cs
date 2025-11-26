@@ -23,7 +23,7 @@ public class CompletionScreen : MonoBehaviour
     [SerializeField] private AnimationCurve curtainCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     
     [Header("Victory Letters")]
-    [SerializeField] private RectTransform[] victoryLetters; // Letras individuales de "VICTORIA" o "YOU WIN"
+    [SerializeField] private RectTransform[] victoryLetters;
     [SerializeField] private float letterDropDuration = 0.8f;
     [SerializeField] private float letterDropDelay = 0.1f;
     [SerializeField] private float letterBounceHeight = 200f;
@@ -35,10 +35,20 @@ public class CompletionScreen : MonoBehaviour
     [SerializeField] private AnimationCurve spotlightCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     
     [Header("Character Models")]
-    [SerializeField] private GameObject[] squirrelModels; // Tus 2 modelos de ardillas
+    [SerializeField] private GameObject[] squirrelModels;
     [SerializeField] private Transform characterSpawnPoint;
+    [SerializeField] private Camera character3DCamera;
+    [SerializeField] private RawImage characterDisplay;
     [SerializeField] private float characterAppearDelay = 1.5f;
-    [SerializeField] private string celebrationAnimationTrigger = "Happy"; // Animación de celebración
+    [SerializeField] private string celebrationAnimationTrigger = "Happy";
+    
+    // ✅ NUEVO: Array de escalas individuales para cada modelo
+    [Header("Individual Character Scales")]
+    [Tooltip("Escala individual para cada modelo de ardilla. Debe tener el mismo tamaño que squirrelModels")]
+    [SerializeField] private float[] characterScaleMultipliers = new float[] { 3f, 3f };
+    
+    [SerializeField] private float characterSeparation = 2f;
+    [SerializeField] private LayerMask characterLayer;
     
     [Header("Messages")]
     [SerializeField] private string victoryTitle = "¡VICTORIA!";
@@ -74,8 +84,6 @@ public class CompletionScreen : MonoBehaviour
     private GameObject[] spawnedCharacters;
     private Coroutine letterPulseCoroutine;
     private GameObject spawnedParticles;
-    
-    // ✅ NUEVO: Guardar posiciones originales de las letras
     private Vector2[] originalLetterPositions;
     
     private void Awake()
@@ -90,13 +98,15 @@ public class CompletionScreen : MonoBehaviour
             return;
         }
         
+        // ✅ Validar que el array de escalas coincida con el de modelos
+        ValidateScaleArray();
+        
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
         
-        // AudioSource separado para la música de victoria
         GameObject musicObj = new GameObject("VictoryMusic");
         musicObj.transform.SetParent(transform);
         victoryMusicSource = musicObj.AddComponent<AudioSource>();
@@ -109,7 +119,6 @@ public class CompletionScreen : MonoBehaviour
             completionPanel.SetActive(false);
         }
         
-        // Guardar estados de UI
         if (uiElementsToHide != null && uiElementsToHide.Length > 0)
         {
             originalUIStates = new bool[uiElementsToHide.Length];
@@ -122,16 +131,37 @@ public class CompletionScreen : MonoBehaviour
             }
         }
         
-        // ✅ GUARDAR POSICIONES ORIGINALES DE LAS LETRAS
         SaveOriginalLetterPositions();
-        
-        // Configurar estados iniciales
         SetupInitialStates();
     }
     
     /// <summary>
-    /// ✅ NUEVO: Guarda las posiciones originales de las letras antes de cualquier animación
+    /// ✅ Valida y ajusta el array de escalas para que coincida con el número de modelos
     /// </summary>
+    private void ValidateScaleArray()
+    {
+        if (squirrelModels == null || squirrelModels.Length == 0)
+        {
+            return;
+        }
+        
+        if (characterScaleMultipliers == null || characterScaleMultipliers.Length != squirrelModels.Length)
+        {
+            Debug.LogWarning($"⚠ El array de escalas ({(characterScaleMultipliers?.Length ?? 0)}) no coincide con el de modelos ({squirrelModels.Length}). Ajustando...");
+            
+            float[] newScales = new float[squirrelModels.Length];
+            for (int i = 0; i < newScales.Length; i++)
+            {
+                newScales[i] = (characterScaleMultipliers != null && i < characterScaleMultipliers.Length) 
+                    ? characterScaleMultipliers[i] 
+                    : 3f;
+            }
+            characterScaleMultipliers = newScales;
+            
+            Debug.Log($"✅ Array de escalas ajustado a {characterScaleMultipliers.Length} elementos");
+        }
+    }
+    
     private void SaveOriginalLetterPositions()
     {
         if (victoryLetters != null && victoryLetters.Length > 0)
@@ -147,12 +177,8 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Configura los estados iniciales de todos los elementos animados.
-    /// </summary>
     private void SetupInitialStates()
     {
-        // Ocultar cortinas (fuera de la pantalla)
         if (leftCurtain != null)
         {
             leftCurtain.anchoredPosition = new Vector2(-leftCurtain.rect.width, 0);
@@ -163,7 +189,6 @@ public class CompletionScreen : MonoBehaviour
             rightCurtain.anchoredPosition = new Vector2(rightCurtain.rect.width, 0);
         }
         
-        // ✅ CORREGIDO: Usar las posiciones originales guardadas
         if (victoryLetters != null && originalLetterPositions != null)
         {
             for (int i = 0; i < victoryLetters.Length; i++)
@@ -178,7 +203,6 @@ public class CompletionScreen : MonoBehaviour
             }
         }
         
-        // Ocultar spotlight
         if (spotlight != null)
         {
             Color color = spotlight.color;
@@ -187,7 +211,6 @@ public class CompletionScreen : MonoBehaviour
             spotlight.gameObject.SetActive(false);
         }
         
-        // Ocultar overlay
         if (backgroundOverlay != null)
         {
             Color color = backgroundOverlay.color;
@@ -197,9 +220,6 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Muestra la pantalla de victoria con la animación completa.
-    /// </summary>
     public void ShowCompletion()
     {
         if (completionPanel == null)
@@ -210,31 +230,16 @@ public class CompletionScreen : MonoBehaviour
         
         Debug.Log("🎉 ¡VICTORIA!");
         
-        // Detener toda la música del supermercado
         StopAllBackgroundMusic();
-        
-        // Pausar el juego
         Time.timeScale = 0f;
-        
-        // Ocultar otros UI
         HideOtherUIElements();
-        
-        // Configurar mensaje
         SetupMessage();
-        
-        // ✅ RESTABLECER POSICIONES ANTES DE MOSTRAR
         ResetLetterPositions();
         
-        // Mostrar panel
         completionPanel.SetActive(true);
-        
-        // Iniciar secuencia de animación
         StartCoroutine(VictoryAnimationSequence());
     }
     
-    /// <summary>
-    /// ✅ NUEVO: Restablece las letras a sus posiciones iniciales (arriba)
-    /// </summary>
     private void ResetLetterPositions()
     {
         if (victoryLetters != null && originalLetterPositions != null)
@@ -247,21 +252,17 @@ public class CompletionScreen : MonoBehaviour
                     pos.y += letterBounceHeight;
                     victoryLetters[i].anchoredPosition = pos;
                     victoryLetters[i].gameObject.SetActive(false);
-                    victoryLetters[i].localScale = Vector3.one; // ✅ Reset escala también
-                    victoryLetters[i].rotation = Quaternion.identity; // ✅ Reset rotación
+                    victoryLetters[i].localScale = Vector3.one;
+                    victoryLetters[i].rotation = Quaternion.identity;
                 }
             }
         }
     }
     
-    /// <summary>
-    /// Detiene toda la música de fondo del juego.
-    /// </summary>
     private void StopAllBackgroundMusic()
     {
         Debug.Log("🔇 Iniciando detención de audio (Victoria)...");
         
-        // Método 1: Detener música del supermercado
         if (SupermarketAudioManager.Instance != null)
         {
             SupermarketAudioManager.Instance.StopAllMusic();
@@ -269,17 +270,15 @@ public class CompletionScreen : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("⚠️ SupermarketAudioManager.Instance es null");
+            Debug.LogWarning("⚠ SupermarketAudioManager.Instance es null");
         }
         
-        // Método 2: Buscar y detener TODOS los AudioSource en la escena
         AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>(true);
         Debug.Log($"🔍 Encontrados {allAudioSources.Length} AudioSources en la escena");
         
         int stoppedCount = 0;
         foreach (AudioSource source in allAudioSources)
         {
-            // No detener los AudioSource de este script
             if (source != audioSource && source != victoryMusicSource)
             {
                 bool wasPlaying = source.isPlaying;
@@ -297,43 +296,32 @@ public class CompletionScreen : MonoBehaviour
         
         Debug.Log($"✅ {stoppedCount} AudioSources detenidos");
         
-        // Método 3: Usar AudioKiller como última medida
         if (stoppedCount == 0)
         {
-            Debug.LogWarning("⚠️ No se detuvo ningún audio, usando AudioKiller...");
+            Debug.LogWarning("⚠ No se detuvo ningún audio, usando AudioKiller...");
             AudioKiller.Instance.KillAllAudioExcept(audioSource, victoryMusicSource);
         }
         
         Debug.Log("🔇 Proceso de detención de audio completado");
     }
     
-    /// <summary>
-    /// Secuencia completa de animación estilo Paper Mario para victoria.
-    /// </summary>
     private IEnumerator VictoryAnimationSequence()
     {
-        // 1. Fade in del fondo dorado/celebración
         if (backgroundOverlay != null)
         {
             backgroundOverlay.gameObject.SetActive(true);
             yield return StartCoroutine(FadeInOverlay(0.5f, 0.9f));
         }
         
-        // 2. Sonido de cortinas
         if (curtainSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(curtainSound);
         }
         
-        // 3. Animación de cortinas entrando
         yield return StartCoroutine(AnimateCurtains());
-        
         yield return new WaitForSecondsRealtime(0.3f);
-        
-        // 4. Letras de "VICTORIA" o "YOU WIN" cayendo
         yield return StartCoroutine(AnimateVictoryLetters());
         
-        // 5. Reproducir música de victoria (loop)
         if (victorySound != null && victoryMusicSource != null)
         {
             victoryMusicSource.clip = victorySound;
@@ -341,35 +329,27 @@ public class CompletionScreen : MonoBehaviour
             Debug.Log("🎵 Música de Victoria iniciada");
         }
         
-        // 6. Sonido extra de celebración
         if (celebrationSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(celebrationSound);
         }
         
-        // 7. Iniciar animación de pulso en las letras
         if (enableLetterPulse && victoryLetters != null && victoryLetters.Length > 0)
         {
             letterPulseCoroutine = StartCoroutine(PulseLetters());
         }
         
-        // 8. Spotlight apareciendo
         yield return StartCoroutine(AnimateSpotlight());
         
-        // 9. Crear efecto de partículas
         if (particleEffectPrefab != null)
         {
             Vector3 spawnPos = particleSpawnPoint != null ? particleSpawnPoint.position : Vector3.zero;
-            // ✅ CORREGIDO: No usar completionPanel.transform como padre
             spawnedParticles = Instantiate(particleEffectPrefab, spawnPos, Quaternion.identity);
         }
         
-        // 10. Ardillas apareciendo con animación feliz
         yield return StartCoroutine(SpawnCharacters());
-        
         yield return new WaitForSecondsRealtime(0.5f);
         
-        // 11. Mostrar mensaje y botón
         if (messageText != null)
         {
             messageText.gameObject.SetActive(true);
@@ -385,21 +365,17 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Hace que las letras pulsen continuamente con efecto de onda.
-    /// </summary>
     private IEnumerator PulseLetters()
     {
         if (victoryLetters == null || victoryLetters.Length == 0 || originalLetterPositions == null) yield break;
         
-        // ✅ Guardar escalas originales (debe ser Vector3.one después de la animación)
         Vector3[] originalScales = new Vector3[victoryLetters.Length];
         
         for (int i = 0; i < victoryLetters.Length; i++)
         {
             if (victoryLetters[i] != null)
             {
-                originalScales[i] = Vector3.one; // ✅ Siempre usar escala 1
+                originalScales[i] = Vector3.one;
             }
         }
         
@@ -413,16 +389,11 @@ public class CompletionScreen : MonoBehaviour
             {
                 if (victoryLetters[i] != null)
                 {
-                    // Cada letra tiene un offset en la onda
                     float wave = Mathf.Sin(timeOffset + (i * pulseDelay * 10f));
-                    
-                    // Calcular escala con pulso
                     float scaleMultiplier = 1f + (wave * pulseAmount);
                     
-                    // Aplicar escala
                     victoryLetters[i].localScale = originalScales[i] * scaleMultiplier;
                     
-                    // ✅ Movimiento vertical (igual que GameOver)
                     Vector2 pos = originalLetterPositions[i];
                     pos.y = originalLetterPositions[i].y + (wave * verticalMovement);
                     victoryLetters[i].anchoredPosition = pos;
@@ -433,9 +404,6 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Anima las cortinas entrando desde los lados.
-    /// </summary>
     private IEnumerator AnimateCurtains()
     {
         float elapsed = 0f;
@@ -464,9 +432,6 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Anima las letras de VICTORIA/YOU WIN cayendo una por una.
-    /// </summary>
     private IEnumerator AnimateVictoryLetters()
     {
         if (victoryLetters == null || victoryLetters.Length == 0)
@@ -481,7 +446,6 @@ public class CompletionScreen : MonoBehaviour
                 victoryLetters[i].gameObject.SetActive(true);
                 StartCoroutine(DropLetter(victoryLetters[i], i));
                 
-                // Sonido de letra cayendo
                 if (letterDropSound != null && audioSource != null)
                 {
                     audioSource.PlayOneShot(letterDropSound, 0.5f);
@@ -491,18 +455,14 @@ public class CompletionScreen : MonoBehaviour
             }
         }
         
-        // Esperar a que termine la última letra
         yield return new WaitForSecondsRealtime(letterDropDuration);
     }
     
-    /// <summary>
-    /// ✅ CORREGIDO: Hace caer una letra individual con bounce usando posición original
-    /// </summary>
     private IEnumerator DropLetter(RectTransform letter, int index)
     {
         float elapsed = 0f;
         Vector2 startPos = letter.anchoredPosition;
-        Vector2 targetPos = originalLetterPositions[index]; // ✅ Usar posición original guardada
+        Vector2 targetPos = originalLetterPositions[index];
         
         while (elapsed < letterDropDuration)
         {
@@ -511,8 +471,6 @@ public class CompletionScreen : MonoBehaviour
             float curveValue = letterDropCurve.Evaluate(progress);
             
             letter.anchoredPosition = Vector2.Lerp(startPos, targetPos, curveValue);
-            
-            // Rotación mientras cae
             letter.rotation = Quaternion.Euler(0, 0, Mathf.Sin(progress * Mathf.PI * 2) * 10f);
             
             yield return null;
@@ -522,9 +480,6 @@ public class CompletionScreen : MonoBehaviour
         letter.rotation = Quaternion.identity;
     }
     
-    /// <summary>
-    /// Anima el spotlight apareciendo.
-    /// </summary>
     private IEnumerator AnimateSpotlight()
     {
         if (spotlight == null) yield break;
@@ -553,13 +508,20 @@ public class CompletionScreen : MonoBehaviour
     }
     
     /// <summary>
-    /// Hace aparecer los personajes de ardilla con animación feliz.
+    /// ✅ MEJORADO: Spawn de personajes con escalas individuales
     /// </summary>
     private IEnumerator SpawnCharacters()
     {
         if (squirrelModels == null || squirrelModels.Length == 0 || characterSpawnPoint == null)
         {
+            Debug.LogWarning("⚠ No hay modelos de ardilla o spawn point asignado");
             yield break;
+        }
+        
+        if (character3DCamera != null)
+        {
+            character3DCamera.gameObject.SetActive(true);
+            Debug.Log("📷 Cámara 3D de personajes activada");
         }
         
         yield return new WaitForSecondsRealtime(characterAppearDelay);
@@ -570,29 +532,86 @@ public class CompletionScreen : MonoBehaviour
         {
             if (squirrelModels[i] != null)
             {
-                // Calcular posición (separar si son múltiples)
                 Vector3 spawnPos = characterSpawnPoint.position;
+                
                 if (squirrelModels.Length > 1)
                 {
-                    float offset = (i - (squirrelModels.Length - 1) / 2f) * 1.5f;
-                    spawnPos += characterSpawnPoint.right * offset;
+                    float offset = (i - (squirrelModels.Length - 1) / 2f) * characterSeparation;
+                    spawnPos += Vector3.right * offset;
                 }
                 
-                // ✅ CORREGIDO: No usar completionPanel.transform como padre
                 GameObject character = Instantiate(squirrelModels[i], spawnPos, characterSpawnPoint.rotation);
                 spawnedCharacters[i] = character;
                 
-                // Escala inicial pequeña
+                SetLayerRecursively(character, LayerMask.NameToLayer("VictoryCharacters"));
+                
+                Debug.Log($"✅ Ardilla {i} spawneada en posición: {spawnPos}");
+                
+                // ✅ USAR ESCALA INDIVIDUAL PARA CADA MODELO
+                Vector3 originalScale = squirrelModels[i].transform.localScale;
+                float individualScale = characterScaleMultipliers[i];
+                Vector3 targetScale = originalScale * individualScale;
+                
+                Debug.Log($"   📏 Escala original: {originalScale}, Multiplicador: {individualScale}, Escala final: {targetScale}");
+                
                 character.transform.localScale = Vector3.zero;
                 
-                // Animar aparición
-                StartCoroutine(AnimateCharacterAppear(character.transform));
+                StartCoroutine(AnimateCharacterAppear(character.transform, targetScale));
                 
-                // Activar animación feliz
                 Animator animator = character.GetComponent<Animator>();
-                if (animator != null && !string.IsNullOrEmpty(celebrationAnimationTrigger))
+                if (animator == null)
                 {
-                    animator.SetTrigger(celebrationAnimationTrigger);
+                    animator = character.GetComponentInChildren<Animator>();
+                    if (animator != null)
+                    {
+                        Debug.Log($"🔍 Animator encontrado en child de ardilla {i}: {animator.gameObject.name}");
+                    }
+                }
+                
+                if (animator != null)
+                {
+                    animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+                    
+                    Debug.Log($"🎭 Animator encontrado en ardilla {i}");
+                    Debug.Log($"   - GameObject: {animator.gameObject.name}");
+                    Debug.Log($"   - Controller: {(animator.runtimeAnimatorController != null ? animator.runtimeAnimatorController.name : "NULL")}");
+                    Debug.Log($"   - Enabled: {animator.enabled}");
+                    Debug.Log($"   - UpdateMode: {animator.updateMode}");
+                    Debug.Log($"   - HasController: {animator.runtimeAnimatorController != null}");
+                    
+                    if (animator.runtimeAnimatorController == null)
+                    {
+                        Debug.LogError($"❌ El Animator de ardilla {i} NO TIENE Controller asignado!");
+                        yield return new WaitForSecondsRealtime(0.2f);
+                        continue;
+                    }
+                    
+                    if (!string.IsNullOrEmpty(celebrationAnimationTrigger))
+                    {
+                        bool triggerExists = false;
+                        foreach (var param in animator.parameters)
+                        {
+                            if (param.name == celebrationAnimationTrigger && param.type == AnimatorControllerParameterType.Trigger)
+                            {
+                                triggerExists = true;
+                                break;
+                            }
+                        }
+                        
+                        if (triggerExists)
+                        {
+                            animator.SetTrigger(celebrationAnimationTrigger);
+                            Debug.Log($"✅ Trigger '{celebrationAnimationTrigger}' activado en ardilla {i}");
+                        }
+                        else
+                        {
+                            Debug.LogError($"❌ Trigger '{celebrationAnimationTrigger}' NO EXISTE en el Animator de ardilla {i}");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"❌ La ardilla {i} NO TIENE componente Animator!");
                 }
                 
                 yield return new WaitForSecondsRealtime(0.2f);
@@ -600,14 +619,19 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Anima la aparición de un personaje.
-    /// </summary>
-    private IEnumerator AnimateCharacterAppear(Transform character)
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
+    
+    private IEnumerator AnimateCharacterAppear(Transform character, Vector3 targetScale)
     {
         float duration = 0.5f;
         float elapsed = 0f;
-        Vector3 targetScale = Vector3.one;
         
         while (elapsed < duration)
         {
@@ -622,9 +646,6 @@ public class CompletionScreen : MonoBehaviour
         character.localScale = targetScale;
     }
     
-    /// <summary>
-    /// Fade in del overlay de fondo.
-    /// </summary>
     private IEnumerator FadeInOverlay(float duration, float targetAlpha)
     {
         if (backgroundOverlay == null) yield break;
@@ -648,9 +669,6 @@ public class CompletionScreen : MonoBehaviour
         backgroundOverlay.color = endColor;
     }
     
-    /// <summary>
-    /// Anima un texto apareciendo con escala.
-    /// </summary>
     private IEnumerator AnimateText(RectTransform textRect, float duration)
     {
         if (textRect == null) yield break;
@@ -672,22 +690,15 @@ public class CompletionScreen : MonoBehaviour
         textRect.localScale = endScale;
     }
     
-    /// <summary>
-    /// Configura el mensaje de victoria.
-    /// </summary>
     private void SetupMessage()
     {
         if (titleText != null) titleText.text = victoryTitle;
         if (messageText != null) messageText.text = victoryMessage;
         
-        // Ocultar inicialmente
         if (messageText != null) messageText.gameObject.SetActive(false);
         if (continueButton != null) continueButton.SetActive(false);
     }
     
-    /// <summary>
-    /// Oculta otros elementos de UI.
-    /// </summary>
     private void HideOtherUIElements()
     {
         if (GameTimer.Instance != null)
@@ -712,9 +723,6 @@ public class CompletionScreen : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Oculta la pantalla de victoria.
-    /// </summary>
     public void HideCompletion()
     {
         if (letterPulseCoroutine != null)
@@ -727,6 +735,11 @@ public class CompletionScreen : MonoBehaviour
         if (victoryMusicSource != null)
         {
             victoryMusicSource.Stop();
+        }
+        
+        if (character3DCamera != null)
+        {
+            character3DCamera.gameObject.SetActive(false);
         }
         
         if (spawnedCharacters != null)
@@ -753,12 +766,9 @@ public class CompletionScreen : MonoBehaviour
         Time.timeScale = 1f;
     }
     
-    /// <summary>
-    /// Continúa al siguiente nivel o menú.
-    /// </summary>
     public void ContinueGame()
     {
-        Debug.Log("➡️ Continuando...");
+        Debug.Log("➡ Continuando...");
         
         if (letterPulseCoroutine != null)
         {
@@ -789,14 +799,9 @@ public class CompletionScreen : MonoBehaviour
         }
         
         Time.timeScale = 1f;
-        
-        // Aquí puedes cargar el siguiente nivel o volver al menú
         SceneManager.LoadScene("MainMenu");
     }
     
-    /// <summary>
-    /// Reinicia el nivel actual.
-    /// </summary>
     public void RestartLevel()
     {
         Debug.Log("🔄 Reiniciando nivel...");
