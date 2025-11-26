@@ -69,8 +69,7 @@ public class CheckoutZone : MonoBehaviour
             Debug.Log($"💰 Intentando procesar pago de ${totalPrice:F2}");
         }
 
-        // CORRECCIÓN: Verificar si tiene suficiente dinero
-        // Como ya tenemos el total del carrito, simplemente comparamos con el dinero disponible
+        // Verificar si tiene suficiente dinero
         if (totalPrice > SupermarketManager.Instance.CurrentMoney)
         {
             Debug.Log($"⚠️ Fondos insuficientes. Total: ${totalPrice:F2}, Disponible: ${SupermarketManager.Instance.CurrentMoney:F2}");
@@ -89,6 +88,12 @@ public class CheckoutZone : MonoBehaviour
         if (success)
         {
             Debug.Log($"✅ ¡Compra completada! Total pagado: ${totalPrice:F2}");
+
+            // ✅ Desactivar prompts de tutorial después de la primera compra
+            if (InteractionPrompt.Instance != null)
+            {
+                InteractionPrompt.Instance.OnFirstPurchaseComplete();
+            }
 
             // Opcional: mover el carrito a la posición de pago
             if (paymentPosition != null)

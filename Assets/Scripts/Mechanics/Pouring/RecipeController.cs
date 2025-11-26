@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.EditorTools;
 
 /// <summary>
 /// Controla el flujo automatizado de preparación de una receta.
