@@ -28,6 +28,7 @@ public class CustomerManager : MonoBehaviour
     public RecipeDataMenu ActiveRecipe => activeRecipe;
 
     [SerializeField] private PizzaToppingManager toppingManager;
+    private int nextSeatIndex = 0;
 
 
     /// <summary>
@@ -79,6 +80,7 @@ public class CustomerManager : MonoBehaviour
             return;
 
         currentCounterCustomer.Initialize(counterWaitPoint, counterSpawnPoint, recipe, this);
+        
     }
 
 
@@ -152,7 +154,15 @@ public class CustomerManager : MonoBehaviour
 
             GameObject tableCustomer = Instantiate(prefab, tableSpawnPoints[i].position, tableSpawnPoints[i].rotation);
             spawnedTableCustomers.Add(tableCustomer);
+            DeliveryArea area = tableCustomer.GetComponentInChildren<DeliveryArea>();
+            if (area != null)
+            {
+                area.slotIndex = nextSeatIndex;   // 0,1,2,3...
+                Debug.Log($"Asignando slotIndex {area.slotIndex} al cliente {tableCustomer.name}");
+            }
+            nextSeatIndex++;
         }
+        nextSeatIndex = 0;
     }
 
 

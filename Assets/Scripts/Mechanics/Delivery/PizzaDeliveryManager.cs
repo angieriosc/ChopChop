@@ -36,6 +36,15 @@ public class PizzaDeliveryManager : MonoBehaviour
 
     public Camera WorkCamera { get => _workCamera; set => _workCamera = value; }
 
+    [Header("Mesas a validar en la primer entrega")]
+    [SerializeField] private int[] _firstDeliverySlots = new int[] { 0, 1 };
+
+    [Header("Rondas de entrega")]
+    [SerializeField] private List<DeliveryRoundConfig> _rounds = new List<DeliveryRoundConfig>();
+
+    private int _currentRoundIndex = 0;
+    public int CurrentRoundIndex => _currentRoundIndex;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -62,9 +71,11 @@ public class PizzaDeliveryManager : MonoBehaviour
         Debug.Log($"[DEBUG INVENTARIO] Estado actual: {content}");
     }
 
-    // -----------------------------------------------------------------------------------
-    // 1. GUARDADO (Llamado desde SlicingStation)
-    // -----------------------------------------------------------------------------------
+    /// <summary>
+    /// Almacena una rebanada física en el inventario interno.  
+    /// </summary>
+    /// <param name="inventoryKey">Key que identifica la rebanada (debe coincidir con CuttingInventory)</param>
+    /// <param name="sliceObject">Objeto físico de la rebanada (GameObject)</param>               
     public void StoreRealSlice(string inventoryKey, GameObject sliceObject)
     {
         Debug.Log($"[DEBUG] StoreRealSlice LLAMADO. Key recibida: '{inventoryKey}'. Objeto: {sliceObject.name}");
@@ -85,15 +96,20 @@ public class PizzaDeliveryManager : MonoBehaviour
         PrintDebugInventory();
     }
 
+    /// <summary>
+    /// Habilita o deshabilita el manager al entrar o salir de la estación.
+    /// </summary>
+    /// <param name="value"></param>
     public void SetEnabled(bool value)
     {
         _enabled = value;
         Debug.Log($"[DEBUG] PizzaDeliveryManager Habilitado: {value}");
     }
 
-    // -----------------------------------------------------------------------------------
-    // 2. SELECCIÓN (Llamado desde botones UI)
-    // -----------------------------------------------------------------------------------
+    /// <summary>
+    /// Selecciona la rebanada a entregar según el botón presionado en la UI
+    /// </summary>
+    /// <param name="sliceIndex"></param>
     public void SelectSlice(int sliceIndex)
     {
         Debug.Log($"[DEBUG] Botón presionado. Index: {sliceIndex}");
@@ -109,34 +125,35 @@ public class PizzaDeliveryManager : MonoBehaviour
         Debug.Log($"[DEBUG] Slice seleccionado: Indice {sliceIndex} -> Espera Key: '{expectedKey}'");
     }
 
+    /// <summary>
+    /// Devuelve la cantidad de rebanadas entregadas en el slot indicado.
+    /// </summary>
+    /// <param name="slotIndex"></param>
     public int GetSliceCountForSlot(int slotIndex)
     {
         return _slicesPerSlot.TryGetValue(slotIndex, out var list) ? list.Count : 0;
     }
 
-    // -----------------------------------------------------------------------------------
-    // 3. UPDATE (Clic en la mesa)
-    // -----------------------------------------------------------------------------------
+    /// <summary>
+    /// ENTREGA (Llamado desde Update cuando se clickea)
+    /// </summary>
     private void Update()
     {
         if (!_enabled) return;
         if (_workCamera == null) return;
         if (Mouse.current == null) return;
 
-        // Solo debuggeamos si hace clic izquierdo
         if (!Mouse.current.leftButton.wasPressedThisFrame) return;
 
         Debug.Log("--------------------------------------------------");
         Debug.Log("[DEBUG] Clic detectado. Iniciando proceso de entrega...");
 
-        // CHEQUEO 1: ¿Hay algo seleccionado?
         if (_currentSliceIndex < 0 || _currentSliceIndex >= _slicesPizza.Count)
         {
             Debug.LogWarning("[DEBUG] Cancelado: No hay rebanada seleccionada en la UI (Index es -1).");
             return;
         }
 
-        // CHEQUEO 2: ¿Cuál es la Key?
         string invKey = GetInventoryKeyForIndex(_currentSliceIndex);
         Debug.Log($"[DEBUG] Intentando entregar Key: '{invKey}'");
 
@@ -146,7 +163,6 @@ public class PizzaDeliveryManager : MonoBehaviour
             return;
         }
 
-        // CHEQUEO 3: ¿Tenemos el objeto real?
         bool hasKey = _realSliceStorage.ContainsKey(invKey);
         int count = hasKey ? _realSliceStorage[invKey].Count : 0;
 
@@ -160,7 +176,6 @@ public class PizzaDeliveryManager : MonoBehaviour
             return; 
         }
 
-        // CHEQUEO 4: Raycast
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = _workCamera.ScreenPointToRay(mousePos);
 
@@ -196,20 +211,24 @@ public class PizzaDeliveryManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Coloca la rebanada física en el área de entrega especificada.
+    /// </summary>
     private void PlaceSliceOnArea(DeliveryArea area, Vector3 position, GameObject sliceObj)
     {
         if (sliceObj == null)
         {
-            Debug.LogError("[DEBUG ERROR] El objeto recuperado de la cola es NULL. ¿Fue destruido?");
+            Debug.LogError("[DEBUG ERROR] El objeto de rebanada es NULL. Revisa StoreRealSlice / Dequeue.");
             return;
         }
+
+        int slotIndex = area.slotIndex;
 
         sliceObj.SetActive(true);
         sliceObj.transform.position = position;
         sliceObj.transform.rotation = Quaternion.LookRotation(Vector3.forward, area.transform.up);
         sliceObj.transform.SetParent(area.transform, true);
 
-        int slotIndex = area.slotIndex;
         if (!_slicesPerSlot.TryGetValue(slotIndex, out var list))
         {
             list = new List<GameObject>();
@@ -217,9 +236,18 @@ public class PizzaDeliveryManager : MonoBehaviour
         }
         list.Add(sliceObj);
 
-        if (_deliverAudio != null) _deliverAudio.Play();
+        string invKey = GetInventoryKeyForIndex(_currentSliceIndex);
 
-        Debug.Log($"[DEBUG ÉXITO] Rebanada colocada en mesa. Restantes de este tipo: {_realSliceStorage[GetInventoryKeyForIndex(_currentSliceIndex)].Count}");
+        var meta = sliceObj.GetComponent<DeliveredSlice>();
+        if (meta == null) meta = sliceObj.AddComponent<DeliveredSlice>();
+
+        meta.recipeKey = invKey;
+        meta.seatSlot  = slotIndex;
+
+        if (_deliverAudio != null)
+            _deliverAudio.Play();
+
+        Debug.Log($"[PizzaDeliveryManager] Rebanada colocada en slot {slotIndex}. Total = {list.Count}");
     }
 
     // API UI
@@ -240,6 +268,150 @@ public class PizzaDeliveryManager : MonoBehaviour
             default: return null;
         }
     }
+    /// <summary>
+    /// Devuelve true si cada mesa/slot configurado en _firstDeliverySlots
+    /// tiene exactamente UNA rebanada. Si alguna tiene 0 o más de 1, devuelve false.
+    /// </summary>
+    public bool IsFirstDeliveryValid()
+    {
+        foreach (int slot in _firstDeliverySlots)
+        {
+            int count = GetSliceCountForSlot(slot); // ya lo tienes implementado
+
+            if (count != 1)
+            {
+                Debug.Log($"[Entrega] Mesa/slot {slot} tiene {count} rebanadas. Debe tener exactamente 1.");
+                return false;
+            }
+        }
+
+        Debug.Log("[Entrega] ✔ Todas las mesas tienen exactamente 1 rebanada.");
+        return true;
+    }
+    /// <summary>
+    /// Verifica si la entrega de la ronda actual es correcta:
+    /// - Cada asiento de seatSlots tiene EXACTAMENTE slicesPerClient rebanadas.
+    /// - Todas esas rebanadas son de la recipeKey correcta.
+    /// - (Opcional) No hay rebanadas en asientos que no participan.
+    /// </summary>
+    public bool ValidateCurrentRound(out string errorMessage)
+    {
+        errorMessage = "";
+
+        if (_currentRoundIndex < 0 || _currentRoundIndex >= _rounds.Count)
+        {
+            errorMessage = "No hay ronda configurada.";
+            return false;
+        }
+
+        DeliveryRoundConfig cfg = _rounds[_currentRoundIndex];
+
+        // 1) Revisar cada asiento de la ronda
+        foreach (int seat in cfg.seatSlots)
+        {
+            if (!_slicesPerSlot.TryGetValue(seat, out var list) || list == null)
+            {
+                errorMessage = $"El asiento {seat} no tiene rebanadas.";
+                return false;
+            }
+
+            // Quitar nulls si alguna rebanada fue destruida
+            list.RemoveAll(s => s == null);
+
+            if (list.Count != cfg.slicesPerClient)
+            {
+                errorMessage = $"El asiento {seat} tiene {list.Count} rebanadas, " +
+                            $"pero se esperaba {cfg.slicesPerClient}.";
+                return false;
+            }
+
+            // 2) Verificar receta de cada rebanada
+            foreach (var slice in list)
+            {
+                var meta = slice.GetComponent<DeliveredSlice>();
+                if (meta == null || meta.recipeKey != cfg.recipeKey)
+                {
+                    errorMessage = $"En el asiento {seat} hay una rebanada de receta incorrecta.";
+                    return false;
+                }
+            }
+        }
+
+        // 3) (Opcional) Revisar que no haya rebanadas en asientos extra
+        foreach (var kvp in _slicesPerSlot)
+        {
+            int seat = kvp.Key;
+            var list = kvp.Value;
+
+            if (!cfg.seatSlots.Contains(seat) && list != null && list.Count > 0)
+            {
+                errorMessage = $"Hay rebanadas en un asiento que no participa en esta ronda (seat {seat}).";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Llamar cuando una entrega fue válida para pasar a la siguiente ronda.
+    /// </summary>
+    public void AdvanceRound()
+    {
+        _currentRoundIndex = Mathf.Min(_currentRoundIndex + 1, _rounds.Count - 1);
+        
+        // Limpiar ronda anterior
+        ResetSlots();
+        RefreshDeliveryAreasForCurrentRound();
+        Debug.Log($"[Entrega] Avanzando a la ronda {_currentRoundIndex}.");
+    }
+
+    /// <summary>
+    /// Limpia todas las rebanadas de las mesas y del diccionario
+    /// </summary>
+    public void ResetSlots()
+    {
+        foreach (var kvp in _slicesPerSlot)
+        {
+            var list = kvp.Value;
+            if (list == null) continue;
+
+            foreach (var go in list)
+            {
+                if (go != null)
+                    Destroy(go);
+            }
+        }
+
+        _slicesPerSlot.Clear();
+    }
+
+    /// <summary>
+    /// Activa solo los DeliveryArea cuyos slotIndex estén en la ronda actual.
+    /// </summary>
+    public void RefreshDeliveryAreasForCurrentRound()
+    {
+        if (_currentRoundIndex < 0 || _currentRoundIndex >= _rounds.Count)
+            return;
+
+        DeliveryRoundConfig cfg = _rounds[_currentRoundIndex];
+        var allowed = new HashSet<int>(cfg.seatSlots);
+
+        DeliveryArea[] areas = FindObjectsOfType<DeliveryArea>();
+
+        foreach (var area in areas)
+        {
+            Collider col = area.GetComponent<Collider>();
+            if (col == null) continue;
+
+            bool enable = allowed.Contains(area.slotIndex);
+            col.enabled = enable;
+        }
+
+        Debug.Log($"[Entrega] Mesas activas para ronda {_currentRoundIndex}: {string.Join(", ", cfg.seatSlots)}");
+    }
+
+
 }
 
 [System.Serializable]
@@ -247,4 +419,17 @@ public class PizzaOption
 {
     public string id;
     public string name;
+}
+
+[System.Serializable]
+public class DeliveryRoundConfig
+{
+    [Tooltip("Key de receta esperada en esta ronda (CuttingInventory)")]
+    public string recipeKey;
+
+    [Tooltip("Slots/asientos que deben recibir rebanada en esta ronda")]
+    public List<int> seatSlots = new List<int>();
+
+    [Tooltip("Rebanadas requeridas por cliente (en tu caso siempre 1)")]
+    public int slicesPerClient = 1;
 }
