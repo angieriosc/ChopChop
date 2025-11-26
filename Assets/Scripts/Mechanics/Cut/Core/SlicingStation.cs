@@ -132,12 +132,16 @@ public class SlicingStation : MonoBehaviour
         StartCoroutine(SliceObjectRoutine());
     }
 
+    /// <summary>
+    /// Corrutina que maneja el proceso de corte.
+    /// </summary>
     private IEnumerator SliceObjectRoutine()
     {
         isSlicing = true;
         GameObject originalObject = objectToCut;
 
-        // 1. FUSIONAR MALLAS
+        bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
+
         CombineToppingsIntoMesh(originalObject);
         yield return null; 
 
@@ -155,22 +159,17 @@ public class SlicingStation : MonoBehaviour
         
         Vector3 worldCutUpAxis = originalObject.transform.TransformDirection(cutUpAxis);
         Vector3 localCutUpAxis = meshTransform.InverseTransformDirection(worldCutUpAxis);
-        
-        // 2. CALCULAR CORTES
+
         MeshSlicer slicer = new MeshSlicer(); 
         List<Mesh> sliceMeshes = slicer.Slice(originalMesh, Vector3.zero, localCutUpAxis, sliceCount);
         
         yield return null;
 
-        // 3. GENERAR OBJETOS (Invisiblemente)
         List<GameObject> newPieces = new List<GameObject>();
         float totalDuration = 3.0f;
         float delayPerPiece = 0f;
 
-        if (sliceMeshes.Count > 0)
-        {
-            delayPerPiece = totalDuration / sliceMeshes.Count;
-        }
+        if (sliceMeshes.Count > 0) delayPerPiece = totalDuration / sliceMeshes.Count;
         
         foreach (Mesh sliceMesh in sliceMeshes)
         {
@@ -183,7 +182,6 @@ public class SlicingStation : MonoBehaviour
             yield return new WaitForSeconds(delayPerPiece);
         }
         
-        // 4. EL SWAP FINAL
         DisableOriginalObject(originalObject);
 
         foreach (var piece in newPieces)
@@ -191,58 +189,60 @@ public class SlicingStation : MonoBehaviour
             if (piece != null) piece.SetActive(true);
         }
 
-        // 5. GUARDAR EN INVENTARIO
-        if (gameManager != null)
+        yield return new WaitForSeconds(1.5f); 
+        string recipeKey = "Unknown";
+        
+        if (isPizza) // Es Pizza
         {
-            gameManager.OnCutComplete(originalObject, newPieces, newPieces.Count, this);
+            CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
+            if (customerManager != null && customerManager.ActiveRecipe != null)
+                recipeKey = customerManager.ActiveRecipe.name;
+        }
+        else if (currentItemData != null && currentItemData.sliceResultPrefab != null)
+        {
+            // Es Masa (Dough)
+            recipeKey = currentItemData.sliceResultPrefab.name;
         }
 
-        if (currentItemData != null && currentItemData.sliceResultPrefab != null)
+        if (CuttingInventory.Instance != null)
         {
-            if (CuttingInventory.Instance != null)
-            {
-                // Nombre por defecto (lo que quieres para la masa)
-                string key = currentItemData.sliceResultPrefab.name;
-                
-                // --- CORRECCIÓN AQUÍ ---
-                // Solo cambiamos el nombre si es una PIZZA (tiene BakeableIngredient).
-                // Si es masa cruda (no tiene el componente), se salta este bloque y usa el nombre original.
-                if (originalObject.GetComponent<BakeableIngredient>() != null)
-                {
-                    CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
-                    if (customerManager != null && customerManager.ActiveRecipe != null)
-                    {
-                        key = customerManager.ActiveRecipe.name;
-                        Debug.Log($"[SlicingStation] Pizza identificada como receta: {key}");
-                    }
-                }
-                // -----------------------
+            CuttingInventory.Instance.AddSlices(recipeKey, null, newPieces.Count);
+        }
 
-                GameObject prefab = currentItemData.sliceResultPrefab;
-                int amount = newPieces.Count; 
-                CuttingInventory.Instance.AddSlices(key, prefab, amount);
+        PizzaDeliveryManager deliveryManager = PizzaDeliveryManager.Instance;
+        
+        if (isPizza && deliveryManager != null)
+        {
+            Debug.Log($"[SlicingStation] Guardando rebanadas de PIZZA '{recipeKey}' en DeliveryManager.");
+            foreach (GameObject piece in newPieces)
+            {
+                deliveryManager.StoreRealSlice(recipeKey, piece);
+            }
+        }
+        else
+        {
+            Debug.Log("[SlicingStation] Destruyendo rebanadas de MASA (no se guardan).");
+            foreach (GameObject piece in newPieces)
+            {
+                Destroy(piece);
             }
         }
 
-        // 6. LIMPIEZA
         Destroy(originalObject);
         objectToCut = null;
 
         if (originalBowlObject != null)
         {
-
             BowlStation bowlStation = FindFirstObjectByType<BowlStation>();
-            if (bowlStation != null)
-            {
-                bowlStation.RegisterBowlDestruction();
-            }
-
+            if (bowlStation != null) bowlStation.RegisterBowlDestruction();
             Destroy(originalBowlObject);
             originalBowlObject = null;
         }
 
         currentItemData = null;
         isSlicing = false; 
+
+        UnlockPlayer();
     }
 
     /// <summary>

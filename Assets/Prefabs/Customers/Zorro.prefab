@@ -52,6 +52,7 @@ MonoBehaviour:
   animator: {fileID: 6054098209044789192}
   walkStateName: Running
   idleStateName: Idle State
+  sittingStateName: Sitting
   crossfadeDuration: 0.05
 --- !u!1001 &9016011872601249034
 PrefabInstance:
@@ -120,7 +121,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2372624188831712269, guid: 9197ff8b0ee967242a47998970747910, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6890487015506233153}
   m_SourcePrefab: {fileID: 100100000, guid: 9197ff8b0ee967242a47998970747910, type: 3}
 --- !u!95 &6054098209044789192 stripped
 Animator:
@@ -132,3 +136,21 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3145361426997059255, guid: 9197ff8b0ee967242a47998970747910, type: 3}
   m_PrefabInstance: {fileID: 9016011872601249034}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6769488748239016199 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2372624188831712269, guid: 9197ff8b0ee967242a47998970747910, type: 3}
+  m_PrefabInstance: {fileID: 9016011872601249034}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6890487015506233153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6769488748239016199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c90da4a40076a4e4e8d11d9cf33e5f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotIndex: 0

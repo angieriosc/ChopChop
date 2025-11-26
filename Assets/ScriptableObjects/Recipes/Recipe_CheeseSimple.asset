@@ -33,11 +33,11 @@ MonoBehaviour:
   - ingredient:
       ingredientName: Bola de masa
       ingredientIcon: {fileID: 21300000, guid: a6449e4def2c8804d8104bb4ab03495a, type: 3}
-      ingredientSlicedIcon: {fileID: 0}
-    requiresCutting: 0
+      ingredientSlicedIcon: {fileID: 21300000, guid: 3aa33657e2c6d474e82965ea60d06c40, type: 3}
+    requiresCutting: 1
     cutPieces: 0
     cutIconOverride: {fileID: 0}
-    isCompleted: 0
+    isCompleted: 1
   - ingredient:
       ingredientName: Queso rayado
       ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
