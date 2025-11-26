@@ -25,8 +25,9 @@ public class PlayerPickup : MonoBehaviour
     private MixerStation nearbyMixer = null;
     private ToppingStation nearbyToppingStation = null;
     private PouringStation nearbyPouringStation = null;
+    private BowlStation nearbyBowlStation = null;
+    private SlicingStation nearbySlicingStation = null;
 
-    // Referencia al controlador del carrito
     private PlayerCartController cartController = null;
 
     private void Awake()
@@ -34,85 +35,67 @@ public class PlayerPickup : MonoBehaviour
         cartController = GetComponent<PlayerCartController>();
     }
 
-    private BowlStation nearbyBowlStation = null;
-    private SlicingStation nearbySlicingStation = null; // Re-añadido
-
     private void Update()
     {
-        if (DialogueLock.IsLocked)
+        if (DialogueLock.IsLocked) return;
+        if (InputLock.IsLocked) return;
+        if (InputCooldown.BlockNextE)
+        if (InputCooldown.IsOnCooldown()) 
+        {
             return;
-            
-        if (InputLock.IsLocked) 
-            return;
+        }
 
         if (InputCooldown.BlockNextE)
         {
-            InputCooldown.BlockNextE = false; // se limpia SOLO 1 frame
+            InputCooldown.BlockNextE = false;
             return;
         }
 
         DetectNearbyStations();
-
         HandleDropInput();
         HandleGrabInput();
     }
 
     /// <summary>
-    /// Detecta estaciones cercanas dentro del rango.
+    /// Detecta estaciones cercanas y actualiza las referencias.
     /// </summary>
     private void DetectNearbyStations()
     {
         Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRange);
+        
+        // Reset flags
         bool ovenFound = false;
         bool mixerFound = false;
         bool pouringStationFound = false;
         bool toppingStationFound = false;
         bool bowlStationFound = false;
-        bool slicingStationFound = false; // Re-añadido
+        bool slicingStationFound = false;
 
         foreach (var col in nearbyColliders)
         {
+            // OVEN
             OvenStation oven = col.GetComponent<OvenStation>();
-            if (oven != null)
-            {
-                nearbyOven = oven;
-                ovenFound = true;
-            }
+            if (oven != null) { nearbyOven = oven; ovenFound = true; }
 
+            // MIXER
             MixerStation mixer = col.GetComponent<MixerStation>();
-            if (mixer != null)
-            {
-                nearbyMixer = mixer;
-                mixerFound = true;
-            }
+            if (mixer != null) { nearbyMixer = mixer; mixerFound = true; }
 
-            PouringStation pouringStation = col.GetComponent<PouringStation>();
-            if (pouringStation != null)
-            {
-                nearbyPouringStation = pouringStation;
-                pouringStationFound = true;
-            }
-            ToppingStation toppingStation = col.GetComponentInParent<ToppingStation>();
-            if (toppingStation != null)
-            {
-                nearbyToppingStation = toppingStation;
-                toppingStationFound = true;
-            }
-            BowlStation bowlStation = col.GetComponent<BowlStation>();
-            if (bowlStation != null)
-            {
-                nearbyBowlStation = bowlStation;
-                bowlStationFound = true;
-            }
+            // POURING
+            PouringStation pouring = col.GetComponent<PouringStation>();
+            if (pouring != null) { nearbyPouringStation = pouring; pouringStationFound = true; }
+
+            // TOPPING
+            ToppingStation topping = col.GetComponentInParent<ToppingStation>();
+            if (topping != null) { nearbyToppingStation = topping; toppingStationFound = true; }
+
+            // BOWL
+            BowlStation bowl = col.GetComponent<BowlStation>();
+            if (bowl != null) { nearbyBowlStation = bowl; bowlStationFound = true; }
             
-    
+            // SLICING
             SlicingStation slicer = col.GetComponent<SlicingStation>();
-            if (slicer != null)
-            {
-                nearbySlicingStation = slicer;
-                slicingStationFound = true;
-            }
-     
+            if (slicer != null) { nearbySlicingStation = slicer; slicingStationFound = true; }
         }
 
         if (!ovenFound) nearbyOven = null;
@@ -120,31 +103,32 @@ public class PlayerPickup : MonoBehaviour
         if (!pouringStationFound) nearbyPouringStation = null;
         if (!toppingStationFound) nearbyToppingStation = null;
         if (!bowlStationFound) nearbyBowlStation = null;
-        if (!slicingStationFound) nearbySlicingStation = null; // Re-añadido
+        if (!slicingStationFound) nearbySlicingStation = null;
     }
 
     /// <summary>
-    /// Maneja la tecla de soltar objeto.
+    /// Maneja la entrada para soltar el objeto recogido.
     /// </summary>
     private void HandleDropInput()
     {
         if (pickedObject != null && Input.GetKeyDown(dropKey))
             DropObject();
     }
+
     /// <summary>
-    /// Maneja la tecla de agarrar o interactuar.
+    /// Maneja la entrada para agarrar o interactuar con objetos y estaciones.
     /// </summary>
     private void HandleGrabInput()
     {
         if (!Input.GetKeyDown(grabKey)) return;
 
-        // Si el jugador tiene el carrito, no puede agarrar objetos normales
         if (cartController != null && cartController.HasCart())
         {
             Debug.Log("💡 No puedes agarrar objetos mientras empujas el carrito");
             return;
         }
 
+        // Prioridad especial: Agarrar pizza del ToppingStation
         if (pickedObject == null)
         {
             if (nearbyToppingStation != null &&
@@ -152,31 +136,28 @@ public class PlayerPickup : MonoBehaviour
                 nearbyToppingStation.IsPlayerInside())
             {
                 GameObject pizza = nearbyToppingStation.TakePizza();
-                if (pizza != null)
-                {
-                    GrabObject(pizza);
-                    return; 
-                }
+                if (pizza != null) { GrabObject(pizza); return; }
             }
         }
 
+        // Si tenemos objeto, intentamos colocarlo
         if (pickedObject != null)
         {
-            if (!PlaceInStation())
-                Debug.Log("No nearby station or can't place this object.");
+            if (!PlaceInStation()) Debug.Log("No nearby station or can't place this object.");
             return;
         }
 
-        if (pickedObject == null &&
-            nearbyToppingStation != null &&
-            nearbyToppingStation.IsAvailable())
+        // Si no tenemos objeto, intentamos interactuar con estaciones vacías (ej. iniciar pizza)
+        if (pickedObject == null && nearbyToppingStation != null && nearbyToppingStation.IsAvailable())
         {
             nearbyToppingStation.TryPlace();
             return;
         }
 
+        // Intentar tomar algo de una estación
         if (TakeFromStation()) return;
 
+        // Si nada de lo anterior, agarrar objeto del suelo/mesa
         if (pickedObject == null && nearbyObject != null)
         {
             float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
@@ -187,65 +168,42 @@ public class PlayerPickup : MonoBehaviour
         }
     }
 
-
     /// <summary>
-    /// Intenta colocar el objeto en una estación cercana.
+    /// Intenta colocar el objeto recogido en una estación cercana.
     /// </summary>
+    /// <returns>
+    /// True si el objeto fue colocado exitosamente en una estación.
+    /// False si no se pudo colocar en ninguna estación.
+    /// </returns>
     private bool PlaceInStation()
     {
         if (pickedObject == null) return false;
-
         var interactable = pickedObject.GetComponent<InteractableObject>();
         if (interactable == null) return false;
 
-        if (nearbyOven != null && nearbyOven.IsAvailable() &&
-            interactable.HasCapability(ObjectCapabilities.Bakeable))
+        if (nearbyOven != null && nearbyOven.IsAvailable() && interactable.HasCapability(ObjectCapabilities.Bakeable))
         {
-            if (nearbyOven.PutInOven(pickedObject))
-            {
-                pickedObject = null;
-                nearbyObject = null; 
-                return true;
-            }
+            if (nearbyOven.PutInOven(pickedObject)) { pickedObject = null; nearbyObject = null; return true; }
         }
 
-        if (nearbyMixer != null && nearbyMixer.IsAvailable() &&
-            interactable.HasCapability(ObjectCapabilities.Mixable))
+        if (nearbyMixer != null && nearbyMixer.IsAvailable() && interactable.HasCapability(ObjectCapabilities.Mixable))
         {
-            if (nearbyMixer.PutBowlIn(pickedObject))
-            {
-                pickedObject = null;
-                return true;
-            }
+            if (nearbyMixer.PutBowlIn(pickedObject)) { pickedObject = null; return true; }
         }
 
-        if (nearbyPouringStation != null &&
-            interactable.HasCapability(ObjectCapabilities.Pourable))
+        if (nearbyPouringStation != null && interactable.HasCapability(ObjectCapabilities.Pourable))
         {
-            if (nearbyPouringStation.TryReceiveBowl(pickedObject))
-            {
-                pickedObject = null;
-                return true;
-            }
+            if (nearbyPouringStation.TryReceiveBowl(pickedObject)) { pickedObject = null; return true; }
         }
         
-        if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() &&
-            interactable.HasCapability(ObjectCapabilities.Toppingable))
+        if (nearbyToppingStation != null && nearbyToppingStation.IsAvailable() && interactable.HasCapability(ObjectCapabilities.Toppingable))
         {
-            if (nearbyToppingStation.TryPlace())
-            {
-                return true;
-            }
+            if (nearbyToppingStation.TryPlace()) return true;
         }
         
-        if (nearbySlicingStation != null &&
-            interactable.HasCapability(ObjectCapabilities.Cuttable))
+        if (nearbySlicingStation != null && interactable.HasCapability(ObjectCapabilities.Cuttable))
         {
-            if (nearbySlicingStation.AssignItemToStation(pickedObject))
-            {
-                pickedObject = null;
-                return true;
-            }
+            if (nearbySlicingStation.AssignItemToStation(pickedObject)) { pickedObject = null; return true; }
         }
 
         return false;
@@ -256,38 +214,29 @@ public class PlayerPickup : MonoBehaviour
     /// </summary>
     private bool TakeFromStation()
     {
-        
         if (nearbyOven != null && nearbyOven.HasIngredient())
         {
             GameObject ingredient = nearbyOven.TakeFromOven();
-            if (ingredient != null)
-            {
-                GrabObject(ingredient);
-                return true;
-            }
+            if (ingredient != null) { GrabObject(ingredient); return true; }
         }
 
         if (nearbyMixer != null && !nearbyMixer.IsAvailable())
         {
-            GameObject bowl = nearbyMixer.TakeBowlOut();
-            if (bowl != null)
+            if (nearbyMixer.IsMixingInProgress) 
             {
-                GrabObject(bowl);
-                return true;
+                return false; 
             }
+
+            GameObject bowl = nearbyMixer.TakeBowlOut();
+            if (bowl != null) { GrabObject(bowl); return true; }
         }
 
-        if (nearbyToppingStation != null &&
-            nearbyToppingStation.HasPizza() &&
-            nearbyToppingStation.IsPlayerInside())
+        if (nearbyToppingStation != null && nearbyToppingStation.HasPizza() && nearbyToppingStation.IsPlayerInside())
         {
             GameObject pizza = nearbyToppingStation.TakePizza();
-            if (pizza != null)
-            {
-                GrabObject(pizza);
-                return true;
-            }
+            if (pizza != null) { GrabObject(pizza); return true; }
         }
+
         if (nearbyBowlStation != null && pickedObject == null)
         {
             if (nearbyBowlStation.activeBowl == null)
@@ -302,56 +251,47 @@ public class PlayerPickup : MonoBehaviour
                GrabObject(nearbyBowlStation.activeBowl);
                nearbyBowlStation.activeBowl = null; 
                nearbyBowlStation.TrySpawnBowl();
-
             }
+            return true;
         }
-
 
         return false;
     }
 
+    /// <summary>
+    /// Detecta objetos grabbables cercanos.
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         var interactable = other.GetComponent<InteractableObject>();
-        if (interactable != null &&
-            interactable.HasCapability(ObjectCapabilities.Grabbable))
-        {
+        if (interactable != null && interactable.HasCapability(ObjectCapabilities.Grabbable))
             nearbyObject = interactable;
-        }
     }
 
+    /// <summary>
+    /// Limpia la referencia al objeto cercano si salimos de su rango.
+    /// </summary>
     private void OnTriggerExit(Collider other)
     {
         if (nearbyObject == null) return;
         float distance = Vector3.Distance(transform.position, nearbyObject.transform.position);
-        if (distance > detectionRange)
-        {
-            nearbyObject = null;
-        }
+        if (distance > detectionRange) nearbyObject = null;
     }
 
     /// <summary>
-    /// Agarra un objeto y lo asigna al handPoint.
+    /// Agarra un objeto y lo posiciona en la mano del jugador.
     /// </summary>
     public void GrabObject(GameObject obj)
     {
-        var interactable = obj.GetComponentInParent<InteractableObject>() ??
-                          obj.GetComponentInChildren<InteractableObject>();
-        if (interactable == null ||
-            !interactable.HasCapability(ObjectCapabilities.Grabbable))
-            return;
+        var interactable = obj.GetComponentInParent<InteractableObject>() ?? obj.GetComponentInChildren<InteractableObject>();
+        if (interactable == null || !interactable.HasCapability(ObjectCapabilities.Grabbable)) return;
 
         pickedObject = obj;
         nearbyObject = null;
 
-        Vector3 originalScale = pickedObject.transform.localScale;
-
         var rb = pickedObject.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.useGravity = false;
-            rb.isKinematic = true;
-        }
+        if (rb != null) { rb.useGravity = false; rb.isKinematic = true; }
 
         var col = pickedObject.GetComponent<Collider>();
         if (col != null && !col.enabled) col.enabled = true;
@@ -362,16 +302,14 @@ public class PlayerPickup : MonoBehaviour
     }
 
     /// <summary>
-    /// Suelta el objeto actual.
+    /// Suelta el objeto que el jugador tiene en la mano.
     /// </summary>
     public void DropObject()
     {
         if (pickedObject == null) return;
 
         var interactable = pickedObject.GetComponent<InteractableObject>();
-        if (interactable != null &&
-            !interactable.HasCapability(ObjectCapabilities.Droppable))
-            return;
+        if (interactable != null && !interactable.HasCapability(ObjectCapabilities.Droppable)) return;
 
         pickedObject.transform.SetParent(null);
         pickedObject.transform.position = transform.position + transform.forward * 1f;
@@ -388,11 +326,19 @@ public class PlayerPickup : MonoBehaviour
         pickedObject = null;
     }
 
-    // Métodos públicos
+    /// <summary>
+    /// Revisa si el jugador tiene un objeto en la mano.
+    /// </summary>
     public bool HasObjectInHand() => pickedObject != null;
+
+    /// <summary>
+    /// Obtiene el objeto que el jugador tiene en la mano.
+    /// </summary>
     public GameObject GetObjectInHand() => pickedObject;
 
-    // Visualización
+    /// <summary>
+    /// Dibuja el rango de detección en la escena.
+    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
