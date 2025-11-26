@@ -906,7 +906,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "M\xFAsica: "
+  m_text: 'Musica: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_sharedMaterial: {fileID: 8794136110298298129, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
