@@ -19,6 +19,7 @@ public class PlayerCartController : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private InteractionPrompt interactionPrompt;
     
     private ShoppingCart currentCart = null;
     private ShoppingCart nearbyCart = null;
@@ -43,6 +44,12 @@ public class PlayerCartController : MonoBehaviour
             holdPoint.transform.SetParent(transform);
             holdPoint.transform.localPosition = new Vector3(0, 0.5f, cartOffset);
             cartHoldPoint = holdPoint.transform;
+        }
+        
+        // Si no se asignó manualmente, usar el singleton
+        if (interactionPrompt == null)
+        {
+            interactionPrompt = InteractionPrompt.Instance;
         }
         
         lastPlayerPosition = transform.position;
@@ -110,6 +117,9 @@ public class PlayerCartController : MonoBehaviour
         }
         
         if (!cartFound) nearbyCart = null;
+        
+        // Actualizar prompts
+        UpdatePrompts();
     }
     
     /// <summary>
@@ -161,6 +171,17 @@ public class PlayerCartController : MonoBehaviour
             if (SupermarketManager.Instance != null)
             {
                 SupermarketManager.Instance.ShowShoppingListFirstTime();
+            }
+            
+            // ✅ NUEVO: Iniciar el timer cuando se agarra el carrito por primera vez
+            if (GameTimer.Instance != null)
+            {
+                GameTimer.Instance.StartTimer();
+                Debug.Log("⏰ ¡Timer iniciado! Tienes 1 minuto para completar las compras");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ GameTimer.Instance no existe. Asegúrate de tener el GameTimer en la escena");
             }
         }
         
@@ -325,6 +346,35 @@ public class PlayerCartController : MonoBehaviour
     // Getters públicos
     public bool HasCart() => currentCart != null;
     public ShoppingCart GetCurrentCart() => currentCart;
+    
+    /// <summary>
+    /// Actualiza los prompts de interacción según el contexto.
+    /// </summary>
+    private void UpdatePrompts()
+    {
+        if (interactionPrompt == null) return;
+        
+        // Si no tiene carrito y hay uno cerca
+        if (currentCart == null && nearbyCart != null)
+        {
+            interactionPrompt.ShowPrompt($"Presiona [{grabCartKey}] para agarrar el carrito");
+        }
+        // Si tiene carrito y hay ingrediente cerca
+        else if (currentCart != null && nearbyIngredient != null)
+        {
+            interactionPrompt.ShowPrompt($"Presiona [{addToCartKey}] para agregar {nearbyIngredient.IngredientName} (${nearbyIngredient.Price:F2})");
+        }
+        // Si tiene carrito pero no hay ingrediente cerca
+        else if (currentCart != null)
+        {
+            interactionPrompt.ShowPrompt($"Presiona [{dropCartKey}] para soltar el carrito");
+        }
+        // Si no hay nada cerca
+        else
+        {
+            interactionPrompt.HidePrompt();
+        }
+    }
     
     private void OnDrawGizmosSelected()
     {
