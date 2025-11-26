@@ -93024,17 +93024,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 596f69fc27ba4ea46be5cb748905d741, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mixingTime: 10
+  interactKey: 101
+  tapsRequired: 30
   displayReadyTime: 3
+  interactionRange: 3
   mixerCanvas: {fileID: 8058909860849713855}
   progressBar: {fileID: 6539466239139587141}
-  backgroundBar: {fileID: 32125208046801864}
   stateText: {fileID: 3585492868093779505}
   mixingColor: {r: 1, g: 0.99451536, b: 0, a: 1}
   readyColor: {r: 0, g: 1, b: 0, a: 1}
   bowlPoint: {fileID: 6759143637539418572}
-  mixerBlade: {fileID: 7097133253448811725}
-  rotationSpeed: 360
+  mixerBladeTransform: {fileID: 0}
+  mixerBladeVisual: {fileID: 0}
+  bladeSpeed: 1000
 --- !u!1 &3059677578889966166
 GameObject:
   m_ObjectHideFlags: 0
@@ -102818,7 +102820,7 @@ Transform:
   m_GameObject: {fileID: 7901479501426669178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.0013101257, z: -0, w: 0.99999917}
-  m_LocalPosition: {x: 6.27, y: 0.24000001, z: 29.37}
+  m_LocalPosition: {x: 7.304, y: 0.24000001, z: 29.37}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
