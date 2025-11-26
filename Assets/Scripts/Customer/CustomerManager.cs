@@ -55,34 +55,48 @@ public class CustomerManager : MonoBehaviour
 
         if (randomOrderInLevel)
         {
+            // Receta aleatoria
             recipe = levelRecipes[Random.Range(0, levelRecipes.Count)];
         }
         else
         {
+            // Receta en orden
             if (currentRecipeIndex >= levelRecipes.Count)
+            {
+                Debug.Log("🔚 Ya no hay más recetas en levelRecipes.");
                 return;
+            }
 
             recipe = levelRecipes[currentRecipeIndex];
             currentRecipeIndex++;
-            activeRecipe = recipe;
-
-            if (toppingManager != null)
-                toppingManager.ApplyRecipeLimits(recipe);
         }
 
+        // SIEMPRE actualizar receta activa y límites
+        activeRecipe = recipe;
+
+        if (toppingManager != null)
+        {
+            toppingManager.ApplyRecipeLimits(recipe);
+            Debug.Log($"[CustomerManager] ApplyRecipeLimits -> {recipe.recipeName}");
+        }
+
+        // --- Spawnear cliente en el mostrador ---
         int randomCustomerType = Random.Range(0, customerPrefabs.Count);
         GameObject customerPrefab = customerPrefabs[randomCustomerType].prefab;
 
-        GameObject customerObj = Instantiate(customerPrefab, counterSpawnPoint.position, counterSpawnPoint.rotation);
+        GameObject customerObj = Instantiate(
+            customerPrefab,
+            counterSpawnPoint.position,
+            counterSpawnPoint.rotation
+        );
+
         currentCounterCustomer = customerObj.GetComponent<Customer>();
 
         if (currentCounterCustomer == null)
             return;
 
         currentCounterCustomer.Initialize(counterWaitPoint, counterSpawnPoint, recipe, this);
-        
     }
-
 
     /// <summary>
     /// Muestra la UI del pergamino con la receta actual.
