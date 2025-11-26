@@ -39,6 +39,12 @@ public class SupermarketAudioManager : MonoBehaviour
         SetupAudioSources();
     }
     
+    private void Start()
+    {
+        // Iniciar música de fondo automáticamente
+        PlaySupermarketAmbience();
+    }
+    
     /// <summary>
     /// Configura los AudioSources si no están asignados.
     /// </summary>
@@ -177,5 +183,117 @@ public class SupermarketAudioManager : MonoBehaviour
         {
             cartAudioSource.UnPause();
         }
+    }
+    
+    // ============================================
+    // ✅ NUEVOS MÉTODOS PARA GAME OVER
+    // ============================================
+    
+    /// <summary>
+    /// Detiene TODA la música y sonidos del supermercado (para Game Over).
+    /// </summary>
+    public void StopAllMusic()
+    {
+        // Detener música de fondo
+        if (ambienceSource != null)
+        {
+            ambienceSource.Stop();
+            ambienceSource.mute = true;
+            ambienceSource.enabled = false;
+        }
+        
+        // Detener sonido de carrito
+        if (cartAudioSource != null)
+        {
+            cartAudioSource.Stop();
+            cartAudioSource.mute = true;
+            cartAudioSource.enabled = false;
+        }
+        
+        // Detener efectos de sonido
+        if (sfxSource != null)
+        {
+            sfxSource.Stop();
+            sfxSource.mute = true;
+            sfxSource.enabled = false;
+        }
+        
+        // Buscar y detener CUALQUIER AudioSource en este GameObject
+        AudioSource[] allSources = GetComponents<AudioSource>();
+        foreach (var source in allSources)
+        {
+            source.Stop();
+            source.mute = true;
+            source.enabled = false;
+        }
+        
+        // Buscar en hijos también
+        AudioSource[] childSources = GetComponentsInChildren<AudioSource>();
+        foreach (var source in childSources)
+        {
+            source.Stop();
+            source.mute = true;
+            source.enabled = false;
+        }
+        
+        Debug.Log("🔇 SupermarketAudioManager: Toda la música detenida y deshabilitada");
+    }
+    
+    /// <summary>
+    /// Reactiva el audio del supermercado (para después del reinicio).
+    /// </summary>
+    public void RestoreAudio()
+    {
+        if (ambienceSource != null)
+        {
+            ambienceSource.mute = false;
+        }
+        
+        if (cartAudioSource != null)
+        {
+            cartAudioSource.mute = false;
+        }
+        
+        if (sfxSource != null)
+        {
+            sfxSource.mute = false;
+        }
+        
+        Debug.Log("🔊 SupermarketAudioManager: Audio restaurado");
+    }
+    
+    /// <summary>
+    /// Reduce el volumen de toda la música gradualmente (fade out).
+    /// </summary>
+    public void FadeOutAllMusic(float duration = 1f)
+    {
+        if (ambienceSource != null)
+        {
+            StartCoroutine(FadeOutSource(ambienceSource, duration));
+        }
+        
+        if (cartAudioSource != null)
+        {
+            StartCoroutine(FadeOutSource(cartAudioSource, duration));
+        }
+    }
+    
+    /// <summary>
+    /// Coroutine para hacer fade out de un AudioSource.
+    /// </summary>
+    private System.Collections.IEnumerator FadeOutSource(AudioSource source, float duration)
+    {
+        float startVolume = source.volume;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+            yield return null;
+        }
+        
+        source.volume = 0f;
+        source.Stop();
     }
 }
