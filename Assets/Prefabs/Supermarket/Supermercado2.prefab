@@ -3036,7 +3036,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8673312345417274558}
-  - {fileID: 22864434732345677}
   - {fileID: 7952792019240046985}
   - {fileID: 8390848415886612324}
   - {fileID: 6362631239804455444}
@@ -3344,6 +3343,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3774701779094819848}
+  - {fileID: 22864434732345677}
   - {fileID: 7455483828971387510}
   - {fileID: 9113899160436119224}
   - {fileID: 4139168649174282037}
@@ -4352,7 +4352,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8570935787127840917}
-  - component: {fileID: 6232287289489419880}
   m_Layer: 5
   m_Name: YouWin
   m_TagString: Untagged
@@ -4380,130 +4379,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6232287289489419880
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5224978368391913883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d2618cedb392c74d889715e2440b2bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  completionPanel: {fileID: 7638998642870640023}
-  titleText: {fileID: 0}
-  messageText: {fileID: 7837015748132836329}
-  continueButton: {fileID: 5479302874416223048}
-  backgroundOverlay: {fileID: 0}
-  leftCurtain: {fileID: 5155608560553274353}
-  rightCurtain: {fileID: 4183871424534175574}
-  curtainAnimationDuration: 1.5
-  curtainCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  victoryLetters:
-  - {fileID: 2237791147692467020}
-  - {fileID: 4068290420483006565}
-  - {fileID: 5330442871942051406}
-  - {fileID: 7582342838941010713}
-  - {fileID: 6083575072364044294}
-  - {fileID: 7058866137970778174}
-  letterDropDuration: 0.8
-  letterDropDelay: 0.1
-  letterBounceHeight: 200
-  letterDropCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spotlight: {fileID: 4306016419375109916}
-  spotlightFadeDuration: 1
-  spotlightCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  squirrelModels: []
-  characterSpawnPoint: {fileID: 5214896950030196921}
-  characterAppearDelay: 1.5
-  celebrationAnimationTrigger: Happy
-  victoryTitle: "\xA1VICTORIA!"
-  victoryMessage: Compra completada.
-  victorySound: {fileID: 8300000, guid: ca1f53a186b9dcf4fb8b7d449553da39, type: 3}
-  curtainSound: {fileID: 8300000, guid: ce57a1b9a8ce6964a99707c60269ae81, type: 3}
-  letterDropSound: {fileID: 0}
-  celebrationSound: {fileID: 0}
-  loopVictoryMusic: 1
-  victoryMusicVolume: 0.7
-  enableLetterPulse: 1
-  pulseSpeed: 5
-  pulseAmount: 0.09
-  pulseDelay: 1
-  verticalMovement: 5
-  particleEffectPrefab: {fileID: 0}
-  particleSpawnPoint: {fileID: 0}
-  uiElementsToHide: []
 --- !u!1 &5281444599001009378
 GameObject:
   m_ObjectHideFlags: 0
@@ -4850,7 +4725,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6232287289489419880}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CompletionScreen, Assembly-CSharp
         m_MethodName: RestartLevel
         m_Mode: 1
@@ -5975,7 +5850,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3454911670488001231}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameOverScreen, Assembly-CSharp
         m_MethodName: RetryLevel
         m_Mode: 1
@@ -6556,7 +6431,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6362631239804455444}
-  - component: {fileID: 3454911670488001231}
   m_Layer: 5
   m_Name: GameOver
   m_TagString: Untagged
@@ -6584,131 +6458,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3454911670488001231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8207635341595338184}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84e71118e66ea164589e9f89822b22fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameOverPanel: {fileID: 4423333333195715113}
-  titleText: {fileID: 0}
-  messageText: {fileID: 2977938084525163747}
-  retryButton: {fileID: 7369747415300911973}
-  backgroundOverlay: {fileID: 0}
-  leftCurtain: {fileID: 5813597197674884343}
-  rightCurtain: {fileID: 7717784151184671177}
-  curtainAnimationDuration: 1.5
-  curtainCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  gameOverLetters:
-  - {fileID: 8173770837619818735}
-  - {fileID: 4623426523440546795}
-  - {fileID: 6807142131442839750}
-  - {fileID: 6638812603897127580}
-  - {fileID: 6748825824939711496}
-  - {fileID: 2928906429769538262}
-  - {fileID: 8821831712989254014}
-  - {fileID: 4353282162655933338}
-  letterDropDuration: 0.6
-  letterDropDelay: 0.1
-  letterBounceHeight: 100
-  letterDropCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.9966736
-      value: 0.20075989
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spotlight: {fileID: 2088595615958583196}
-  spotlightFadeDuration: 1
-  spotlightCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  squirrelModels: []
-  characterSpawnPoint: {fileID: 8882315133975358249}
-  characterAppearDelay: 1.5
-  sadAnimationTrigger: Sad
-  timeUpTitle: "\xA1Tiempo Agotado!"
-  timeUpMessage: No completaste las compras a tiempo
-  noMoneyTitle: "\xA1Sin Dinero!"
-  noMoneyMessage: No tienes suficiente dinero para completar la lista
-  gameOverSound: {fileID: 8300000, guid: 8ac4f8c5ec799f64299a3ebc3df72746, type: 3}
-  curtainSound: {fileID: 8300000, guid: ce57a1b9a8ce6964a99707c60269ae81, type: 3}
-  letterDropSound: {fileID: 0}
-  loopGameOverMusic: 1
-  gameOverMusicVolume: 0.7
-  enableLetterPulse: 1
-  pulseSpeed: 5
-  pulseAmount: 0.09
-  pulseDelay: 1
-  verticalMovement: 7
-  uiElementsToHide: []
 --- !u!1 &8270766798059374219
 GameObject:
   m_ObjectHideFlags: 0
@@ -7117,7 +6866,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 7455483828971387510}
+    m_TransformParent: {fileID: 86626841802459923}
     m_Modifications:
     - target: {fileID: 176366, guid: febd7f03c03be1e468a98ba8024a2b8c, type: 3}
       propertyPath: m_Name
@@ -7129,15 +6878,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 433592, guid: febd7f03c03be1e468a98ba8024a2b8c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -955.5851
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 433592, guid: febd7f03c03be1e468a98ba8024a2b8c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -539.99115
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 433592, guid: febd7f03c03be1e468a98ba8024a2b8c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 34.652294
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 433592, guid: febd7f03c03be1e468a98ba8024a2b8c, type: 3}
       propertyPath: m_LocalRotation.w
