@@ -3072,16 +3072,16 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 66198396}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1019}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 160.00002}
+  m_LocalScale: {x: 0.46078005, y: 0.46078005, z: 0.46078005}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 707921247}
+  m_Father: {fileID: 28799139}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: -1}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_AnchoredPosition: {x: -11.983299, y: -72}
+  m_SizeDelta: {x: 1024, y: 1024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &66198398
 MonoBehaviour:
@@ -27280,17 +27280,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 707921246}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -859}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -381}
+  m_LocalScale: {x: 0.43375, y: 0.43375, z: 0.43375}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 66198397}
-  m_Father: {fileID: 28799139}
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 279, y: 96}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!81 &707921248
@@ -27334,7 +27333,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 24.994946
   orthographic: 0
   orthographic size: 5
   m_Depth: 1
@@ -38306,9 +38305,9 @@ MonoBehaviour:
   characterAppearDelay: 1.5
   sadAnimationTrigger: Sad
   characterScaleMultipliers:
-  - 70
-  - 150
-  characterSeparation: 200
+  - 17.5
+  - 37.5
+  characterSeparation: 100
   characterLayer:
     serializedVersion: 2
     m_Bits: 2048
@@ -38327,6 +38326,8 @@ MonoBehaviour:
   pulseDelay: 1
   verticalMovement: 5
   uiElementsToHide: []
+  modelRoot: {fileID: 0}
+  cameraOffset: {x: 0, y: 1.2, z: -3}
 --- !u!1001 &969520847
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -95672,6 +95673,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: RestartLevel
       objectReference: {fileID: 0}
+    - target: {fileID: 5813597197674884343, guid: 25dd55981a1677d4b96d82585b8e676f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6232287289489419880, guid: 25dd55981a1677d4b96d82585b8e676f, type: 3}
       propertyPath: character3DCamera
       value: 
@@ -95907,7 +95912,7 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 7455483828971387510, guid: 25dd55981a1677d4b96d82585b8e676f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 707921247}
+      addedObject: {fileID: 66198397}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1849942681143476337, guid: 25dd55981a1677d4b96d82585b8e676f, type: 3}
       insertIndex: -1
@@ -112134,6 +112139,7 @@ SceneRoots:
   - {fileID: 1361210839}
   - {fileID: 7416409419398868160}
   - {fileID: 670934090}
+  - {fileID: 707921247}
   - {fileID: 526630770}
   - {fileID: 1737319705}
   - {fileID: 720601898}
