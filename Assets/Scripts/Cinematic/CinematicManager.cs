@@ -1,77 +1,81 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 
 /// <summary>
-/// Administra el flujo completo entre una cinemática inicial,
-/// el sistema de diálogos y la visualización de un mensaje final.
-/// 
-/// Flujo:
-/// 1. Inicia una cinemática.
-/// 2. Al terminar la cinemática, inicia un diálogo.
-/// 3. Al finalizar el diálogo, muestra un panel final con un mensaje.
+/// Administra el flujo completo:
+/// 1. Mueve personajes a posición inicial.
+/// 2. Inicia cinemática.
+/// 3. Inicia diálogo.
+/// 4. Muestra mensaje final.
 /// </summary>
 public class CinematicManager : MonoBehaviour
 {
+    [Header("Characters Movement Before Cinematic")]
+    public List<CubeMover> charactersToMove;
+
     /// <summary>
-    /// Referencia a la cinemática que se ejecutará al iniciar la escena.
+    /// Cinemática a ejecutar una vez que los personajes llegaron
+    /// a su posición inicial.
     /// </summary>
+    [Header("Cinematic")]
     public SimpleCinematic cinematic;
 
     [Header("Dialogue")]
-    /// <summary>
-    /// Lista de líneas de diálogo que se mostrarán
-    /// después de que termine la cinemática.
-    /// </summary>
     public DialogueLine[] dialogue;
 
     [Header("Final Message")]
-    /// <summary>
-    /// Panel que se mostrará al finalizar todo el flujo
-    /// (cinemática + diálogo). Puede estar oculto inicialmente.
-    /// </summary>
     public GameObject finalPanel;
-
-    /// <summary>
-    /// Texto dentro del panel final donde se mostrará
-    /// el mensaje de cierre personalizado.
-    /// </summary>
     public TMP_Text finalMessage;
-
-    /// <summary>
-    /// Mensaje final personalizado que se presentará
-    /// cuando concluya el diálogo.
-    /// </summary>
     [TextArea(2, 4)]
     public string customFinalMessage;
 
-    /// <summary>
-    /// Inicializa el flujo:
-    /// - Oculta el panel final si existe.
-    /// - Conecta los eventos de fin de cinemática y diálogo
-    ///   con sus respectivos manejadores.
-    /// </summary>
+    private int arrivedCount = 0;
+
     private void Start()
     {
-        if (finalPanel != null) finalPanel.SetActive(false);
+        if (finalPanel != null)
+            finalPanel.SetActive(false);
 
         cinematic.OnCinematicEnd += HandleCinematicEnd;
-        DialogueSystemCinematic.Instance.OnDialogueFinished += 
-            HandleDialogueEnd;
+        DialogueSystemCinematic.Instance.OnDialogueFinished += HandleDialogueEnd;
+
+        // Que ambos procesos inicien juntos
+        MoveCharactersBeforeCinematic();
+        StartCinematic();
     }
 
+
     /// <summary>
-    /// Manejador ejecutado cuando la cinemática termina.
-    /// Inicia el diálogo configurado.
+    /// Manda a los personajes a su posición inicial antes de iniciar la cinemática.
     /// </summary>
+    private void MoveCharactersBeforeCinematic()
+    {
+        if (charactersToMove == null || charactersToMove.Count == 0)
+        {
+            StartCinematic();
+            return;
+        }
+
+        arrivedCount = 0;
+
+        foreach (CubeMover mover in charactersToMove)
+        {
+            mover.MoveTo();
+        }
+    }
+
+
+    private void StartCinematic()
+    {
+        cinematic.Play(); // Asegúrate de que tu SimpleCinematic tenga este método
+    }
+
     private void HandleCinematicEnd()
     {
         DialogueSystemCinematic.Instance.StartDialogue(dialogue);
     }
 
-    /// <summary>
-    /// Manejador ejecutado cuando el diálogo termina.
-    /// Si existe un panel final, lo muestra y coloca el mensaje personalizado.
-    /// </summary>
     private void HandleDialogueEnd()
     {
         if (finalPanel == null) return;

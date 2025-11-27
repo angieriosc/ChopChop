@@ -1,10 +1,6 @@
 using UnityEngine;
 using System;
 
-/// <summary>
-/// Controla una cinemática mediante el movimiento secuencial
-/// de un objeto a través de puntos definidos.
-/// </summary>
 public class SimpleCinematic : MonoBehaviour
 {
     public Transform[] points;
@@ -13,26 +9,23 @@ public class SimpleCinematic : MonoBehaviour
     private int index;
     public Action OnCinematicEnd;
 
-    /// <summary>
-    /// Inicializa la posición y rotación del objeto en el primer punto
-    /// de la secuencia, si existe al menos uno.
-    /// </summary>
+    private bool playing = false;
+
     private void Start()
     {
         if (points.Length == 0) return;
 
         transform.position = points[0].position;
         transform.rotation = points[0].rotation;
+
+        // NO empieza automáticamente.
+        // Solo se prepara.
+        enabled = false;
     }
 
-    /// <summary>
-    /// Actualiza continuamente el movimiento hacia el punto actual,
-    /// avanza al siguiente cuando lo alcanza y finaliza la cinemática
-    /// cuando se recorren todos los puntos.
-    /// </summary>
     private void Update()
     {
-        if (index >= points.Length) return;
+        if (!playing || index >= points.Length) return;
 
         MoveToPoint(points[index]);
 
@@ -42,16 +35,29 @@ public class SimpleCinematic : MonoBehaviour
 
             if (index >= points.Length)
             {
-                OnCinematicEnd?.Invoke();
+                playing = false;
                 enabled = false;
+                OnCinematicEnd?.Invoke();
             }
         }
     }
 
     /// <summary>
-    /// Desplaza y rota el objeto hacia el punto indicado utilizando
-    /// interpolación suave y velocidad constante.
+    /// Inicia la cinemática desde el punto 0.
     /// </summary>
+    public void Play()
+    {
+        if (points.Length == 0) return;
+
+        index = 0;
+        playing = true;
+        enabled = true;
+
+        // Reiniciar posición siempre que se llame Play
+        transform.position = points[0].position;
+        transform.rotation = points[0].rotation;
+    }
+
     private void MoveToPoint(Transform point)
     {
         transform.position = Vector3.MoveTowards(
@@ -67,15 +73,8 @@ public class SimpleCinematic : MonoBehaviour
         );
     }
 
-    /// <summary>
-    /// Determina si el objeto ha llegado lo suficientemente cerca
-    /// del punto objetivo, usando una tolerancia mínima.
-    /// </summary>
     private bool Reached(Transform point)
     {
-        return Vector3.Distance(
-            transform.position,
-            point.position
-        ) < 0.1f;
+        return Vector3.Distance(transform.position, point.position) < 0.1f;
     }
 }
