@@ -135,21 +135,11 @@ public class GameOverScreen : MonoBehaviour
                 }
             }
         }
-        character3DCamera.aspect = 16f / 9f; // Mantener siempre mismo frustum
 
         SaveOriginalLetterPositions();
         SetupInitialStates();
     }
     
-    void LateUpdate()
-    {
-        if (character3DCamera == null || modelRoot == null) return;
-
-        character3DCamera.transform.position = 
-            modelRoot.position + cameraOffset;
-
-        character3DCamera.transform.LookAt(modelRoot);
-    }
 
     /// <summary>
     /// ✅ Valida y ajusta el array de escalas para que coincida con el número de modelos
