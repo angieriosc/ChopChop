@@ -18,9 +18,6 @@ public class SimpleCinematic : MonoBehaviour
         transform.position = points[0].position;
         transform.rotation = points[0].rotation;
 
-        // NO empieza automáticamente.
-        // Solo se prepara.
-        enabled = false;
     }
 
     private void Update()

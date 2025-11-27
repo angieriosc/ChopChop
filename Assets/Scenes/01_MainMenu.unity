@@ -1244,7 +1244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2b45adfb6e1f944bad0ebc76b9b0a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Tablero Chopchop
+  sceneName: CinmeaticChopChop
 --- !u!1 &1343518610
 GameObject:
   m_ObjectHideFlags: 0
