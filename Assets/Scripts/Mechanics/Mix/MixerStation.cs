@@ -40,6 +40,13 @@ public class MixerStation : MonoBehaviour
     [SerializeField] private GameObject mixerBladeVisual;
     [SerializeField] private float bladeSpeed = 1000f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip mixingSound;
+    [SerializeField] private AudioClip completedSound;
+    [SerializeField] [Range(0.5f, 2f)] private float minPitch = 0.8f;
+    [SerializeField] [Range(0.5f, 2f)] private float maxPitch = 1.5f;
+
     // --- VARIABLES INTERNAS ---
     private Transform playerTransform;
     private float currentBladeVelocity = 0f;
@@ -75,6 +82,19 @@ public class MixerStation : MonoBehaviour
         {
             Debug.LogWarning("MixerStation: No se encontró PlayerPickup en la escena. La validación de rango podría fallar.");
         }
+
+        // Configurar AudioSource
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+            Debug.Log("MixerStation: AudioSource creado automáticamente");
+        }
+
+        // Verificar clips de audio
+        if (mixingSound == null) Debug.LogWarning("MixerStation: mixingSound no está asignado!");
+        if (completedSound == null) Debug.LogWarning("MixerStation: completedSound no está asignado!");
 
         mixerCanvas.SetActive(false);
         if (mixerBladeVisual != null) mixerBladeVisual.SetActive(false);
@@ -171,6 +191,10 @@ public class MixerStation : MonoBehaviour
         {
             currentTaps++;
             currentBladeVelocity = bladeSpeed; // Impulso visual
+            
+            // Reproducir sonido de mezcla con pitch variable
+            PlayMixingSound();
+            
             UpdateProgressUI();
 
             if (currentTaps >= tapsRequired) FinishMixing();
@@ -200,6 +224,9 @@ public class MixerStation : MonoBehaviour
 
         progressBar.fillAmount = 1f;
         progressBar.color = readyColor;
+
+        // Reproducir sonido de completado
+        PlayCompletedSound();
 
         InputCooldown.TriggerCooldown(2.0f);
     }
@@ -289,6 +316,37 @@ public class MixerStation : MonoBehaviour
             mixerBladeTransform.localRotation = Quaternion.Euler(0f, currentSpinAngle, -90f);
             currentBladeVelocity = Mathf.Lerp(currentBladeVelocity, 0, Time.deltaTime * 5f);
         }
+    }
+
+    /// <summary>
+    /// Reproduce el sonido de mezcla con pitch variable según el progreso.
+    /// El pitch aumenta conforme se acerca a completar la mezcla.
+    /// </summary>
+    private void PlayMixingSound()
+    {
+        if (audioSource == null || mixingSound == null) return;
+
+        // Calcular pitch basado en el progreso (aumenta conforme se mezcla más)
+        float progress = (float)currentTaps / tapsRequired;
+        float pitch = Mathf.Lerp(minPitch, maxPitch, progress);
+
+        audioSource.pitch = pitch;
+        audioSource.PlayOneShot(mixingSound);
+        
+        Debug.Log($"Reproduciendo sonido de mezcla. Tap: {currentTaps}/{tapsRequired}, Pitch: {pitch:F2}");
+    }
+
+    /// <summary>
+    /// Reproduce el sonido de mezcla completada.
+    /// </summary>
+    private void PlayCompletedSound()
+    {
+        if (audioSource == null || completedSound == null) return;
+
+        audioSource.pitch = 1f; // Resetear pitch a normal
+        audioSource.PlayOneShot(completedSound);
+        
+        Debug.Log("Mezcla completada! Reproduciendo sonido de éxito.");
     }
 
     private bool CheckUIAssignments()
