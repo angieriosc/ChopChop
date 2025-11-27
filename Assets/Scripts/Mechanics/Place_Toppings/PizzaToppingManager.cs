@@ -330,10 +330,8 @@ public class PizzaToppingManager : MonoBehaviour
         if (recipe == null)
             return;
 
-        string recipeName = recipe.recipeName; // "Recipe_Classic" o "Recipe_Vegetal"
-        Debug.Log("✅✅✅✅✅✅[PizzaToppingManager] Receta activa: " + recipeName);
+        string recipeName = recipe.recipeName; 
 
-        // === Recipe_Classic => topping 3 debe estar en 0 ===
         if (recipeName == "Pizza Clásica")
         {   int c_used = GetPlacedForTopping("4");
             int c_max = GetMaxForTopping("4");
@@ -342,11 +340,10 @@ public class PizzaToppingManager : MonoBehaviour
             if (amount == 0)
             {
                 _recipeUiManager.MarkStepCompleted(2);
-                Debug.Log("[PizzaToppingManager] ✔ Recipe_Classic → topping 3 es 0 → step 2 marcado");
             }
             else
             {
-                Debug.Log("[PizzaToppingManager] ❌ Recipe_Classic → topping 3 NO es 0 → no marcar step 2");
+                Debug.Log("[PizzaToppingManager] Recipe_Classic → topping 3 NO es 0 → no marcar step 2");
             }
 
             return; // salir, ya procesamos esta receta
@@ -360,11 +357,11 @@ public class PizzaToppingManager : MonoBehaviour
             if (v_amount == 0)
             {
                 _recipeUiManager.MarkStepCompleted(2);
-                Debug.Log("[PizzaToppingManager] ✔ Recipe_Vegetal → topping 4 es 0 → step 2 marcado");
+                Debug.Log("[PizzaToppingManager] Recipe_Vegetal → topping 4 es 0 → step 2 marcado");
             }
             else
             {
-                Debug.Log("[PizzaToppingManager] ❌ Recipe_Vegetal → topping 4 NO es 0 → no marcar step 2");
+                Debug.Log("[PizzaToppingManager] Recipe_Vegetal → topping 4 NO es 0 → no marcar step 2");
             }
 
             return;
