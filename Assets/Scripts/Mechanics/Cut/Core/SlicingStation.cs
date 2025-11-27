@@ -70,43 +70,36 @@ public class SlicingStation : MonoBehaviour
     /// <summary>
     ///  Asigna un objeto a la estación para cortarlo.
     /// </summary>
-    /// <param name="itemFromPlayer"></param>
-    /// <returns></returns>
     public bool AssignItemToStation(GameObject itemFromPlayer)
     {
-        if (objectToCut != null) return false;
+        if (objectToCut != null) return false; // La estación ya está ocupada
 
         this.currentItemData = itemFromPlayer.GetComponent<CuttableItemData>();
         
-        if (this.currentItemData == null || this.currentItemData.sliceResultPrefab == null)
+        // Validación de seguridad
+        if (this.currentItemData == null)
         {
-            Debug.LogError($"[SlicingStation] Error: El objeto '{itemFromPlayer.name}' no tiene CuttableItemData o sliceResultPrefab.");
+            Debug.LogError($"[SlicingStation] Error: '{itemFromPlayer.name}' no se puede cortar (Falta CuttableItemData).");
+            return false;
         }
 
         Transform spawnTransform = (itemSpawnPoint != null) ? itemSpawnPoint : this.transform;
         
-        // Detectamos si es Pizza (cocinada) o Masa (cruda)
-        BakeableIngredient bakeData = itemFromPlayer.GetComponent<BakeableIngredient>();
+        // --- NUEVA LÓGICA DE DETECCION ---
+        
+        // 1. VERIFICAR SI ES UN BOWL (La excepción)
+        // Nota: Asegúrate de que tu prefab del Bowl tenga el Tag "Bowl" o ajusta esta condición
+        // para buscar un componente específico como 'MixingBowl'.
+        bool isBowl = itemFromPlayer.CompareTag("Bowl"); 
 
-        if (bakeData != null)
+        if (isBowl)
         {
-            this.objectToCut = itemFromPlayer;
-            this.objectToCut.transform.SetParent(null);
-            this.objectToCut.transform.position = spawnTransform.position;
-            this.objectToCut.transform.rotation = spawnTransform.rotation;
-            
-            var rb = this.objectToCut.GetComponent<Rigidbody>();
-            if (rb != null)
+            // Lógica de Masa: Instanciamos el prefab de masa y guardamos el bowl
+            if (doughPrefabToSpawn == null) 
             {
-                rb.isKinematic = true;
-                rb.useGravity = false;
+                Debug.LogError("Falta asignar 'doughPrefabToSpawn' en el inspector.");
+                return false;
             }
-
-            this.originalBowlObject = null;
-        }
-        else
-        {
-            if (doughPrefabToSpawn == null) return false;
 
             GameObject doughObject = Instantiate(
                 doughPrefabToSpawn,
@@ -115,8 +108,35 @@ public class SlicingStation : MonoBehaviour
             );
 
             this.objectToCut = doughObject;
+            
+            // Guardamos el bowl original para devolverlo después
             this.originalBowlObject = itemFromPlayer;
             this.originalBowlObject.SetActive(false);
+        }
+        else
+        {
+            // 2. CASO GENERAL (Pizza, Tomate, Queso, etc.)
+            // Ponemos el objeto físico directamente en la tabla.
+            
+            this.objectToCut = itemFromPlayer;
+            this.objectToCut.transform.SetParent(null); // Desvincular de la mano del jugador
+            
+            // Posicionar y Rotar
+            this.objectToCut.transform.position = spawnTransform.position;
+            this.objectToCut.transform.rotation = spawnTransform.rotation;
+            
+            // Asegurar física estática para el corte
+            var rb = this.objectToCut.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            // Importante: No hay bowl original que devolver
+            this.originalBowlObject = null;
         }
 
         LockPlayer();
@@ -235,8 +255,6 @@ public class SlicingStation : MonoBehaviour
         {
             BowlStation bowlStation = FindFirstObjectByType<BowlStation>();
             if (bowlStation != null) bowlStation.RegisterBowlDestruction();
-            Destroy(originalBowlObject);
-            originalBowlObject = null;
         }
 
         currentItemData = null;
