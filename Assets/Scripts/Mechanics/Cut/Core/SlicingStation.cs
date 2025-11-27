@@ -170,10 +170,12 @@ public class SlicingStation : MonoBehaviour
 
         bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
 
-        // Solo intentamos fusionar toppings si es una pizza o tiene la estructura adecuada
-        // Si es un tomate simple, esta función retornará rápido sin romper nada, así que está bien dejarla.
-        CombineToppingsIntoMesh(originalObject);
-        yield return null; 
+        if (isPizza)
+        {
+            CombineToppingsIntoMesh(originalObject);
+        }
+        
+        yield return null;
 
         // --- CORRECCIÓN AQUÍ ---
         // Buscamos el MeshFilter en el objeto O en sus hijos.
@@ -371,7 +373,7 @@ public class SlicingStation : MonoBehaviour
         
         slice.transform.position = originalTransform.position;
         slice.transform.rotation = originalTransform.rotation;
-        slice.transform.localScale = originalTransform.localScale;
+        slice.transform.localScale = originalTransform.lossyScale;
         
         slice.AddComponent<MeshFilter>().mesh = sliceMesh;
         slice.AddComponent<MeshRenderer>().materials = materials;
