@@ -8272,18 +8272,23 @@ MonoBehaviour:
   _toppings:
   - id: 0
     name: Dough
+    inventoryKey: WedgeSlice
     prefab: {fileID: 7208889348628162446, guid: 343b1b72a9492bf4f8374e02469376bc, type: 3}
   - id: 1
     name: Tomato_Puree
+    inventoryKey: 
     prefab: {fileID: 6982256233811440315, guid: a825b5c291da1cb428f765eda03fa12d, type: 3}
   - id: 2
     name: Cheese
+    inventoryKey: 
     prefab: {fileID: 7126067356198361634, guid: 2e66c770edc31a6458484b6a88a2f5c0, type: 3}
   - id: 3
-    name: Pepper
+    name: pimiento
+    inventoryKey: pimiento
     prefab: {fileID: 919132149155446097, guid: 2b0838cde35ec40418ff9d9315168ce5, type: 3}
   - id: 4
-    name: Tomato
+    name: tomatoSlice
+    inventoryKey: tomatoSlice
     prefab: {fileID: 5075050231302814512, guid: dffbe9c9aa168df468b2836867eb19e9, type: 3}
   _extraScale: {x: 0.8, y: 1, z: 0.8}
   _ghostMaterial: {fileID: 2100000, guid: 6de7036e9e2289a4bab815d3cb125f9c, type: 2}
