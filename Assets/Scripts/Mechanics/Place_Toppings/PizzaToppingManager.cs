@@ -45,8 +45,9 @@ public class PizzaToppingManager : MonoBehaviour
     [Header("Lógica de masa/base")]
     [SerializeField] private int _baseDoughToppingIndex = 0;
     [SerializeField] private string _baseDoughInventoryKey = "WedgeSlice";
-    public string BaseDoughInventoryKey => _baseDoughInventoryKey;
+    [SerializeField] private RecipeUIManager _recipeUiManager; 
 
+    public string BaseDoughInventoryKey => _baseDoughInventoryKey;
 
     private bool _baseDoughPlaced = false;
     private int _currentToppingIndex = -1;
@@ -227,6 +228,7 @@ public class PizzaToppingManager : MonoBehaviour
         _placedPerTopping[toppingId] = GetPlacedForTopping(toppingId) + 1;
 
         OnToppingCountsChanged?.Invoke();
+        CheckToppingsStepCompleted();
     }
 
     /// <summary>
@@ -299,6 +301,71 @@ public class PizzaToppingManager : MonoBehaviour
         }
 
         return false;
+    }
+    /// <summary>
+    /// Marca el paso 1 de la receta SOLO si el topping con ID "2" está exactamente en 0.
+    /// Marca el step 2 dependiendo de la receta activa y el topping requerido.
+    /// Classic → topping 3 == 0
+    /// Vegetal → topping 4 == 0
+    /// </summary>
+    private void CheckToppingsStepCompleted()
+    {
+        if (_recipeUiManager == null)
+            return;
+        int used = GetPlacedForTopping("2");
+        int max = GetMaxForTopping("2");
+        int topping2Placed = max - used;
+
+        if (topping2Placed == 0)
+        {
+            _recipeUiManager.MarkStepCompleted(1); // 1 = segundo paso
+            Debug.Log("[PizzaToppingManager] ✅ Topping ID 2 está en 0 → Paso 1 marcado.");
+        }
+        else
+        {
+            Debug.Log($"[PizzaToppingManager] ❌ Topping ID 2 tiene valor {topping2Placed} → Paso NO marcado.");
+        }
+
+        var recipe = _recipeUiManager.ActiveRecipe;
+        if (recipe == null)
+            return;
+
+        string recipeName = recipe.recipeName; 
+
+        if (recipeName == "Pizza Clásica")
+        {   int c_used = GetPlacedForTopping("4");
+            int c_max = GetMaxForTopping("4");
+            int amount = c_max - c_used;
+
+            if (amount == 0)
+            {
+                _recipeUiManager.MarkStepCompleted(2);
+            }
+            else
+            {
+                Debug.Log("[PizzaToppingManager] Recipe_Classic → topping 3 NO es 0 → no marcar step 2");
+            }
+
+            return; // salir, ya procesamos esta receta
+        }
+
+        if (recipeName == "Pizza Vegetal")
+        {   int v_used = GetPlacedForTopping("3");
+            int v_max = GetMaxForTopping("3");
+            int v_amount = v_max - v_used;
+
+            if (v_amount == 0)
+            {
+                _recipeUiManager.MarkStepCompleted(2);
+                Debug.Log("[PizzaToppingManager] Recipe_Vegetal → topping 4 es 0 → step 2 marcado");
+            }
+            else
+            {
+                Debug.Log("[PizzaToppingManager] Recipe_Vegetal → topping 4 NO es 0 → no marcar step 2");
+            }
+
+            return;
+        }
     }
 }
 

@@ -39,16 +39,16 @@ MonoBehaviour:
     cutIconOverride: {fileID: 0}
     isCompleted: 0
   - ingredient:
-      ingredientName: Pure de tomate
-      ingredientIcon: {fileID: 21300000, guid: bff411994e9f35049b91b599846204b5, type: 3}
+      ingredientName: Queso rayado
+      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
       ingredientSlicedIcon: {fileID: 0}
     requiresCutting: 0
     cutPieces: 0
     cutIconOverride: {fileID: 0}
     isCompleted: 0
   - ingredient:
-      ingredientName: Queso rayado
-      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
+      ingredientName: Pimiento
+      ingredientIcon: {fileID: 21300000, guid: aeb531463590a9f419a2e006f005265d, type: 3}
       ingredientSlicedIcon: {fileID: 0}
     requiresCutting: 0
     cutPieces: 0

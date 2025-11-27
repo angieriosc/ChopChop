@@ -37,7 +37,7 @@ MonoBehaviour:
     requiresCutting: 1
     cutPieces: 0
     cutIconOverride: {fileID: 0}
-    isCompleted: 1
+    isCompleted: 0
   - ingredient:
       ingredientName: Queso rayado
       ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
