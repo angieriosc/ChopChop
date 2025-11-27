@@ -19,6 +19,9 @@ public class BowlStation : MonoBehaviour
     [Tooltip("Número máximo de bowls permitidos en escena.")]
     [SerializeField] private int maxBowls = 3;
 
+    [Tooltip("SpawnType")]
+    [SerializeField] public string spawnType;
+
     private float lastSpawnTime;
     private int currentBowls;
     public GameObject activeBowl;
@@ -37,7 +40,7 @@ public class BowlStation : MonoBehaviour
     public void TrySpawnBowl()
     {
         DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
-        if (!tutorialBowlUsed  && sequenceManager.stepIndex==1)
+        if (!tutorialBowlUsed  && sequenceManager.stepIndex==1 && spawnType=="Bowl")
         {
             //Continuar cinematica
             StartCoroutine(sequenceManager.ContinueSequence());
@@ -111,12 +114,8 @@ public class BowlStation : MonoBehaviour
         {
             bowlContainer.cupTracker = FindFirstObjectByType<CupTracker>();
         }
-        else
-        {
-            Debug.LogWarning(" El bowl no tiene componente ReceivingContainer.");
-        }
 
-        newBowl.name = $"Bowl_{currentBowls}";
+        newBowl.name = $"{spawnType}_{currentBowls}";
         currentBowls++;
         lastSpawnTime = Time.time;
         activeBowl = newBowl;

@@ -45,8 +45,9 @@ public class PizzaToppingManager : MonoBehaviour
     [Header("Lógica de masa/base")]
     [SerializeField] private int _baseDoughToppingIndex = 0;
     [SerializeField] private string _baseDoughInventoryKey = "WedgeSlice";
-    public string BaseDoughInventoryKey => _baseDoughInventoryKey;
+    [SerializeField] private RecipeUIManager _recipeUiManager; 
 
+    public string BaseDoughInventoryKey => _baseDoughInventoryKey;
 
     private bool _baseDoughPlaced = false;
     private int _currentToppingIndex = -1;
@@ -122,32 +123,31 @@ public class PizzaToppingManager : MonoBehaviour
 
         bool isBaseDoughSelected = (_currentToppingIndex == _baseDoughToppingIndex);
 
+        if (CuttingInventory.Instance != null)
+        {
+            string keyCheck = isBaseDoughSelected ? _baseDoughInventoryKey : _toppings[_currentToppingIndex].inventoryKey;
+            
+            if (!string.IsNullOrEmpty(keyCheck) && CuttingInventory.Instance.GetQuantity(keyCheck) <= 0)
+            {
+                SetGhostVisible(false);
+                return;
+            }
+        }
+
         if (!_baseDoughPlaced)
         {
-            if (!isBaseDoughSelected)
-                return;
-
-            if (CuttingInventory.Instance != null)
-            {
-                int qty = CuttingInventory.Instance.GetQuantity(_baseDoughInventoryKey);
-                if (qty <= 0)
-                    return;
-            }
-            else
-                return;
+            if (!isBaseDoughSelected) return;
         }
         else
         {
-            if (isBaseDoughSelected)
-                return;
+            if (isBaseDoughSelected) return;
         }
 
         Collider surfaceCollider = _baseDoughPlaced && _pizzaRoot != null
             ? _pizzaRoot.GetComponentInChildren<Collider>()
             : PizzaSurfaceCollider;
 
-        if (surfaceCollider == null)
-            return;
+        if (surfaceCollider == null) return;
 
         Ray ray = WorkCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
@@ -174,21 +174,23 @@ public class PizzaToppingManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Instancia la masa o un topping normal según reglas actuales.
+    /// Instancia la masa o un topping normal, validando y consumiendo inventario.
     /// </summary>
     private void SpawnTopping(Vector3 position, Vector3 normal, GameObject prefab)
     {
         if (prefab == null) return;
+        if (_currentToppingIndex < 0 || _currentToppingIndex >= _toppings.Count) return;
 
-        if (_currentToppingIndex < 0 || _currentToppingIndex >= _toppings.Count)
-            return;
-
-        string toppingId = _toppings[_currentToppingIndex].id;
-
+        // --- LÓGICA DE MASA BASE ---
         if (!_baseDoughPlaced && _currentToppingIndex == _baseDoughToppingIndex)
         {
-            Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
+            if (CuttingInventory.Instance != null)
+            {
+                if(CuttingInventory.Instance.GetQuantity(_baseDoughInventoryKey) <= 0) return;
+                CuttingInventory.Instance.Consume(_baseDoughInventoryKey, 1);
+            }
 
+            Quaternion rot = Quaternion.LookRotation(Vector3.forward, normal);
             GameObject dough = Instantiate(prefab, position, rot);
             dough.transform.localScale = Vector3.Scale(dough.transform.localScale, _extraScale);
 
@@ -197,36 +199,52 @@ public class PizzaToppingManager : MonoBehaviour
             _baseDoughPlaced = true;
 
             var col = dough.GetComponentInChildren<Collider>();
-            if (col != null)
-                PizzaSurfaceCollider = col;
-
-            if (CuttingInventory.Instance != null)
-                CuttingInventory.Instance.Consume(_baseDoughInventoryKey, 1);
+            if (col != null) PizzaSurfaceCollider = col;
 
             ToppingStation station = FindFirstObjectByType<ToppingStation>();
-            if (station != null)
-                station.HideInstruction();
+            if (station != null) station.HideInstruction();
 
             OnToppingCountsChanged?.Invoke();
             return;
         }
 
-        if (_pizzaRoot == null)
-            return;
+        // --- LÓGICA DE TOPPINGS NORMALES ---
+        if (_pizzaRoot == null) return;
 
-        if (!CanPlaceTopping(toppingId))
-            return;
+        ToppingOption currentOption = _toppings[_currentToppingIndex];
+        string toppingId = currentOption.id;
 
-        if (toppingAudio != null)
-            toppingAudio.Play();
+        // 1. Validar Inventario antes de poner
+        if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(currentOption.inventoryKey))
+        {
+            if (CuttingInventory.Instance.GetQuantity(currentOption.inventoryKey) <= 0)
+            {
+                Debug.Log($"[ToppingManager] No tienes '{currentOption.inventoryKey}' en el inventario.");
+                return; 
+            }
+        }
+
+        // 2. Validar reglas de Receta (Límites por pizza)
+        if (!CanPlaceTopping(toppingId)) return;
+
+        // 3. Instanciar visuales
+        if (toppingAudio != null) toppingAudio.Play();
 
         Quaternion toppingRot = Quaternion.LookRotation(Vector3.forward, normal);
         GameObject go = Instantiate(prefab, position, toppingRot, _pizzaRoot);
         go.transform.localScale = Vector3.Scale(go.transform.localScale, _extraScale);
 
+        // 4. Registrar en Receta
         _placedPerTopping[toppingId] = GetPlacedForTopping(toppingId) + 1;
 
+        // 5. Consumir del Inventario
+        if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(currentOption.inventoryKey))
+        {
+            CuttingInventory.Instance.Consume(currentOption.inventoryKey, 1);
+        }
+
         OnToppingCountsChanged?.Invoke();
+        CheckToppingsStepCompleted();
     }
 
     /// <summary>
@@ -277,19 +295,25 @@ public class PizzaToppingManager : MonoBehaviour
         OnToppingCountsChanged?.Invoke();
     }
 
-    /// <summary>Obtiene el máximo permitido para un topping.</summary>
+    /// <summary>
+    /// Obtiene el máximo permitido para un topping.
+    /// </summary>
     public int GetMaxForTopping(string toppingId)
     {
         return _maxPerTopping.TryGetValue(toppingId, out int max) ? max : 0;
     }
 
-    /// <summary>Obtiene cuántos toppings de este tipo ya fueron colocados.</summary>
+    /// <summary>
+    /// Obtiene cuántos toppings de este tipo ya fueron colocados.
+    /// </summary>
     public int GetPlacedForTopping(string toppingId)
     {
         return _placedPerTopping.TryGetValue(toppingId, out int count) ? count : 0;
     }
 
-    /// <summary>Verifica si aún se puede colocar este topping según la receta.</summary>
+    /// <summary>
+    /// Verifica si aún se puede colocar este topping según la receta.
+    /// </summary>
     public bool CanPlaceTopping(string toppingId)
     {
         if (_maxPerTopping.TryGetValue(toppingId, out int max))
@@ -300,6 +324,61 @@ public class PizzaToppingManager : MonoBehaviour
 
         return false;
     }
+
+    /// <summary>
+    /// Lógica específica para marcar pasos completados en el tutorial/receta.
+    /// </summary>
+    private void CheckToppingsStepCompleted()
+    {
+        if (_recipeUiManager == null)
+            return;
+        
+        // Validación básica (Topping ID 2 suele ser Queso)
+        int used = GetPlacedForTopping("2");
+        int max = GetMaxForTopping("2");
+        int topping2Placed = max - used;
+
+        if (topping2Placed == 0)
+        {
+            _recipeUiManager.MarkStepCompleted(1); 
+        }
+
+        var recipe = _recipeUiManager.ActiveRecipe;
+        if (recipe == null)
+            return;
+
+        string recipeName = recipe.recipeName; 
+
+        if (recipeName == "Pizza Clásica")
+        {   
+            int c_used = GetPlacedForTopping("4");
+            int c_max = GetMaxForTopping("4");
+            if ((c_max - c_used) == 0) _recipeUiManager.MarkStepCompleted(2);
+        }
+        else if (recipeName == "Pizza Vegetal")
+        {   
+            int v_used = GetPlacedForTopping("3");
+            int v_max = GetMaxForTopping("3");
+            if ((v_max - v_used) == 0) _recipeUiManager.MarkStepCompleted(2);
+        }
+    }
+
+    /// <summary>
+    /// TRADUCTOR: Recibe un ID (ej "3") y devuelve la Key del Inventario (ej "pimiento").
+    /// </summary>
+    public string GetInventoryKeyById(string id)
+    {
+        // 1. Revisar si es la masa base
+        if (id == BaseDoughInventoryKey) return BaseDoughInventoryKey;
+
+        // 2. Buscar en la lista de toppings
+        foreach (var t in _toppings)
+        {
+            if (t.id == id) return t.inventoryKey;
+        }
+
+        return ""; // No se encontró o es infinito
+    }
 }
 
 [System.Serializable]
@@ -307,5 +386,9 @@ public class ToppingOption
 {
     public string id;
     public string name;
+    
+    [Tooltip("El nombre EXACTO de la rebanada en el inventario (ej. TomatoSlice). Si se deja vacío, es infinito.")]
+    public string inventoryKey; 
+    
     public GameObject prefab;
 }
