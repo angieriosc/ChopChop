@@ -8,6 +8,7 @@ using UnityEngine;
 public class CuttingInventory : MonoBehaviour
 {
     public static CuttingInventory Instance { get; private set; }
+    [SerializeField] private RecipeUIManager _recipeUiManager;
 
     private void Awake()
     {
@@ -47,6 +48,11 @@ public class CuttingInventory : MonoBehaviour
         CuttingInventoryItem newItem = new CuttingInventoryItem(key, slicePrefab, amount);
         items.Add(newItem);
         Debug.Log($"[CuttingInventory] Añadido Nuevo: {amount} de '{key}'.");
+        if (key == "WedgeSlice")_recipeUiManager.MarkStepCompleted(0);
+        if (key == "Recipe_CheeseSimple")_recipeUiManager.MarkStepCompleted(2);
+        if (key == "Recipe_Classic")_recipeUiManager.MarkStepCompleted(3);
+        if (key == "Recipe_Vegetal")_recipeUiManager.MarkStepCompleted(3);
+
     }
 
     /// <summary>
