@@ -4,10 +4,9 @@ using UnityEngine;
 
 /// <summary>
 /// Estación de corte Final.
-/// - Fusiona toppings.
-/// - Usa corrutinas para rendimiento.
-/// - Integra nombre de receta activa para el inventario.
-/// - Realiza swap visual/físico para evitar bugs.
+/// - Maneja la entrada de Bowls (instancia masa) e Ingredientes (se colocan directo).
+/// - Realiza el corte de mallas y aplica una fuerza de separación visual.
+/// - Gestiona la integración con Inventory y DeliveryManager.
 /// </summary>
 [RequireComponent(typeof(BoxCollider))]
 public class SlicingStation : MonoBehaviour
@@ -53,7 +52,6 @@ public class SlicingStation : MonoBehaviour
 
     private void Update()
     {
-        // Bloqueamos la salida si estamos en medio del proceso de corte
         if (playerLocked && !isSlicing && Input.GetKeyDown(exitKey))
         {
             UnlockPlayer();
@@ -68,43 +66,27 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    ///  Asigna un objeto a la estación para cortarlo.
+    /// Asigna un objeto a la estación para cortarlo, diferenciando entre Bowls e Ingredientes.
     /// </summary>
-    /// <param name="itemFromPlayer"></param>
-    /// <returns></returns>
+    /// <param name="itemFromPlayer">El objeto que trae el jugador.</param>
+    /// <returns>True si se asignó correctamente.</returns>
     public bool AssignItemToStation(GameObject itemFromPlayer)
     {
         if (objectToCut != null) return false;
 
         this.currentItemData = itemFromPlayer.GetComponent<CuttableItemData>();
         
-        if (this.currentItemData == null || this.currentItemData.sliceResultPrefab == null)
+        if (this.currentItemData == null)
         {
-            Debug.LogError($"[SlicingStation] Error: El objeto '{itemFromPlayer.name}' no tiene CuttableItemData o sliceResultPrefab.");
+            Debug.LogError($"[SlicingStation] Error: '{itemFromPlayer.name}' no tiene CuttableItemData.");
+            return false;
         }
 
         Transform spawnTransform = (itemSpawnPoint != null) ? itemSpawnPoint : this.transform;
         
-        // Detectamos si es Pizza (cocinada) o Masa (cruda)
-        BakeableIngredient bakeData = itemFromPlayer.GetComponent<BakeableIngredient>();
+        bool isBowl = itemFromPlayer.CompareTag("Bowl"); 
 
-        if (bakeData != null)
-        {
-            this.objectToCut = itemFromPlayer;
-            this.objectToCut.transform.SetParent(null);
-            this.objectToCut.transform.position = spawnTransform.position;
-            this.objectToCut.transform.rotation = spawnTransform.rotation;
-            
-            var rb = this.objectToCut.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.isKinematic = true;
-                rb.useGravity = false;
-            }
-
-            this.originalBowlObject = null;
-        }
-        else
+        if (isBowl)
         {
             if (doughPrefabToSpawn == null) return false;
 
@@ -117,6 +99,24 @@ public class SlicingStation : MonoBehaviour
             this.objectToCut = doughObject;
             this.originalBowlObject = itemFromPlayer;
             this.originalBowlObject.SetActive(false);
+        }
+        else
+        {
+            this.objectToCut = itemFromPlayer;
+            this.objectToCut.transform.SetParent(null);
+            this.objectToCut.transform.position = spawnTransform.position;
+            this.objectToCut.transform.rotation = spawnTransform.rotation;
+            
+            var rb = this.objectToCut.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            this.originalBowlObject = null;
         }
 
         LockPlayer();
@@ -133,27 +133,37 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Corrutina que maneja el proceso de corte.
+    /// Corrutina principal que maneja el corte, la separación visual y la lógica de inventario.
     /// </summary>
     private IEnumerator SliceObjectRoutine()
     {
         isSlicing = true;
         GameObject originalObject = objectToCut;
 
+        if (originalObject == null)
+        {
+            isSlicing = false;
+            UnlockPlayer();
+            yield break;
+        }
+
         bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
 
-        CombineToppingsIntoMesh(originalObject);
+        if (isPizza) CombineToppingsIntoMesh(originalObject);
         yield return null; 
 
-        MeshFilter meshFilter = originalObject.GetComponent<MeshFilter>();
+        MeshFilter meshFilter = originalObject.GetComponentInChildren<MeshFilter>();
         if (meshFilter == null) 
         {
+             Debug.LogError($"[SlicingStation] MeshFilter no encontrado en {originalObject.name}.");
              isSlicing = false;
              yield break;
         }
 
         Mesh originalMesh = meshFilter.mesh;
         MeshRenderer originalRenderer = meshFilter.GetComponent<MeshRenderer>();
+        if(originalRenderer == null) originalRenderer = meshFilter.GetComponent<MeshRenderer>();
+
         Material[] originalMaterials = (originalRenderer != null) ? originalRenderer.materials : null;
         Transform meshTransform = meshFilter.transform;
         
@@ -167,9 +177,7 @@ public class SlicingStation : MonoBehaviour
 
         List<GameObject> newPieces = new List<GameObject>();
         float totalDuration = 3.0f;
-        float delayPerPiece = 0f;
-
-        if (sliceMeshes.Count > 0) delayPerPiece = totalDuration / sliceMeshes.Count;
+        float delayPerPiece = totalDuration / (sliceMeshes.Count > 0 ? sliceMeshes.Count : 1);
         
         foreach (Mesh sliceMesh in sliceMeshes)
         {
@@ -184,15 +192,61 @@ public class SlicingStation : MonoBehaviour
         
         DisableOriginalObject(originalObject);
 
+        float forceForLowCuts = 130f; 
+        float forceForHighCuts = 50f; 
+
+        float t = Mathf.InverseLerp(2f, 12f, (float)sliceMeshes.Count);
+        float separationPower = Mathf.Lerp(forceForLowCuts, forceForHighCuts, t);
+
+        float nudgeDistance = 0.08f; 
+        Vector3 explosionCenter = originalObject.transform.position;
+
         foreach (var piece in newPieces)
         {
-            if (piece != null) piece.SetActive(true);
+            if (piece == null) continue;
+            
+            piece.SetActive(true);
+            Collider col = piece.GetComponent<Collider>();
+            
+            Vector3 pieceCenter = col.bounds.center;
+            Vector3 direction = (pieceCenter - explosionCenter).normalized;
+            if (direction == Vector3.zero) direction = Vector3.up;
+            
+            piece.transform.position += direction * nudgeDistance;
+        }
+
+        Physics.SyncTransforms(); 
+
+        foreach (var piece in newPieces)
+        {
+            if (piece == null) continue;
+
+            Rigidbody rb = piece.GetComponent<Rigidbody>();
+            rb.isKinematic = false;
+            rb.linearDamping = 8f; 
+            
+            rb.AddExplosionForce(separationPower, explosionCenter, 3f, 0f);
+        }
+
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForSeconds(0.1f);
+
+        foreach (var piece in newPieces)
+        {
+            if (piece != null)
+            {
+                Rigidbody rb = piece.GetComponent<Rigidbody>();
+                
+                rb.linearVelocity = Vector3.zero; 
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;          
+            }
         }
 
         yield return new WaitForSeconds(1.5f); 
-        string recipeKey = "Unknown";
         
-        if (isPizza) // Es Pizza
+        string recipeKey = "Unknown";
+        if (isPizza) 
         {
             CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
             if (customerManager != null && customerManager.ActiveRecipe != null)
@@ -200,7 +254,6 @@ public class SlicingStation : MonoBehaviour
         }
         else if (currentItemData != null && currentItemData.sliceResultPrefab != null)
         {
-            // Es Masa (Dough)
             recipeKey = currentItemData.sliceResultPrefab.name;
         }
 
@@ -213,19 +266,11 @@ public class SlicingStation : MonoBehaviour
         
         if (isPizza && deliveryManager != null)
         {
-            Debug.Log($"[SlicingStation] Guardando rebanadas de PIZZA '{recipeKey}' en DeliveryManager.");
-            foreach (GameObject piece in newPieces)
-            {
-                deliveryManager.StoreRealSlice(recipeKey, piece);
-            }
+            foreach (GameObject piece in newPieces) deliveryManager.StoreRealSlice(recipeKey, piece);
         }
         else
         {
-            Debug.Log("[SlicingStation] Destruyendo rebanadas de MASA (no se guardan).");
-            foreach (GameObject piece in newPieces)
-            {
-                Destroy(piece);
-            }
+            foreach (GameObject piece in newPieces) Destroy(piece);
         }
 
         Destroy(originalObject);
@@ -235,8 +280,6 @@ public class SlicingStation : MonoBehaviour
         {
             BowlStation bowlStation = FindFirstObjectByType<BowlStation>();
             if (bowlStation != null) bowlStation.RegisterBowlDestruction();
-            Destroy(originalBowlObject);
-            originalBowlObject = null;
         }
 
         currentItemData = null;
@@ -246,7 +289,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Apaga renderers y colliders del objeto original.
+    /// Desactiva colisionadores y renderers del objeto original.
     /// </summary>
     private void DisableOriginalObject(GameObject obj)
     {
@@ -258,7 +301,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Fusiona mallas de hijos en el padre. Soporta >65k vértices.
+    /// Combina las mallas de los hijos (toppings) en la malla del padre. Solo usado para Pizzas.
     /// </summary>
     private void CombineToppingsIntoMesh(GameObject parentObj)
     {
@@ -313,7 +356,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Crea un GameObject a partir de una malla de corte.
+    /// Crea un GameObject rebanada con MeshCollider, Rigidbody y congelación de rotación inicial.
     /// </summary>
     private GameObject CreateSliceGameObject(Mesh sliceMesh, Material[] materials, Transform originalTransform)
     {
@@ -322,7 +365,7 @@ public class SlicingStation : MonoBehaviour
         
         slice.transform.position = originalTransform.position;
         slice.transform.rotation = originalTransform.rotation;
-        slice.transform.localScale = originalTransform.localScale;
+        slice.transform.localScale = originalTransform.lossyScale;
         
         slice.AddComponent<MeshFilter>().mesh = sliceMesh;
         slice.AddComponent<MeshRenderer>().materials = materials;
@@ -332,13 +375,14 @@ public class SlicingStation : MonoBehaviour
         
         var rb = slice.AddComponent<Rigidbody>();
         rb.isKinematic = true;
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
         
-        slice.AddComponent<EnablePhysicsDelay>();
         return slice; 
     }
 
     /// <summary>
-    /// Bloquea al jugador en la estación de corte.
+    /// Bloquea al jugador y cambia la cámara a la estación.
     /// </summary>
     public void LockPlayer()
     {
@@ -357,7 +401,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Desbloquea al jugador de la estación de corte.
+    /// Desbloquea al jugador, limpia la estación y maneja el retorno de bowls.
     /// </summary>
     public void UnlockPlayer()
     {
@@ -397,11 +441,8 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Devuelve el objeto al jugador en el siguiente frame.
+    /// Devuelve el objeto (Bowl) al jugador en el siguiente frame.
     /// </summary>
-    /// <param name="objectToReturn">El objeto a devolver.</param>
-    /// <param name="playerPickup">El componente PlayerPickup del jugador.</param>
-    /// <returns></returns>
     private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn, PlayerPickup playerPickup)
     {
         yield return null;

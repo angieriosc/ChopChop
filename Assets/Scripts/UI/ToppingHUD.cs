@@ -1,19 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Actualiza el HUD del inventario/toppings según los límites de la receta.
-/// Muestra cuántos toppings quedan disponibles para colocar.
-/// </summary>
 public class ToppingHUD : MonoBehaviour
 {
     [System.Serializable]
     public class SlotUI
     {
-        [Tooltip("ID del topping que este slot representa (ej: 'salsa', 'queso', 'pimiento')")]
+        [Tooltip("ID del topping (ej: '1', '2', '3') o la key directa si es la masa")]
         public string toppingId;
 
         [Tooltip("Referencia al texto que mostrará la cantidad disponible")]
@@ -29,17 +24,14 @@ public class ToppingHUD : MonoBehaviour
     [Header("Slots visuales del HUD")]
     [SerializeField] private List<SlotUI> slots = new();
 
-    [Header("Botón de salida de la estación")]
+    [Header("Botón de salida")]
     [SerializeField] private Button exitButton;
 
-
     private void Start()
-        {
-            // Listerner del botón de salir
-            if (exitButton != null) {
-                exitButton.onClick.AddListener(ExitMenu);
-            }
-        }
+    {
+        if (exitButton != null) exitButton.onClick.AddListener(ExitMenu);
+    }
+
     private void OnEnable()
     {
         if (toppingManager != null)
@@ -55,55 +47,63 @@ public class ToppingHUD : MonoBehaviour
     }
 
     /// <summary>
-    /// Refresca los contadores visibles de cada topping en la UI.
+    /// Refresca los contadores:
+    /// - Si tiene Key de Inventario: Muestra el STOCK TOTAL.
+    /// - Si es Infinito: Muestra el LÍMITE RESTANTE de la receta.
     /// </summary>
     public void Refresh()
     {
-        if (toppingManager == null)
-            return;
+        if (toppingManager == null) return;
 
         foreach (SlotUI slot in slots)
         {
             if (slot.toppingId == toppingManager.BaseDoughInventoryKey)
             {
-                int doughQty = CuttingInventory.Instance != null 
-                    ? CuttingInventory.Instance.GetQuantity(slot.toppingId)
+                int qty = (CuttingInventory.Instance != null) 
+                    ? CuttingInventory.Instance.GetQuantity(toppingManager.BaseDoughInventoryKey) 
                     : 0;
-
-                slot.quantityText.text = doughQty.ToString();
-                continue;
+                
+                if (slot.quantityText != null) slot.quantityText.text = qty.ToString();
+                continue; 
             }
 
-            // 2) Ingredientes normales → usar límites de la receta
-            int used = toppingManager.GetPlacedForTopping(slot.toppingId);
-            int max = toppingManager.GetMaxForTopping(slot.toppingId);
+            string inventoryKey = toppingManager.GetInventoryKeyById(slot.toppingId);
 
-            if (max <= 0)
+            if (!string.IsNullOrEmpty(inventoryKey))
             {
-                slot.quantityText.text = "0";
+                if (CuttingInventory.Instance != null)
+                {
+                    int qty = CuttingInventory.Instance.GetQuantity(inventoryKey);
+                    if (slot.quantityText != null) slot.quantityText.text = qty.ToString();
+                }
             }
             else
             {
-                slot.quantityText.text = $"{max - used}";
+                int max = toppingManager.GetMaxForTopping(slot.toppingId);
+                int used = toppingManager.GetPlacedForTopping(slot.toppingId);
+                int remaining = Mathf.Max(0, max - used);
+
+                if (slot.quantityText != null) slot.quantityText.text = remaining.ToString();
             }
         }
     }
 
-    /// <summary>
-    /// Cierra el menú y desbloquea jugador y cámara.
-    /// </summary>
-private void ExitMenu()
-{
-    Animator anim = exitButton.GetComponent<Animator>();
+    private void ExitMenu()
+    {
+        if (exitButton != null)
+        {
+            Animator anim = exitButton.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.SetBool("isPressed", false);
+                anim.SetTrigger("Normal");
+                anim.SetInteger("state", 0);
+            }
+        }
 
-    anim.SetBool("isPressed", false);
-    anim.SetTrigger("Normal");
-    anim.SetInteger("state", 0);
-
-    toppingCanvas.SetActive(false);
-    _playerCamera.gameObject.SetActive(true);
-    _stationCamera.gameObject.SetActive(false);
-    ToppingLock.IsLocked = false;
-}
-
+        if(toppingCanvas != null) toppingCanvas.SetActive(false);
+        if(_playerCamera != null) _playerCamera.gameObject.SetActive(true);
+        if(_stationCamera != null) _stationCamera.gameObject.SetActive(false);
+        ToppingLock.IsLocked = false;
+    }
 }
