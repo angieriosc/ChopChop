@@ -192,19 +192,15 @@ public class SlicingStation : MonoBehaviour
         
         DisableOriginalObject(originalObject);
 
-        // --- INICIO DE LA FÍSICA CORREGIDA ---
-        
-        // 1. CALCULAR FUERZA DINÁMICA
-        // Si hay muchos cortes, bajamos la fuerza para que no salgan disparados.
-        // Base de 200f, pero se reduce si hay más de 4 piezas.
-        float baseForce = 200f;
-        float separationPower = sliceMeshes.Count > 4 ? baseForce / (sliceMeshes.Count * 0.4f) : baseForce;
-        
-        // Aumentamos el "nudge" para que tengan más aire al nacer
+        float forceForLowCuts = 130f; 
+        float forceForHighCuts = 50f; 
+
+        float t = Mathf.InverseLerp(2f, 12f, (float)sliceMeshes.Count);
+        float separationPower = Mathf.Lerp(forceForLowCuts, forceForHighCuts, t);
+
         float nudgeDistance = 0.08f; 
         Vector3 explosionCenter = originalObject.transform.position;
 
-        // 2. EMPUJÓN PREVENTIVO (NUDGE)
         foreach (var piece in newPieces)
         {
             if (piece == null) continue;
@@ -212,55 +208,42 @@ public class SlicingStation : MonoBehaviour
             piece.SetActive(true);
             Collider col = piece.GetComponent<Collider>();
             
-            // Calculamos dirección desde el centro
             Vector3 pieceCenter = col.bounds.center;
             Vector3 direction = (pieceCenter - explosionCenter).normalized;
             if (direction == Vector3.zero) direction = Vector3.up;
             
-            // Movemos la pieza visualmente antes de activar física
             piece.transform.position += direction * nudgeDistance;
         }
 
-        // Importante: Forzar actualización de posiciones físicas antes de aplicar fuerzas
         Physics.SyncTransforms(); 
 
-        // 3. APLICAR FUERZA FÍSICA
         foreach (var piece in newPieces)
         {
             if (piece == null) continue;
 
             Rigidbody rb = piece.GetComponent<Rigidbody>();
             rb.isKinematic = false;
+            rb.linearDamping = 8f; 
             
-            // Damping (Freno) alto para evitar deslizamiento infinito
-            rb.linearDamping = 10f; 
             rb.AddExplosionForce(separationPower, explosionCenter, 3f, 0f);
         }
 
-        // Esperamos un frame físico para que la explosión ocurra de forma segura
         yield return new WaitForFixedUpdate();
-        yield return new WaitForSeconds(0.1f); // Tiempo breve para ver el efecto
+        yield return new WaitForSeconds(0.1f);
 
-        // 4. CONGELAR (FIX DEL WARNING)
         foreach (var piece in newPieces)
         {
             if (piece != null)
             {
                 Rigidbody rb = piece.GetComponent<Rigidbody>();
                 
-                // PRIMERO quitamos velocidad
                 rb.linearVelocity = Vector3.zero; 
                 rb.angularVelocity = Vector3.zero;
-                
-                // DESPUÉS hacemos kinematic (así evitas el warning de "Setting angular velocity...")
                 rb.isKinematic = true;          
             }
         }
-        // --- FIN DE LA FÍSICA CORREGIDA ---
 
         yield return new WaitForSeconds(1.5f); 
-        
-        // ... (Resto del código de inventario igual que antes) ...
         
         string recipeKey = "Unknown";
         if (isPizza) 
