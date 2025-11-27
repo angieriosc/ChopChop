@@ -228,12 +228,41 @@ public class SlicingStation : MonoBehaviour
         
         DisableOriginalObject(originalObject);
 
+        // 1. Mostrar las piezas (todavía están kinematicas)
         foreach (var piece in newPieces)
         {
             if (piece != null) piece.SetActive(true);
         }
 
-        yield return new WaitForSeconds(1.5f); 
+        // --- EL "HACK" DE SEPARACIÓN ---
+        
+        // A) ENCENDER FÍSICA: ¡PUM!
+        // Al quitar kinematic, los colliders que están encimados se empujarán violentamente.
+        foreach (var piece in newPieces)
+        {
+            if (piece != null) piece.GetComponent<Rigidbody>().isKinematic = false;
+        }
+
+        // B) ESPERAR UN INSTANTE
+        // 0.1 segundos suele ser suficiente para que se separen pero no caigan al suelo.
+        // Ajusta este número: 0.05f es más sutil, 0.2f es más explosivo.
+        yield return new WaitForSeconds(0.1f);
+
+        // C) APAGAR FÍSICA: ¡FREEZE!
+        foreach (var piece in newPieces)
+        {
+            if (piece != null)
+            {
+                Rigidbody rb = piece.GetComponent<Rigidbody>();
+                rb.isKinematic = true;          // Congelar posición
+                rb.linearVelocity = Vector3.zero; // Matar inercia (Unity 6)
+                rb.angularVelocity = Vector3.zero;// Matar rotación
+            }
+        }
+        
+        // -------------------------------
+
+        yield return new WaitForSeconds(1.5f);
         string recipeKey = "Unknown";
         
         if (isPizza) 
@@ -373,7 +402,7 @@ public class SlicingStation : MonoBehaviour
         
         slice.transform.position = originalTransform.position;
         slice.transform.rotation = originalTransform.rotation;
-        slice.transform.localScale = originalTransform.lossyScale;
+        slice.transform.localScale = originalTransform.lossyScale; 
         
         slice.AddComponent<MeshFilter>().mesh = sliceMesh;
         slice.AddComponent<MeshRenderer>().materials = materials;
@@ -382,9 +411,11 @@ public class SlicingStation : MonoBehaviour
         collider.convex = true; 
         
         var rb = slice.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
+        rb.isKinematic = true; // Empiezan congelados
+        rb.useGravity = true;  // Gravity ON para que la física calcule bien el empuje
+
+        rb.constraints = RigidbodyConstraints.FreezeRotation; 
         
-        slice.AddComponent<EnablePhysicsDelay>();
         return slice; 
     }
 
