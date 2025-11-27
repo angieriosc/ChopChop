@@ -17,6 +17,7 @@ TagManager:
   - Closecamera
   - CutPiece
   - PizzaDough
+  - Bowl
   layers:
   - Default
   - TransparentFX

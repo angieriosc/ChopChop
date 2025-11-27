@@ -29,6 +29,12 @@ public class RecipeUIManager : MonoBehaviour
     private bool isExpanded = true;
     private List<GameObject> currentIngredientItems = new List<GameObject>();
     private Image buttonImage; // Componente Image del botón
+    private RecipeDataMenu activeRecipe;
+    //Para evitar marcar dos veces el mismo paso
+    private HashSet<int> completedSteps = new HashSet<int>();
+    [SerializeField] private string wedgeSliceKey = "WedgeSlice";
+    public RecipeDataMenu ActiveRecipe => activeRecipe;
+
     
     void Start()
     {
@@ -133,6 +139,19 @@ public class RecipeUIManager : MonoBehaviour
             return;
         }
         
+        activeRecipe = recipe;
+        if (activeRecipe.ingredientSteps != null)
+        {
+            foreach (var step in activeRecipe.ingredientSteps)
+            {
+                if (step != null)
+                    step.isCompleted = false;
+            }
+        }
+
+        // RESETEAR REGISTRO DE PASOS COMPLETOS EN EL UI
+        completedSteps.Clear();
+
         Debug.Log("=== MOSTRANDO RECETA: " + recipe.recipeName + " ===");
         
         // Limpiar ingredientes anteriores
@@ -226,6 +245,23 @@ public class RecipeUIManager : MonoBehaviour
         {
             button.onClick.AddListener(() => itemUI.ToggleCompletion());
             Debug.Log("    ✅ Listener de toggle agregado");
+        }
+        if (index == 0 && CuttingInventory.Instance != null)
+        {
+            int qty = CuttingInventory.Instance.GetQuantity(wedgeSliceKey);
+            if (qty > 0)
+            {
+                // Marcar el step de la receta
+                step.isCompleted = true;
+
+                // Marcar también la UI si aún no está completada
+                if (!itemUI.IsCompleted())
+                {
+                    itemUI.ToggleCompletion();
+                }
+
+                Debug.Log($"[RecipeUIManager] Masa auto-completada: hay {qty} '{wedgeSliceKey}' en inventario.");
+            }
         }
     }
     else
@@ -441,4 +477,47 @@ void CreateFinalPizzaItem(RecipeDataMenu recipe)
         
         return (float)completedCount / currentIngredientItems.Count;
     }
+    /// <summary>
+    /// Marca visualmente un paso de la receta (por índice de la lista en pantalla).
+    /// 0 = primer ingrediente, 1 = segundo, 2 = pizza final, etc.
+    /// </summary>
+    public void MarkStepCompleted(int uiIndex)
+    {
+        if (uiIndex < 0 || uiIndex >= currentIngredientItems.Count)
+        {
+            Debug.LogWarning($"[RecipeUIManager] Índice de paso fuera de rango: {uiIndex}");
+            return;
+        }
+
+        // Si ya estaba marcado para ESTA receta, no repetimos
+        if (completedSteps.Contains(uiIndex))
+            return;
+
+        GameObject item = currentIngredientItems[uiIndex];
+        if (item == null) return;
+
+        IngredientItemUI itemUI = item.GetComponent<IngredientItemUI>();
+        if (itemUI == null)
+        {
+            Debug.LogWarning("[RecipeUIManager] El item no tiene IngredientItemUI");
+            return;
+        }
+
+        if (!itemUI.IsCompleted())
+        {
+            itemUI.ToggleCompletion();
+        }
+
+        completedSteps.Add(uiIndex);
+
+        // Actualizar también el ScriptableObject si quieres
+        if (activeRecipe != null && activeRecipe.ingredientSteps != null && uiIndex < activeRecipe.ingredientSteps.Count)
+        {
+            activeRecipe.ingredientSteps[uiIndex].isCompleted = true;
+        }
+
+        Debug.Log($"✔ Paso UI {uiIndex} marcado como completado en receta '{activeRecipe?.recipeName}'");
+    }
+
+
 }

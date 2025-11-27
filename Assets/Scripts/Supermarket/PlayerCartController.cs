@@ -15,7 +15,7 @@ public class PlayerCartController : MonoBehaviour
     [Header("Input")]
     [SerializeField] private KeyCode grabCartKey = KeyCode.E;
     [SerializeField] private KeyCode dropCartKey = KeyCode.Q;
-    [SerializeField] private KeyCode addToCartKey = KeyCode.F;
+    [SerializeField] private KeyCode addToCartKey = KeyCode.E;
     
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
