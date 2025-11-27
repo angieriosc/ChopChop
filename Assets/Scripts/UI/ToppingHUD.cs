@@ -47,7 +47,9 @@ public class ToppingHUD : MonoBehaviour
     }
 
     /// <summary>
-    /// Refresca los contadores buscando la cantidad REAL en el inventario.
+    /// Refresca los contadores:
+    /// - Si tiene Key de Inventario: Muestra el STOCK TOTAL.
+    /// - Si es Infinito: Muestra el LÍMITE RESTANTE de la receta.
     /// </summary>
     public void Refresh()
     {
@@ -55,28 +57,33 @@ public class ToppingHUD : MonoBehaviour
 
         foreach (SlotUI slot in slots)
         {
-            string finalKey = "";
-
             if (slot.toppingId == toppingManager.BaseDoughInventoryKey)
             {
-                finalKey = toppingManager.BaseDoughInventoryKey;
-            }
-
-            else
-            {
-                finalKey = toppingManager.GetInventoryKeyById(slot.toppingId);
-            }
-
-            if (CuttingInventory.Instance != null && !string.IsNullOrEmpty(finalKey))
-            {
-                int qty = CuttingInventory.Instance.GetQuantity(finalKey);
+                int qty = (CuttingInventory.Instance != null) 
+                    ? CuttingInventory.Instance.GetQuantity(toppingManager.BaseDoughInventoryKey) 
+                    : 0;
                 
                 if (slot.quantityText != null) slot.quantityText.text = qty.ToString();
+                continue; 
+            }
+
+            string inventoryKey = toppingManager.GetInventoryKeyById(slot.toppingId);
+
+            if (!string.IsNullOrEmpty(inventoryKey))
+            {
+                if (CuttingInventory.Instance != null)
+                {
+                    int qty = CuttingInventory.Instance.GetQuantity(inventoryKey);
+                    if (slot.quantityText != null) slot.quantityText.text = qty.ToString();
+                }
             }
             else
             {
-                // Si no hay key (es salsa infinita) o no hay inventario, ponemos guión para marcar infinito
-                if (slot.quantityText != null) slot.quantityText.text = "-";
+                int max = toppingManager.GetMaxForTopping(slot.toppingId);
+                int used = toppingManager.GetPlacedForTopping(slot.toppingId);
+                int remaining = Mathf.Max(0, max - used);
+
+                if (slot.quantityText != null) slot.quantityText.text = remaining.ToString();
             }
         }
     }
