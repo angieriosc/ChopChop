@@ -11,6 +11,10 @@ public class SimpleCinematic : MonoBehaviour
 
     private bool playing = false;
 
+    /// <summary>
+    /// Inicializa la posición y rotación del objeto en el primer punto
+    /// de la cinemática si existen puntos definidos.
+    /// </summary>
     private void Start()
     {
         if (points.Length == 0) return;
@@ -20,6 +24,12 @@ public class SimpleCinematic : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Actualiza el movimiento de la cinemática mientras esté activa.
+    /// - Mueve al siguiente punto.
+    /// - Detecta cuando se llega al punto actual.
+    /// - Ejecuta el evento de fin de cinemática cuando termina.
+    /// </summary>
     private void Update()
     {
         if (!playing || index >= points.Length) return;
@@ -38,9 +48,11 @@ public class SimpleCinematic : MonoBehaviour
             }
         }
     }
-
+    
     /// <summary>
-    /// Inicia la cinemática desde el punto 0.
+    /// Inicia la cinemática desde el primer punto.
+    /// Reinicia el índice, activa el estado de reproducción y
+    /// coloca al objeto en la posición y rotación inicial.
     /// </summary>
     public void Play()
     {
@@ -55,6 +67,11 @@ public class SimpleCinematic : MonoBehaviour
         transform.rotation = points[0].rotation;
     }
 
+    /// <summary>
+    /// Mueve el objeto transform hacia el punto especificado utilizando
+    /// interpolación lineal para posición y rotación.
+    /// </summary>
+    /// <param name="point">Punto objetivo al que se desea mover.</param>
     private void MoveToPoint(Transform point)
     {
         transform.position = Vector3.MoveTowards(
@@ -70,6 +87,12 @@ public class SimpleCinematic : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// Verifica si el objeto ha alcanzado un punto específico.
+    /// Usa distancia mínima para determinar el arribo.
+    /// </summary>
+    /// <param name="point">Punto a comprobar.</param>
+    /// <returns>true si se ha llegado al punto; de lo contrario, false.</returns>
     private bool Reached(Transform point)
     {
         return Vector3.Distance(transform.position, point.position) < 0.1f;
