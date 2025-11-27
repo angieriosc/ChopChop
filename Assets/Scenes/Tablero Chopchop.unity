@@ -26083,6 +26083,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5629167076382702563, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5629167076382702563, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
+      propertyPath: ingredientButtons.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5629167076382702563, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
+      propertyPath: ingredientPrefabs.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6034672951671823782, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -26199,7 +26211,8 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: -512
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5629167076382702563, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6934894421040878841, guid: 38e929c7d98c049c5ad1ad6cd2434955, type: 3}
