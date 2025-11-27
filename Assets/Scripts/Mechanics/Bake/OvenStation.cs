@@ -27,6 +27,12 @@ public class OvenStation : MonoBehaviour
     [SerializeField] private Transform _ingredientPoint;
     [SerializeField] private Vector3 _positionOffset = Vector3.zero;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _cookingSound;
+    [SerializeField] private AudioClip _readySound;
+    [SerializeField] private AudioClip _burnedSound;
+
     // 2. Variables privadas
     private GameObject _currentIngredient;
     private BakeableIngredient _bakeableData;
@@ -34,6 +40,7 @@ public class OvenStation : MonoBehaviour
     private bool _isCooking = false;
     private CookingStage _currentStage = CookingStage.Raw;
     private Vector3 _originalPosition;
+    private bool _readySoundPlayed = false;
 
     private enum CookingStage
     {
@@ -48,6 +55,14 @@ public class OvenStation : MonoBehaviour
     private void Start()
     {
         if (_ovenCanvas != null) _ovenCanvas.SetActive(false);
+        
+        // Crear AudioSource si no existe
+        if (_audioSource == null)
+        {
+            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource.playOnAwake = false;
+            _audioSource.loop = false;
+        }
     }
 
     private void Update()
@@ -82,7 +97,7 @@ public class OvenStation : MonoBehaviour
             _currentStage = CookingStage.Cooking;
             _progressBar.fillAmount = progress;
             _progressBar.color = _cookingColor;
-            _stateText.text = $"Cooking... {Mathf.CeilToInt(_cookingTime - _currentTime)}s";
+            _stateText.text = $"Cocinando... {Mathf.CeilToInt(_cookingTime - _currentTime)}s";
         }
         else if (_currentTime >= _cookingTime && _currentTime < _burningTime)
         {
@@ -90,11 +105,18 @@ public class OvenStation : MonoBehaviour
             {
                 _currentStage = CookingStage.Ready;
                 ChangeIngredientAppearance(CookingState.Cooked);
+                
+                // Reproducir sonido de listo (una sola vez)
+                if (!_readySoundPlayed)
+                {
+                    PlaySound(_readySound);
+                    _readySoundPlayed = true;
+                }
             }
 
             _progressBar.fillAmount = 1f;
             _progressBar.color = _readyColor;
-            _stateText.text = "READY! Take it out";
+            _stateText.text = "Cocinado! Tomalo ahora";
         }
         else
         {
@@ -109,7 +131,11 @@ public class OvenStation : MonoBehaviour
                 {
                     _currentStage = CookingStage.Burned;
                     ChangeIngredientAppearance(CookingState.Burned);
-                    _stateText.text = "BURNED :(";
+                    _stateText.text = "Quemado";
+                    
+                    // Detener sonido de cocción y reproducir sonido de quemado
+                    StopCookingSound();
+                    PlaySound(_burnedSound);
                 }
             }
         }
@@ -153,12 +179,16 @@ public class OvenStation : MonoBehaviour
         _isCooking = true;
         _currentTime = 0f;
         _currentStage = CookingStage.Cooking;
+        _readySoundPlayed = false;
 
         if (_ovenCanvas != null)
         {
             _ovenCanvas.SetActive(true);
             _progressBar.fillAmount = 0f;
         }
+
+        // Reproducir sonido de cocción en loop
+        PlayCookingSound();
 
         return true;
     }
@@ -209,11 +239,15 @@ public class OvenStation : MonoBehaviour
 
         if (_ovenCanvas != null) _ovenCanvas.SetActive(false);
 
+        // Detener cualquier sonido que esté reproduciéndose
+        StopAllSounds();
+
         _currentIngredient = null;
         _bakeableData = null;
         _isCooking = false;
         _currentTime = 0f;
         _currentStage = CookingStage.Raw;
+        _readySoundPlayed = false;
 
         return ingredient;
     }
@@ -232,5 +266,53 @@ public class OvenStation : MonoBehaviour
     private void ChangeIngredientAppearance(CookingState newState)
     {
         _bakeableData?.SetState(newState);
+    }
+
+    /// <summary>
+    /// Reproduce el sonido de cocción en loop.
+    /// </summary>
+    private void PlayCookingSound()
+    {
+        if (_audioSource != null && _cookingSound != null)
+        {
+            _audioSource.clip = _cookingSound;
+            _audioSource.loop = true;
+            _audioSource.Play();
+        }
+    }
+
+    /// <summary>
+    /// Detiene el sonido de cocción.
+    /// </summary>
+    private void StopCookingSound()
+    {
+        if (_audioSource != null && _audioSource.isPlaying && _audioSource.clip == _cookingSound)
+        {
+            _audioSource.Stop();
+            _audioSource.loop = false;
+        }
+    }
+
+    /// <summary>
+    /// Reproduce un sonido específico (one-shot).
+    /// </summary>
+    private void PlaySound(AudioClip clip)
+    {
+        if (_audioSource != null && clip != null)
+        {
+            _audioSource.PlayOneShot(clip);
+        }
+    }
+
+    /// <summary>
+    /// Detiene todos los sonidos.
+    /// </summary>
+    private void StopAllSounds()
+    {
+        if (_audioSource != null)
+        {
+            _audioSource.Stop();
+            _audioSource.loop = false;
+        }
     }
 }

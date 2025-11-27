@@ -13534,7 +13534,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Presiona <color=yellow>E</color>\npara usar la estaci\xF3n \nde verter\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -13600,7 +13600,7 @@ MonoBehaviour:
   m_margin: {x: -0.022650719, y: 0, z: -0.02848196, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &333231426
@@ -32607,7 +32607,7 @@ MonoBehaviour:
 
     para tomar la orden'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -32673,7 +32673,7 @@ MonoBehaviour:
   m_margin: {x: -0.022650719, y: 0, z: -0.02848196, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &839016263
@@ -32908,7 +32908,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -32974,7 +32974,7 @@ MonoBehaviour:
   m_margin: {x: -0.022650719, y: 0, z: -0.02848196, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &847825404
@@ -58343,7 +58343,7 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -58409,7 +58409,7 @@ MonoBehaviour:
   m_margin: {x: -0.022650719, y: 0, z: -0.02848196, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1490795616
@@ -86069,7 +86069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 19.8}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &563089230355871581
@@ -87726,11 +87726,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: -290566226, guid: aba50f1a725401145a92d541128b776e, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 0
+  m_FillMethod: 4
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -89276,8 +89276,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8c12a93775f6d946a7ee6d42cd09022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cookingTime: 10
-  _burningTime: 15
+  _cookingTime: 8
+  _burningTime: 13
   _ovenCanvas: {fileID: 1226201582445660169}
   _progressBar: {fileID: 1439902341085843499}
   _backgroundBar: {fileID: 6503040832139938476}
@@ -89287,6 +89287,10 @@ MonoBehaviour:
   _burningColor: {r: 1, g: 0, b: 0, a: 1}
   _ingredientPoint: {fileID: 4429398814341064797}
   _positionOffset: {x: 0, y: 0, z: 0}
+  _audioSource: {fileID: 0}
+  _cookingSound: {fileID: 8300000, guid: e03762b876a920d41952f1c86a94b57d, type: 3}
+  _readySound: {fileID: 8300000, guid: ae1d0ba0028795e4eae5c94e60ff40f8, type: 3}
+  _burnedSound: {fileID: 8300000, guid: 9c32481a13b3199479c498d9e38d0743, type: 3}
 --- !u!4 &2271908004777525411
 Transform:
   m_ObjectHideFlags: 0
@@ -91537,14 +91541,14 @@ RectTransform:
   m_GameObject: {fileID: 8258764223971618304}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 536210999841860492}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.0000009536743}
+  m_AnchoredPosition: {x: 0, y: 21.1}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &3802112309544569126
@@ -95531,6 +95535,7 @@ GameObject:
   - component: {fileID: 2383400261812103312}
   - component: {fileID: 4425669894593523886}
   - component: {fileID: 6282396316689422346}
+  - component: {fileID: 6282396316689422347}
   m_Layer: 10
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -95598,6 +95603,14 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!81 &6282396316689422347
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6282396316689422345}
+  m_Enabled: 1
 --- !u!4 &6287359072315166275
 Transform:
   m_ObjectHideFlags: 0
@@ -96663,8 +96676,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Esperando...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
+  m_sharedMaterial: {fileID: 8794136110298298129, guid: 2e0bf54deee8d5b49b0032a94d07a3f6, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -96688,14 +96701,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -96726,7 +96739,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: -9.873699, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -98740,6 +98753,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8492164125131767583}
     m_Modifications:
+    - target: {fileID: 1466355713221133109, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: mixingSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 135fa983865a7064585e5b8a8e3c7eb1, type: 3}
+    - target: {fileID: 1466355713221133109, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: completedSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e5a45da21f3ac4644ac3b88901a4b221, type: 3}
+    - target: {fileID: 1879558097845105947, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1879558097845105947, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 13.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2072589123343227177, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2072589123343227177, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3238734295833759686, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -402033657, guid: aba50f1a725401145a92d541128b776e, type: 3}
+    - target: {fileID: 3238734295833759686, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_FillMethod
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4438892640873119561, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
       propertyPath: m_Name
       value: MixerStation
@@ -98786,11 +98831,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8501632124875233035, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
       propertyPath: m_fontSize
-      value: 16
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8501632124875233035, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
       propertyPath: m_fontSizeBase
-      value: 16
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8501632124875233035, guid: 215ae7499519143a288b329bd56e46e1, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -99492,7 +99541,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5328497495530093268}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -99500,7 +99549,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 71, y: -34}
+  m_AnchoredPosition: {x: -0.9000015, y: -34}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &8244338322763510007
