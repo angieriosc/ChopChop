@@ -160,24 +160,45 @@ public class SlicingStation : MonoBehaviour
         isSlicing = true;
         GameObject originalObject = objectToCut;
 
+        // Validar si el objeto sigue existiendo
+        if (originalObject == null)
+        {
+            isSlicing = false;
+            UnlockPlayer();
+            yield break;
+        }
+
         bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
 
+        // Solo intentamos fusionar toppings si es una pizza o tiene la estructura adecuada
+        // Si es un tomate simple, esta función retornará rápido sin romper nada, así que está bien dejarla.
         CombineToppingsIntoMesh(originalObject);
         yield return null; 
 
-        MeshFilter meshFilter = originalObject.GetComponent<MeshFilter>();
+        // --- CORRECCIÓN AQUÍ ---
+        // Buscamos el MeshFilter en el objeto O en sus hijos.
+        MeshFilter meshFilter = originalObject.GetComponentInChildren<MeshFilter>();
+        
         if (meshFilter == null) 
         {
+             Debug.LogError($"[SlicingStation] No se encontró MeshFilter en '{originalObject.name}'. No se puede cortar.");
              isSlicing = false;
              yield break;
         }
 
         Mesh originalMesh = meshFilter.mesh;
         MeshRenderer originalRenderer = meshFilter.GetComponent<MeshRenderer>();
+        
+        // Si el renderer está en el hijo, lo buscamos ahí también
+        if(originalRenderer == null) originalRenderer = meshFilter.GetComponent<MeshRenderer>();
+
         Material[] originalMaterials = (originalRenderer != null) ? originalRenderer.materials : null;
         Transform meshTransform = meshFilter.transform;
         
+        // Calculamos el eje de corte relativo a la malla (que podría estar rotada si es hija)
         Vector3 worldCutUpAxis = originalObject.transform.TransformDirection(cutUpAxis);
+        
+        // Importante: Usamos meshTransform (que puede ser el hijo) para la dirección local
         Vector3 localCutUpAxis = meshTransform.InverseTransformDirection(worldCutUpAxis);
 
         MeshSlicer slicer = new MeshSlicer(); 
@@ -193,6 +214,7 @@ public class SlicingStation : MonoBehaviour
         
         foreach (Mesh sliceMesh in sliceMeshes)
         {
+            // Pasamos meshTransform para respetar la escala y rotación del visual original
             GameObject newPiece = CreateSliceGameObject(sliceMesh, originalMaterials, meshTransform);
             if(newPiece != null)
             {
@@ -212,7 +234,7 @@ public class SlicingStation : MonoBehaviour
         yield return new WaitForSeconds(1.5f); 
         string recipeKey = "Unknown";
         
-        if (isPizza) // Es Pizza
+        if (isPizza) 
         {
             CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
             if (customerManager != null && customerManager.ActiveRecipe != null)
@@ -220,28 +242,30 @@ public class SlicingStation : MonoBehaviour
         }
         else if (currentItemData != null && currentItemData.sliceResultPrefab != null)
         {
-            // Es Masa (Dough)
+            // Usamos el nombre del prefab resultante (ej: "TomatoSlice")
             recipeKey = currentItemData.sliceResultPrefab.name;
         }
 
         if (CuttingInventory.Instance != null)
         {
+            // Aquí puedes ajustar si quieres guardar los ingredientes en inventario lógico
             CuttingInventory.Instance.AddSlices(recipeKey, null, newPieces.Count);
         }
 
         PizzaDeliveryManager deliveryManager = PizzaDeliveryManager.Instance;
         
+        // Lógica de guardado o destrucción
         if (isPizza && deliveryManager != null)
         {
-            Debug.Log($"[SlicingStation] Guardando rebanadas de PIZZA '{recipeKey}' en DeliveryManager.");
-            foreach (GameObject piece in newPieces)
-            {
-                deliveryManager.StoreRealSlice(recipeKey, piece);
-            }
+            foreach (GameObject piece in newPieces) deliveryManager.StoreRealSlice(recipeKey, piece);
         }
         else
         {
-            Debug.Log("[SlicingStation] Destruyendo rebanadas de MASA (no se guardan).");
+            // PARA INGREDIENTES NORMALES (TOMATE/PIMIENTO):
+            // Depende de tu diseño: ¿Quieres que las rebanadas físicas se queden ahí?
+            // Tu código original las destruía. Si quieres verlas caer, comenta el Destroy.
+            
+            // Si el objetivo es obtener "recursos" lógicos y borrar lo físico:
             foreach (GameObject piece in newPieces)
             {
                 Destroy(piece);
@@ -251,10 +275,17 @@ public class SlicingStation : MonoBehaviour
         Destroy(originalObject);
         objectToCut = null;
 
+        // IMPORTANTE: Manejo seguro del Bowl
         if (originalBowlObject != null)
         {
             BowlStation bowlStation = FindFirstObjectByType<BowlStation>();
             if (bowlStation != null) bowlStation.RegisterBowlDestruction();
+            
+            // Si la lógica es devolver el bowl, no lo destruyas aquí, 
+            // deja que UnlockPlayer y ReturnObjectToPlayerNextFrame lo manejen si es necesario.
+            // Si prefieres destruirlo:
+            Destroy(originalBowlObject); 
+            originalBowlObject = null;
         }
 
         currentItemData = null;
