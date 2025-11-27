@@ -289,6 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d36cca0335ad47cc8b8bdb91ca3df85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _recipeUiManager: {fileID: 0}
   items: []
 --- !u!1 &2396119892292177853
 GameObject:
@@ -592,7 +593,7 @@ MonoBehaviour:
   gameManager: {fileID: 6727784993885888314}
   itemSpawnPoint: {fileID: 9060256927566303899}
   doughPrefabToSpawn: {fileID: 5670257119428399006, guid: 774604482d2ab4887a43acc713c577a2, type: 3}
-  sliceControlsPanel: {fileID: 4244084060079201856}
+  sliceControlsUI: {fileID: 1635643896817295658}
   playerMovement: {fileID: 0}
   cameraFollow: {fileID: 0}
   stationCamera: {fileID: 900065974053967401}
