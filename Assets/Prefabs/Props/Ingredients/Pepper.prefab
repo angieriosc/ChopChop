@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abb44d14e365841d29f88dfdd8c6cdaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sliceResultPrefab: {fileID: 0}
+  sliceResultPrefab: {fileID: 1224591705691833108, guid: 7d522420253b3ea47b840f7e46373cd0, type: 3}
 --- !u!114 &-1422300494782807148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +174,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -6538903991835684241, guid: d2b0f0103607bad4d92ab73d2274a51b, type: 3}
+  - {fileID: 2100000, guid: 32c0979dc9d194476a15bba73dca527a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
