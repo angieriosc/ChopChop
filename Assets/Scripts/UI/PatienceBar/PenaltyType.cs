@@ -8,4 +8,5 @@ public enum PenaltyType
     BurntPizza,
     RawPizza,
     WrongCut,
+    WrongPour
 }

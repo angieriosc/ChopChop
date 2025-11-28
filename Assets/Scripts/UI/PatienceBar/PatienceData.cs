@@ -13,6 +13,7 @@ public class PatienceData : ScriptableObject
     public float burntPizzaPenalty = 15f;
     public float rawPizzaPenalty = 20f;
     public float wrongCutPenalty = 10f;
+    public float wrongPourPenalty = 5f;
     public float genericPenalty = 5f;
 
     /// <summary>
