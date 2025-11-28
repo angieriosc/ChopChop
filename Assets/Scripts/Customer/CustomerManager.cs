@@ -259,7 +259,7 @@ public class CustomerManager : MonoBehaviour
     /// </summary>
     private IEnumerator ShowResultsSequence(LevelResultsUI ui)
     {
-        yield return new WaitForSeconds(4f); // Espera tras entregar la última pizza
+        yield return new WaitForSeconds(6f); // Espera tras entregar la última pizza
         ui.ShowResults();
     }
 
