@@ -8,10 +8,15 @@ public class DeliverySubmitButton : MonoBehaviour
     [SerializeField] private CustomerManager customerManager;   
     [SerializeField] private GameObject Correct;
     [SerializeField] private GameObject Incorrect;
+    [SerializeField] private GameObject DeliveryCanvas;
     
     [Header("Audio")]
     [SerializeField] private AudioSource correctAudio;
     [SerializeField] private AudioSource incorrectAudio;
+
+    [Header("Camara")]
+    [SerializeField] private Camera stationCamera;
+    [SerializeField] private Camera playerCamera;
 
 
     public void OnEntregaPressed()
@@ -59,6 +64,13 @@ public class DeliverySubmitButton : MonoBehaviour
         }
         yield return new WaitForSeconds(3.5f);  
         Correct.SetActive(false);   
+        yield return  new WaitForSeconds(0.5f);
+        if (DeliveryCanvas != null)
+        {
+            DeliveryCanvas.SetActive(false);
+            playerCamera.gameObject.SetActive(true);
+            stationCamera.gameObject.SetActive(false);
+        }
     }
     public void ShowIncorrectFor5Seconds()
     {
@@ -73,5 +85,12 @@ public class DeliverySubmitButton : MonoBehaviour
         }
         yield return new WaitForSeconds(3.5f);  // Esperar 5 segundos
         Incorrect.SetActive(false);   // Desactivar
+        yield return  new WaitForSeconds(0.5f);
+        if (DeliveryCanvas != null)
+        {
+            DeliveryCanvas.SetActive(false); // Reabrir canvas de entrega
+            playerCamera.gameObject.SetActive(true);
+            stationCamera.gameObject.SetActive(false);
+        }
     }
 }
