@@ -289,6 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d36cca0335ad47cc8b8bdb91ca3df85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _recipeUiManager: {fileID: 0}
   items: []
 --- !u!1 &2396119892292177853
 GameObject:

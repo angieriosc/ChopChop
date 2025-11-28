@@ -799,7 +799,7 @@ public class CompletionScreen : MonoBehaviour
         }
         
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("CinmeaticChopChop 2");
     }
     
     public void RestartLevel()
