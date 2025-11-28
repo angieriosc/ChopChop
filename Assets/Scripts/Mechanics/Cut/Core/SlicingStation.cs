@@ -353,6 +353,7 @@ public class SlicingStation : MonoBehaviour
 
     public void LockPlayer()
     {
+        DeliveryLock.IsLocked=true;
         if (playerLocked) return;
         playerLocked = true;
 
@@ -373,6 +374,7 @@ public class SlicingStation : MonoBehaviour
 
     public void UnlockPlayer()
     {
+        DeliveryLock.IsLocked=false;
         if (objectToCut != null)
         {
             Destroy(objectToCut);

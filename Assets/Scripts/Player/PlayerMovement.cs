@@ -38,6 +38,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (ToppingLock.IsLocked)
             return;
+        if (DeliveryLock.IsLocked)
+            return;
             
         HandleMovement();
         HandleJump();

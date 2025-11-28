@@ -29,6 +29,17 @@ public class RecipeDataMenu : ScriptableObject
     
     [Header("Ingredients")]
     public List<IngredientStep> ingredientSteps = new List<IngredientStep>();
+    public bool IsRecipeCompleted()
+    {
+        if (ingredientSteps == null || ingredientSteps.Count == 0)
+            return false;
+
+        // Tomamos el ÚLTIMO paso
+        var lastStep = ingredientSteps[ingredientSteps.Count - 1];
+
+        // Si el último está completo, la receta se considera completa
+        return lastStep.isCompleted;
+    }
 }
 
 [System.Serializable]

@@ -330,36 +330,52 @@ public class PizzaToppingManager : MonoBehaviour
     /// </summary>
     private void CheckToppingsStepCompleted()
     {
-        if (_recipeUiManager == null)
-            return;
-        
-        // Validación básica (Topping ID 2 suele ser Queso)
-        int used = GetPlacedForTopping("2");
-        int max = GetMaxForTopping("2");
-        int topping2Placed = max - used;
-
-        if (topping2Placed == 0)
-        {
-            _recipeUiManager.MarkStepCompleted(1); 
-        }
-
         var recipe = _recipeUiManager.ActiveRecipe;
         if (recipe == null)
             return;
 
         string recipeName = recipe.recipeName; 
+        if (recipeName == "Pizza de Queso")
+        {
+            if (_recipeUiManager == null)
+                return;
+            
+            // Validación básica (Topping ID 2 suele ser Queso)
+            int used = GetPlacedForTopping("2");
+            int max = GetMaxForTopping("2");
+            int topping2Placed = max - used;
 
+            if (topping2Placed == 0)
+            {
+                _recipeUiManager.MarkStepCompleted(1); 
+            }
+        }
+        else
+        {
+            if (_recipeUiManager == null)
+                return;
+            
+            // Validación básica (Topping ID 2 suele ser Queso)
+            int used = GetPlacedForTopping("2");
+            int max = GetMaxForTopping("2");
+            int topping2Placed = max - used;
+
+            if (topping2Placed == 0)
+            {
+                _recipeUiManager.MarkStepCompleted(2); 
+            }
+        }
         if (recipeName == "Pizza Clásica")
         {   
             int c_used = GetPlacedForTopping("4");
             int c_max = GetMaxForTopping("4");
-            if ((c_max - c_used) == 0) _recipeUiManager.MarkStepCompleted(2);
+            if ((c_max - c_used) == 0) _recipeUiManager.MarkStepCompleted(3);
         }
         else if (recipeName == "Pizza Vegetal")
         {   
             int v_used = GetPlacedForTopping("3");
             int v_max = GetMaxForTopping("3");
-            if ((v_max - v_used) == 0) _recipeUiManager.MarkStepCompleted(2);
+            if ((v_max - v_used) == 0) _recipeUiManager.MarkStepCompleted(3);
         }
     }
 

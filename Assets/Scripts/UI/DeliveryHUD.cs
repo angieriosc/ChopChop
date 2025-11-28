@@ -88,6 +88,8 @@ public class DeliveryHUD : MonoBehaviour
 
     private void ExitMenu()
     {
+        DeliveryLock.IsLocked = false;
+
         if (exitButton != null)
         {
             Animator anim = exitButton.GetComponent<Animator>();
