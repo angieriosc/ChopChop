@@ -56,7 +56,6 @@ public class DeliverySubmitButton : MonoBehaviour
 
     private IEnumerator ShowCorrectRoutine()
     {
-        DeliveryLock.IsLocked = false;
         Correct.SetActive(true);    
         if (correctAudio != null)
         {
@@ -71,6 +70,7 @@ public class DeliverySubmitButton : MonoBehaviour
             playerCamera.gameObject.SetActive(true);
             stationCamera.gameObject.SetActive(false);
         }
+        DeliveryLock.IsLocked = false;
     }
     public void ShowIncorrectFor5Seconds()
     {
@@ -78,7 +78,6 @@ public class DeliverySubmitButton : MonoBehaviour
     }
     private IEnumerator ShowIncorrectRoutine()
     {
-        DeliveryLock.IsLocked = false;
         Incorrect.SetActive(true);    // Activar
         if (incorrectAudio != null)
         {
@@ -93,5 +92,6 @@ public class DeliverySubmitButton : MonoBehaviour
             playerCamera.gameObject.SetActive(true);
             stationCamera.gameObject.SetActive(false);
         }
+        DeliveryLock.IsLocked = false;
     }
 }
