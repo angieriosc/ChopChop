@@ -25,7 +25,11 @@ public class CustomerManager : MonoBehaviour
     private Customer currentCounterCustomer;
     private List<GameObject> spawnedTableCustomers = new List<GameObject>();
     private RecipeDataMenu activeRecipe;
+    
+    /// <summary>Receta actualmente activa en el nivel.</summary>
     public RecipeDataMenu ActiveRecipe => activeRecipe;
+    
+    /// <summary>Historial de puntuaciones de las entregas realizadas en este nivel.</summary>
     public List<SatisfactionResult> satisfactionHistory = new List<SatisfactionResult>();
 
     [SerializeField] private PizzaToppingManager toppingManager;
@@ -45,10 +49,12 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Genera el siguiente cliente en el mostrador según la receta asignada.
+    /// Resetea los sistemas de paciencia y entrega, y genera el siguiente cliente 
+    /// en el mostrador según la receta asignada (secuencial o aleatoria).
     /// </summary>
     public void SpawnNextCustomer()
     {
+        // 1. Resetear sistemas externos para el nuevo cliente
         if (PizzaDeliveryManager.Instance != null)
         {
             PizzaDeliveryManager.Instance.ResetForNewRecipe();
@@ -59,6 +65,7 @@ public class CustomerManager : MonoBehaviour
             PatienceManager.Instance.ResetPatience();
         }
 
+        // 2. Validar recetas disponibles
         if (levelRecipes.Count == 0)
             return;
 
@@ -66,15 +73,14 @@ public class CustomerManager : MonoBehaviour
 
         if (randomOrderInLevel)
         {
-            // Receta aleatoria
             recipe = levelRecipes[Random.Range(0, levelRecipes.Count)];
         }
         else
         {
-            // Receta en orden
+            // Verificar si se acabaron las recetas en modo secuencial
             if (currentRecipeIndex >= levelRecipes.Count)
             {
-                Debug.Log("🔚 Ya no hay más recetas en levelRecipes.");
+                Debug.Log("🔚 Ya no hay más recetas en la lista.");
                 return;
             }
 
@@ -82,16 +88,15 @@ public class CustomerManager : MonoBehaviour
             currentRecipeIndex++;
         }
 
-        // SIEMPRE actualizar receta activa y límites
+        // 3. Configurar receta activa
         activeRecipe = recipe;
 
         if (toppingManager != null)
         {
             toppingManager.ApplyRecipeLimits(recipe);
-            Debug.Log($"[CustomerManager] ApplyRecipeLimits -> {recipe.recipeName}");
         }
 
-        // --- Spawnear cliente en el mostrador ---
+        // 4. Spawnear cliente visual en el mostrador
         int randomCustomerType = Random.Range(0, customerPrefabs.Count);
         GameObject customerPrefab = customerPrefabs[randomCustomerType].prefab;
 
@@ -110,8 +115,9 @@ public class CustomerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Muestra la UI del pergamino con la receta actual.
+    /// Muestra la UI del pergamino con la información de la receta actual.
     /// </summary>
+    /// <param name="recipe">Datos de la receta a mostrar.</param>
     public void ShowRecipeScroll(RecipeDataMenu recipe)
     {
         if (recipeScrollUI == null)
@@ -133,7 +139,7 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Oculta el pergamino de receta.
+    /// Oculta el pergamino de receta de la UI.
     /// </summary>
     public void HideRecipeScroll()
     {
@@ -143,7 +149,7 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Muestra la UI flotante con los pasos e ingredientes de la receta.
+    /// Muestra la UI flotante (HUD) con los pasos e ingredientes de la receta activa.
     /// </summary>
     public void ShowRecipeUI(RecipeDataMenu recipe)
     {
@@ -155,7 +161,8 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Ejecutado cuando el cliente del mostrador se va. Genera clientes en las mesas.
+    /// Callback ejecutado cuando el cliente del mostrador se retira. 
+    /// Genera los clientes sentados en las mesas correspondientes.
     /// </summary>
     public void OnCustomerLeftCounter(RecipeDataMenu recipe)
     {
@@ -164,7 +171,7 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Genera clientes adicionales en las mesas de acuerdo al número indicado.
+    /// Genera clientes visuales en las mesas (SpawnPoints) de acuerdo al número indicado.
     /// </summary>
     private void SpawnTableCustomers(int count)
     {
@@ -179,11 +186,12 @@ public class CustomerManager : MonoBehaviour
 
             GameObject tableCustomer = Instantiate(prefab, tableSpawnPoints[i].position, tableSpawnPoints[i].rotation);
             spawnedTableCustomers.Add(tableCustomer);
+            
+            // Asignar índice de asiento para la lógica de entrega
             DeliveryArea area = tableCustomer.GetComponentInChildren<DeliveryArea>();
             if (area != null)
             {
-                area.slotIndex = nextSeatIndex;   // 0,1,2,3...
-                Debug.Log($"Asignando slotIndex {area.slotIndex} al cliente {tableCustomer.name}");
+                area.slotIndex = nextSeatIndex;
             }
             nextSeatIndex++;
         }
@@ -192,7 +200,7 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Elimina todos los clientes actualmente ubicados en mesas.
+    /// Elimina todos los clientes visuales actualmente ubicados en las mesas.
     /// </summary>
     private void ClearTableCustomers()
     {
@@ -207,59 +215,56 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Procesa la entrega de la orden y decide si spawnear otro o terminar el nivel.
+    /// Procesa la entrega final de la orden.
+    /// Guarda la satisfacción, limpia la escena y decide si continuar al siguiente cliente 
+    /// o finalizar el nivel mostrando la pantalla de resultados.
     /// </summary>
     public void OnOrderDelivered()
     {
+        // 1. Guardar datos de la partida
         RecordSatisfaction(); 
 
+        // 2. Limpiar UI y mesas
         if (recipeUIManager != null) recipeUIManager.HideRecipe();
         ClearTableCustomers();
 
-        // --- DEBUG DIAGNÓSTICO ---
-        Debug.Log($"[DEBUG] Revisando fin de nivel...");
-        Debug.Log($"[DEBUG] Indice Actual: {currentRecipeIndex} | Total Recetas: {levelRecipes.Count}");
-        Debug.Log($"[DEBUG] ¿Es Random?: {randomOrderInLevel}");
-
-        // Condición de victoria
+        // 3. Verificar Fin de Nivel (Solo si no es modo infinito/random)
         bool isLevelFinished = !randomOrderInLevel && (currentRecipeIndex >= levelRecipes.Count);
 
         if (isLevelFinished)
         {
-            Debug.Log("<color=green>[DEBUG] CONDICIÓN DE VICTORIA CUMPLIDA.</color> Buscando UI...");
+            Debug.Log("🎉 ¡NIVEL COMPLETADO!");
             
-            // Buscamos el script en la escena
+            // Buscar y activar la pantalla de resultados
             LevelResultsUI resultsUI = FindFirstObjectByType<LevelResultsUI>();
             
             if (resultsUI != null)
             {
-                Debug.Log($"[DEBUG] UI encontrada: {resultsUI.gameObject.name}. Iniciando secuencia...");
                 StartCoroutine(ShowResultsSequence(resultsUI));
             }
             else
             {
-                // ESTE ES EL ERROR MÁS COMÚN
-                Debug.LogError("<color=red>[ERROR CRÍTICO]</color> Unity devolvió NULL al buscar 'LevelResultsUI'.");
-                Debug.LogError("CAUSA PROBABLE: El GameObject que tiene el script 'LevelResultsUI' está apagado (gris) en la jerarquía.");
-                Debug.LogError("SOLUCIÓN: Activa el GameObject padre, el script se encarga de apagar el panel hijo en el Start().");
+                Debug.LogWarning("Nivel terminado pero no se encontró 'LevelResultsUI'. Asegúrate de que el objeto esté activo en la escena.");
             }
         }
         else
         {
-            Debug.Log("[DEBUG] Aún quedan recetas o es modo random. Spawneando siguiente...");
+            // Si quedan recetas, continuar
             StartCoroutine(SpawnNextCustomerDelayed());
         }
     }
 
-    // Pequeña pausa dramática antes de mostrar la tabla
+    /// <summary>
+    /// Corrutina para dar una pausa dramática antes de mostrar la tabla de resultados.
+    /// </summary>
     private IEnumerator ShowResultsSequence(LevelResultsUI ui)
     {
-        yield return new WaitForSeconds(4f); // Espera un poco tras entregar la última pizza
-        ui.ShowResults(); // Activa el menú
+        yield return new WaitForSeconds(4f); // Espera tras entregar la última pizza
+        ui.ShowResults();
     }
 
     /// <summary>
-    /// Registra la satisfacción del cliente basado en la paciencia restante.
+    /// Calcula y registra la satisfacción del cliente basada en la paciencia restante en el momento de la entrega.
     /// </summary>
     private void RecordSatisfaction()
     {
@@ -274,13 +279,13 @@ public class CustomerManager : MonoBehaviour
             score = PatienceManager.Instance.GetCurrentPatience();
         }
 
-        // Calculamos una calificación simple (puedes personalizar esto)
+        // Calificación simple
         if (score >= 80) grade = "Perfecto";
         else if (score >= 50) grade = "Bien";
         else if (score > 0) grade = "Regular";
         else grade = "Terrible";
 
-        // Creamos el registro
+        // Guardar registro
         SatisfactionResult result = new SatisfactionResult
         {
             recipeName = activeRecipe.recipeName,
@@ -288,15 +293,12 @@ public class CustomerManager : MonoBehaviour
             rating = grade
         };
 
-        // Lo agregamos a la lista
         satisfactionHistory.Add(result);
-
-        Debug.Log($"<color=cyan>[RESULTADO]</color> Receta: {result.recipeName} | Puntos: {score} | Nota: {grade}");
     }
 
 
     /// <summary>
-    /// Espera antes de spawnear un nuevo cliente después de entregar la orden.
+    /// Espera un tiempo antes de generar un nuevo cliente tras una entrega exitosa.
     /// </summary>
     private IEnumerator SpawnNextCustomerDelayed()
     {
@@ -306,7 +308,7 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Establece un orden personalizado de recetas para este nivel.
+    /// Permite establecer un orden personalizado de recetas para este nivel desde scripts externos.
     /// </summary>
     public void SetRecipeOrder(List<RecipeDataMenu> customOrder)
     {
