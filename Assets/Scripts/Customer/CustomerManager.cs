@@ -26,6 +26,7 @@ public class CustomerManager : MonoBehaviour
     private List<GameObject> spawnedTableCustomers = new List<GameObject>();
     private RecipeDataMenu activeRecipe;
     public RecipeDataMenu ActiveRecipe => activeRecipe;
+    public List<SatisfactionResult> satisfactionHistory = new List<SatisfactionResult>();
 
     [SerializeField] private PizzaToppingManager toppingManager;
     private int nextSeatIndex = 0;
@@ -48,6 +49,16 @@ public class CustomerManager : MonoBehaviour
     /// </summary>
     public void SpawnNextCustomer()
     {
+        if (PizzaDeliveryManager.Instance != null)
+        {
+            PizzaDeliveryManager.Instance.ResetForNewRecipe();
+        }
+
+        if (PatienceManager.Instance != null)
+        {
+            PatienceManager.Instance.ResetPatience();
+        }
+
         if (levelRecipes.Count == 0)
             return;
 
@@ -200,12 +211,50 @@ public class CustomerManager : MonoBehaviour
     /// </summary>
     public void OnOrderDelivered()
     {
+        RecordSatisfaction();
+
         if (recipeUIManager != null)
             recipeUIManager.HideRecipe();
 
         ClearTableCustomers();
 
         StartCoroutine(SpawnNextCustomerDelayed());
+    }
+
+    /// <summary>
+    /// Registra la satisfacción del cliente basado en la paciencia restante.
+    /// </summary>
+    private void RecordSatisfaction()
+    {
+        if (activeRecipe == null) return;
+
+        float score = 0f;
+        string grade = "N/A";
+
+        // Obtenemos la paciencia final del Manager
+        if (PatienceManager.Instance != null)
+        {
+            score = PatienceManager.Instance.GetCurrentPatience();
+        }
+
+        // Calculamos una calificación simple (puedes personalizar esto)
+        if (score >= 80) grade = "Perfecto";
+        else if (score >= 50) grade = "Bien";
+        else if (score > 0) grade = "Regular";
+        else grade = "Terrible";
+
+        // Creamos el registro
+        SatisfactionResult result = new SatisfactionResult
+        {
+            recipeName = activeRecipe.recipeName,
+            finalScore = score,
+            rating = grade
+        };
+
+        // Lo agregamos a la lista
+        satisfactionHistory.Add(result);
+
+        Debug.Log($"<color=cyan>[RESULTADO]</color> Receta: {result.recipeName} | Puntos: {score} | Nota: {grade}");
     }
 
 

@@ -168,6 +168,11 @@ public class OvenStation : MonoBehaviour
                     
                     StopCookingSound();
                     PlaySound(_burnedSound);
+
+                    if (PatienceManager.Instance != null)
+                    {
+                        PatienceManager.Instance.ApplyPenalty(PenaltyType.BurntPizza);
+                    }
                 }
             }
         }
@@ -274,6 +279,14 @@ public class OvenStation : MonoBehaviour
     public GameObject TakeFromOven()
     {
         if (_currentIngredient == null) return null;
+
+        if (_currentStage == CookingStage.Raw || _currentStage == CookingStage.Cooking)
+        {
+            if (PatienceManager.Instance != null)
+            {
+                PatienceManager.Instance.ApplyPenalty(PenaltyType.Undercooked);
+            }
+        }
 
         GameObject ingredient = _currentIngredient;
         InteractableObject interactable = ingredient.GetComponent<InteractableObject>();

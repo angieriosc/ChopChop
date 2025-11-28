@@ -116,6 +116,9 @@ public class SlicingStation : MonoBehaviour
         StartCoroutine(SliceObjectRoutine());
     }
 
+    /// <summary>
+    /// Rutina para cortar el objeto asignado.
+    /// </summary>
     private IEnumerator SliceObjectRoutine()
     {
         isSlicing = true;
@@ -129,6 +132,26 @@ public class SlicingStation : MonoBehaviour
         }
 
         bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
+        CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
+
+        if (isPizza && customerManager != null && customerManager.ActiveRecipe != null)
+        {
+            int targetSlices = customerManager.ActiveRecipe.pizzaSlices; 
+
+            if (this.sliceCount != targetSlices)
+            {
+                Debug.Log($"<color=red>¡ERROR DE CORTE!</color> Pizza cortada en {sliceCount}, la receta pedía {targetSlices}.");
+                
+                if (PatienceManager.Instance != null)
+                {
+                    PatienceManager.Instance.ApplyPenalty(PenaltyType.WrongCut);
+                }
+            }
+            else
+            {
+                Debug.Log("<color=green>¡Corte de Pizza Perfecto!</color>");
+            }
+        }
 
         if (isPizza) CombineToppingsIntoMesh(originalObject);
         yield return null; 
@@ -249,7 +272,6 @@ public class SlicingStation : MonoBehaviour
         string recipeKey = "Unknown";
         if (isPizza) 
         {
-            CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
             if (customerManager != null && customerManager.ActiveRecipe != null)
                 recipeKey = customerManager.ActiveRecipe.name;
         }

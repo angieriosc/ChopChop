@@ -70,6 +70,11 @@ public class CupTracker : MonoBehaviour
             StartCoroutine(TemporalShowMessage(
                 $"Incorrecto, itenta con otra.", messageText.text
             ));
+            
+            if (PatienceManager.Instance != null)
+            {
+                PatienceManager.Instance.ApplyPenalty(PenaltyType.WrongPour);
+            }
             return false;
         }
         else
