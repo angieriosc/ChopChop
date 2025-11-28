@@ -21,7 +21,7 @@ public class PlayerPickup : MonoBehaviour
     [Header("Detección de estaciones")]
     [SerializeField] private float detectionRange = 3f;
 
-    private GameObject pickedObject = null;
+    public GameObject pickedObject = null;
     private InteractableObject nearbyObject = null;
 
     // Referencias a estaciones cercanas

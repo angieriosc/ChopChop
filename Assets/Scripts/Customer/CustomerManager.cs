@@ -230,6 +230,7 @@ public class CustomerManager : MonoBehaviour
 
         // 3. Verificar Fin de Nivel (Solo si no es modo infinito/random)
         bool isLevelFinished = !randomOrderInLevel && (currentRecipeIndex >= levelRecipes.Count);
+        
 
         if (isLevelFinished)
         {

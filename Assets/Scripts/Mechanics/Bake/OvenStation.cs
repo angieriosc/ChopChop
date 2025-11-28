@@ -337,6 +337,13 @@ public class OvenStation : MonoBehaviour
         _readySoundPlayed = false;
         _currentBonusMultiplier = 1;
 
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==6)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
+
         return ingredient;
     }
 

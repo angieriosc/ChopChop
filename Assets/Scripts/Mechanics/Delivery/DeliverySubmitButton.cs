@@ -92,6 +92,12 @@ public class DeliverySubmitButton : MonoBehaviour
             playerCamera.gameObject.SetActive(true);
             stationCamera.gameObject.SetActive(false);
         }
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==8)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
         DeliveryLock.IsLocked = false;
     }
 }

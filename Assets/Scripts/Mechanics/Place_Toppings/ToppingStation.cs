@@ -121,6 +121,13 @@ public class ToppingStation : MonoBehaviour
 
         _hasPizza = false;
 
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==5)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
+
         return pizzaResult;
     }
 

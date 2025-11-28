@@ -422,6 +422,13 @@ public class SlicingStation : MonoBehaviour
             cameraController.ActivateCamera(previousCamera);
         }
         if (gameManager != null) gameManager.ResetBoard();
+
+        DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        if (sequenceManager.stepIndex==4 || sequenceManager.stepIndex==7)
+        {
+            //Continuar cinematica
+            StartCoroutine(sequenceManager.ContinueSequence());
+        }
     }
 
     private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn, PlayerPickup playerPickup)

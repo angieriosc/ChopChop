@@ -202,7 +202,11 @@ public class PizzaToppingManager : MonoBehaviour
             if (col != null) PizzaSurfaceCollider = col;
 
             ToppingStation station = FindFirstObjectByType<ToppingStation>();
-            if (station != null) station.HideInstruction();
+            if (station != null) {
+                station.HideInstruction();
+                FindAnyObjectByType<ShowMessageUI>().ShowMessageForSeconds("Da click a los ingredientes y colocalos hasta que se marquen como completados en la receta", 8f);
+            }
+
 
             OnToppingCountsChanged?.Invoke();
             return;

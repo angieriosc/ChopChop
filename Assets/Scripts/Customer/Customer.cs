@@ -130,6 +130,7 @@ public class Customer : MonoBehaviour
 
         //Continuar cinematica
         DialogueSequenceRunner sequenceManager = FindFirstObjectByType<DialogueSequenceRunner>();
+        FindAnyObjectByType<ShowMessageUI>().ShowMessageForSeconds("Coloca el mouse sobre la receta para ver sus ingredientes y da scroll para ver todo el contenido", 8f);
         StartCoroutine(sequenceManager.ContinueSequence());
 
     }
