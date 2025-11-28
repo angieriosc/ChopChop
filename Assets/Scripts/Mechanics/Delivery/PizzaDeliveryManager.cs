@@ -411,6 +411,27 @@ public class PizzaDeliveryManager : MonoBehaviour
         Debug.Log($"[Entrega] Mesas activas para ronda {_currentRoundIndex}: {string.Join(", ", cfg.seatSlots)}");
     }
 
+    /// <summary>
+    /// Reinicia completamente el manager para una nueva receta/cliente.
+    /// Limpia mesas, resetea la ronda a 0 y prepara todo.
+    /// </summary>
+    public void ResetForNewRecipe()
+    {
+        // 1. Limpiar objetos físicos de las mesas
+        ResetSlots();
+
+        // 2. Reiniciar índice de ronda
+        _currentRoundIndex = 0;
+
+        // 3. (Opcional) Limpiar inventario de rebanadas en mano si es necesario
+        // _realSliceStorage.Clear(); // Descomenta si quieres que se pierdan las rebanadas guardadas
+
+        // 4. Actualizar colliders de las mesas
+        RefreshDeliveryAreasForCurrentRound();
+
+        Debug.Log("[PizzaDeliveryManager] Sistema reiniciado para nuevo cliente.");
+    }
+
 
 }
 

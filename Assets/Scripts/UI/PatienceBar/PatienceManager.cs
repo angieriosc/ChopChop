@@ -114,4 +114,24 @@ public class PatienceManager : MonoBehaviour
              angryIcon.speed = 0f; happyIcon.speed = 0f; isHurryUpActive = false;
         }
     }
+
+    /// <summary>
+    /// Devuelve la paciencia actual (0 a 100)
+    /// </summary>
+    public float GetCurrentPatience()
+    {
+        return currentPatience;
+    }
+
+    /// <summary>
+    /// Reinicia la barra al 100% (o al valor máximo configurado)
+    /// </summary>
+    public void ResetPatience()
+    {
+        if (data != null) currentPatience = data.maxPatience;
+        else currentPatience = 100f;
+        
+        isGameOver = false; // Importante revivir el juego si estaba en Game Over
+        UpdateUI();
+    }
 }
