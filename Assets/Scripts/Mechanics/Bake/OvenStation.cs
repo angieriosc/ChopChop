@@ -10,6 +10,7 @@ public class OvenStation : MonoBehaviour
     [Header("Configuración del horno")]
     [SerializeField] private float _cookingTime = 10f;
     [SerializeField] private float _burningTime = 15f;
+    [SerializeField] private float _readyToBurnedTime = 5f; // Tiempo fijo de "Cocinado" a "Quemado" (sin bonus)
 
     [Header("Referencias UI")]
     [SerializeField] private GameObject _ovenCanvas;
@@ -116,7 +117,9 @@ public class OvenStation : MonoBehaviour
         
         // Calcular tiempo de cocción ajustado por el bonus
         float adjustedCookingTime = _cookingTime / _currentBonusMultiplier;
-        float adjustedBurningTime = _burningTime / _currentBonusMultiplier;
+        
+        // El tiempo de quemado NO se divide por el bonus, siempre es fijo
+        float adjustedBurningTime = adjustedCookingTime + _readyToBurnedTime;
         
         float progress = Mathf.Clamp01(_currentTime / adjustedCookingTime);
 
@@ -143,7 +146,10 @@ public class OvenStation : MonoBehaviour
 
             _progressBar.fillAmount = 1f;
             _progressBar.color = _readyColor;
-            _stateText.text = "¡Cocinado! Tómalo ahora";
+            
+            // Mostrar cuenta regresiva de cuánto tiempo queda antes de quemarse
+            float timeLeftToburn = adjustedBurningTime - _currentTime;
+            _stateText.text = $"¡Cocinado! Tómalo ahora ({Mathf.CeilToInt(timeLeftToburn)}s)";
         }
         else
         {

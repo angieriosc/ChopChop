@@ -18,16 +18,18 @@ public class DivisionChallenge : MonoBehaviour
     [Header("Referencias UI - Pregunta")]
     [SerializeField] private TextMeshProUGUI _timerText;
     [SerializeField] private TextMeshProUGUI _questionText;
-    [SerializeField] private Button[] _answerButtons; // 3 botones
-    [SerializeField] private TextMeshProUGUI[] _answerTexts; // Textos de los 3 botones
+    [SerializeField] private Button[] _answerButtons;
+    [SerializeField] private TextMeshProUGUI[] _answerTexts;
+    [SerializeField] private ButtonAnimator[] _buttonAnimators;
+    [SerializeField] private TimerPulseEffect _timerPulseEffect;
     
     [Header("Referencias UI - Progreso")]
     [SerializeField] private Image _progressBar;
-    [SerializeField] private TextMeshProUGUI _progressText; // "2/5"
-    [SerializeField] private TextMeshProUGUI _bonusText; // "x3 Bonus!"
+    [SerializeField] private TextMeshProUGUI _progressText;
+    [SerializeField] private TextMeshProUGUI _bonusText;
     
     [Header("Referencias UI - Feedback")]
-    [SerializeField] private FeedbackIconHelper[] _buttonFeedbackIcons; // 3 helpers de feedback
+    [SerializeField] private FeedbackIconHelper[] _buttonFeedbackIcons;
     
     [Header("Configuración del Reto")]
     [SerializeField] private int _totalQuestions = 5;
@@ -37,7 +39,14 @@ public class DivisionChallenge : MonoBehaviour
     [SerializeField] private AudioClip _correctSound;
     [SerializeField] private AudioClip _incorrectSound;
     [SerializeField] private AudioClip _challengeCompleteSound;
+    [SerializeField] private AudioClip _tickSound;
     private AudioSource _audioSource;
+    
+    [Header("UI a ocultar durante el reto")]
+    [SerializeField] private GameObject[] _uiElementsToHide; // Arrastra aquí los paneles que quieres ocultar
+    
+    // Guardar estado previo de los elementos UI
+    private Dictionary<GameObject, bool> _previousUIStates = new Dictionary<GameObject, bool>();
     
     // Variables privadas
     private int _currentCorrectAnswers = 0;
@@ -45,12 +54,13 @@ public class DivisionChallenge : MonoBehaviour
     private float _currentTimer = 0f;
     private bool _isTimerRunning = false;
     private bool _waitingForFeedback = false;
+    private float _lastSecondCheck = 0f;
     
     private int _correctAnswer;
     private int _selectedAnswerIndex = -1;
     
-    // Evento que se dispara cuando se completa el reto
-    public event Action<int> OnChallengeCompleted; // Pasa el bonus final
+    // Eventos
+    public event Action<int> OnChallengeCompleted;
     public event Action OnChallengeFailed;
     
     private void Awake()
@@ -58,10 +68,11 @@ public class DivisionChallenge : MonoBehaviour
         _audioSource = gameObject.AddComponent<AudioSource>();
         _audioSource.playOnAwake = false;
         
-        // Ocultar todo al inicio
         if (_challengePanel != null) _challengePanel.SetActive(false);
         if (_questionPanel != null) _questionPanel.SetActive(false);
-        HideFeedbackIcons();
+        
+        // NO ocultar los iconos aquí para evitar problemas de inicialización
+        // Se ocultarán cuando se genere la primera pregunta
     }
     
     /// <summary>
@@ -73,21 +84,59 @@ public class DivisionChallenge : MonoBehaviour
         _currentBonus = 1;
         _currentTimer = 0f;
         
+        // Guardar y ocultar otros elementos UI
+        HideOtherUIElements();
+        
         _challengePanel.SetActive(true);
         _questionPanel.SetActive(false);
         
-        // Mostrar texto introductorio
         if (_introText != null)
         {
-            _introText.text = "¡Es hora del reto!\n\nDebes responder 5 divisiones correctamente para activar el horno y comenzar a cocinar.";
+            _introText.text = "ES HORA DE RETO\n\nDebes responder 5 divisiones correctamente para activar el horno y comenzar a cocinar.";
             _introText.gameObject.SetActive(true);
         }
         
         UpdateProgressUI();
         UpdateBonusUI();
         
-        // Después de 3 segundos, iniciar las preguntas
-        StartCoroutine(StartQuestionsAfterDelay(3f));
+        StartCoroutine(StartQuestionsAfterDelay(5f));
+    }
+    
+    /// <summary>
+    /// Oculta los elementos UI especificados y guarda su estado previo.
+    /// </summary>
+    private void HideOtherUIElements()
+    {
+        _previousUIStates.Clear();
+        
+        if (_uiElementsToHide == null || _uiElementsToHide.Length == 0) return;
+        
+        foreach (GameObject uiElement in _uiElementsToHide)
+        {
+            if (uiElement != null)
+            {
+                // Guardar estado actual
+                _previousUIStates[uiElement] = uiElement.activeSelf;
+                // Ocultar
+                uiElement.SetActive(false);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Restaura el estado previo de los elementos UI.
+    /// </summary>
+    private void RestoreUIElements()
+    {
+        foreach (var kvp in _previousUIStates)
+        {
+            if (kvp.Key != null)
+            {
+                kvp.Key.SetActive(kvp.Value);
+            }
+        }
+        
+        _previousUIStates.Clear();
     }
     
     private IEnumerator StartQuestionsAfterDelay(float delay)
@@ -97,41 +146,53 @@ public class DivisionChallenge : MonoBehaviour
         if (_introText != null) _introText.gameObject.SetActive(false);
         _questionPanel.SetActive(true);
         
+        // Ocultar los iconos de feedback antes de la primera pregunta
+        HideFeedbackIcons();
+        
+        // Esperar un frame para asegurar que todo está inicializado
+        yield return null;
+        
         GenerateNewQuestion();
     }
     
-    /// <summary>
-    /// Genera una nueva pregunta de división.
-    /// </summary>
     private void GenerateNewQuestion()
     {
-        HideFeedbackIcons();
+        // Asegurarse de ocultar feedback de la pregunta anterior
+        // usando Invoke para dar tiempo al sistema
+        if (_currentCorrectAnswers > 0)
+        {
+            HideFeedbackIcons();
+        }
+        
         _waitingForFeedback = false;
         _selectedAnswerIndex = -1;
         
-        // Activar todos los botones
+        if (_buttonAnimators != null)
+        {
+            foreach (ButtonAnimator animator in _buttonAnimators)
+            {
+                if (animator != null) animator.ResetAnimation();
+            }
+        }
+        
         foreach (Button btn in _answerButtons)
         {
             btn.interactable = true;
         }
         
-        // Generar división aleatoria
-        int divisor = UnityEngine.Random.Range(2, 10); // 2-9
-        int quotient = UnityEngine.Random.Range(2, 10); // 2-9
-        int dividend = divisor * quotient; // Asegura división exacta
+        int divisor = UnityEngine.Random.Range(2, 10);
+        int quotient = UnityEngine.Random.Range(2, 10);
+        int dividend = divisor * quotient;
         
         _correctAnswer = quotient;
         
-        // Mostrar pregunta
         if (_questionText != null)
         {
             _questionText.text = $"{dividend} ÷ {divisor} = ?";
         }
         
-        // Generar respuestas (1 correcta, 2 incorrectas)
         List<int> answers = new List<int> { _correctAnswer };
         
-        // Generar respuestas incorrectas
         while (answers.Count < 3)
         {
             int wrongAnswer = UnityEngine.Random.Range(1, 15);
@@ -141,24 +202,21 @@ public class DivisionChallenge : MonoBehaviour
             }
         }
         
-        // Mezclar respuestas
         ShuffleList(answers);
         
-        // Asignar respuestas a botones
         for (int i = 0; i < _answerButtons.Length && i < answers.Count; i++)
         {
             int answerValue = answers[i];
             _answerTexts[i].text = answerValue.ToString();
             
-            // Remover listeners previos y agregar nuevo
             _answerButtons[i].onClick.RemoveAllListeners();
-            int index = i; // Capturar índice para el closure
+            int index = i;
             _answerButtons[i].onClick.AddListener(() => OnAnswerSelected(index, answerValue));
         }
         
-        // Iniciar temporizador
         _currentTimer = _timePerQuestion;
         _isTimerRunning = true;
+        _lastSecondCheck = Mathf.CeilToInt(_currentTimer);
     }
     
     private void Update()
@@ -169,10 +227,36 @@ public class DivisionChallenge : MonoBehaviour
             
             if (_timerText != null)
             {
-                _timerText.text = $"Tiempo: {Mathf.CeilToInt(_currentTimer)}s";
+                int secondsLeft = Mathf.CeilToInt(_currentTimer);
+                _timerText.text = $"{secondsLeft}";
+                
+                if (_currentTimer > 0f)
+                {
+                    int currentSecond = Mathf.CeilToInt(_currentTimer);
+                    
+                    if (currentSecond != _lastSecondCheck)
+                    {
+                        _lastSecondCheck = currentSecond;
+                        
+                        PlaySound(_tickSound);
+                        
+                        if (_timerPulseEffect != null)
+                        {
+                            _timerPulseEffect.PulseTimer();
+                        }
+                    }
+                    
+                    if (_currentTimer <= 4f)
+                    {
+                        _timerText.color = Color.red;
+                    }
+                    else
+                    {
+                        _timerText.color = Color.yellow;
+                    }
+                }
             }
             
-            // Si se acaba el tiempo
             if (_currentTimer <= 0f)
             {
                 _isTimerRunning = false;
@@ -181,9 +265,6 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Maneja la selección de una respuesta.
-    /// </summary>
     private void OnAnswerSelected(int buttonIndex, int selectedAnswer)
     {
         if (_waitingForFeedback) return;
@@ -192,7 +273,6 @@ public class DivisionChallenge : MonoBehaviour
         _waitingForFeedback = true;
         _selectedAnswerIndex = buttonIndex;
         
-        // Desactivar todos los botones
         foreach (Button btn in _answerButtons)
         {
             btn.interactable = false;
@@ -210,25 +290,22 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Maneja una respuesta correcta.
-    /// </summary>
     private void HandleCorrectAnswer(int buttonIndex)
     {
-        // Reproducir sonido correcto
-        PlaySound(_correctSound);
+        if (_buttonAnimators != null && buttonIndex < _buttonAnimators.Length && _buttonAnimators[buttonIndex] != null)
+        {
+            _buttonAnimators[buttonIndex].AnimateCorrect();
+        }
         
-        // Mostrar palomita en el botón seleccionado
+        PlaySound(_correctSound);
         ShowFeedbackIcon(buttonIndex, true);
         
-        // Incrementar respuestas correctas y bonus
         _currentCorrectAnswers++;
         _currentBonus++;
         
         UpdateProgressUI();
         UpdateBonusUI();
         
-        // Verificar si completó el reto
         if (_currentCorrectAnswers >= _totalQuestions)
         {
             StartCoroutine(CompleteChallenge());
@@ -239,33 +316,29 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Maneja una respuesta incorrecta.
-    /// </summary>
     private void HandleIncorrectAnswer(int buttonIndex)
     {
-        // Reproducir sonido incorrecto
+        if (_buttonAnimators != null && buttonIndex < _buttonAnimators.Length && _buttonAnimators[buttonIndex] != null)
+        {
+            _buttonAnimators[buttonIndex].AnimateIncorrect();
+        }
+        
         PlaySound(_incorrectSound);
         
-        // Mostrar tacha en el botón seleccionado
+        // Mostrar tacha en el botón incorrecto seleccionado
         ShowFeedbackIcon(buttonIndex, false);
         
-        // Resetear bonus
         _currentBonus = 1;
         UpdateBonusUI();
         
-        // Encontrar y mostrar la respuesta correcta
-        StartCoroutine(ShowCorrectAnswerAfterDelay(0.5f));
+        // Mostrar la respuesta correcta inmediatamente
+        StartCoroutine(ShowCorrectAnswerAfterDelay(0.3f));
     }
     
-    /// <summary>
-    /// Muestra la respuesta correcta después de un error.
-    /// </summary>
     private IEnumerator ShowCorrectAnswerAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         
-        // Encontrar el botón con la respuesta correcta
         for (int i = 0; i < _answerTexts.Length; i++)
         {
             if (int.TryParse(_answerTexts[i].text, out int value))
@@ -282,39 +355,27 @@ public class DivisionChallenge : MonoBehaviour
         GenerateNewQuestion();
     }
     
-    /// <summary>
-    /// Maneja cuando se acaba el tiempo.
-    /// </summary>
     private void OnTimeUp()
     {
         _waitingForFeedback = true;
         
-        // Desactivar botones
         foreach (Button btn in _answerButtons)
         {
             btn.interactable = false;
         }
         
-        // Resetear bonus
         _currentBonus = 1;
         UpdateBonusUI();
         
-        // Mostrar respuesta correcta
         StartCoroutine(ShowCorrectAnswerAfterDelay(0.5f));
     }
     
-    /// <summary>
-    /// Pasa a la siguiente pregunta.
-    /// </summary>
     private IEnumerator NextQuestionAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         GenerateNewQuestion();
     }
     
-    /// <summary>
-    /// Completa el reto exitosamente.
-    /// </summary>
     private IEnumerator CompleteChallenge()
     {
         yield return new WaitForSeconds(1.5f);
@@ -324,21 +385,20 @@ public class DivisionChallenge : MonoBehaviour
         if (_introText != null)
         {
             _introText.gameObject.SetActive(true);
-            _introText.text = $"¡Reto Completado!\n\nBonus Final: x{_currentBonus}\n\n¡El horno está listo para cocinar!";
+            _introText.text = $"RETO COMPLETADO \n\nBonus Final: x{_currentBonus}\n\n El horno está listo para cocinar";
         }
         
         _questionPanel.SetActive(false);
         
         yield return new WaitForSeconds(2.5f);
         
-        // Cerrar panel y notificar
+        // Restaurar UI antes de cerrar
+        RestoreUIElements();
+        
         _challengePanel.SetActive(false);
         OnChallengeCompleted?.Invoke(_currentBonus);
     }
     
-    /// <summary>
-    /// Actualiza la UI de progreso.
-    /// </summary>
     private void UpdateProgressUI()
     {
         if (_progressBar != null)
@@ -352,9 +412,6 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Actualiza la UI del bonus.
-    /// </summary>
     private void UpdateBonusUI()
     {
         if (_bonusText != null)
@@ -362,7 +419,7 @@ public class DivisionChallenge : MonoBehaviour
             if (_currentBonus > 1)
             {
                 _bonusText.gameObject.SetActive(true);
-                _bonusText.text = $"x{_currentBonus} Bonus!";
+                _bonusText.text = $"x{_currentBonus} Bonus";
             }
             else
             {
@@ -371,9 +428,6 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Muestra iconos de feedback (palomita o tacha).
-    /// </summary>
     private void ShowFeedbackIcon(int buttonIndex, bool isCorrect)
     {
         if (_buttonFeedbackIcons == null || buttonIndex >= _buttonFeedbackIcons.Length) return;
@@ -388,9 +442,6 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Oculta todos los iconos de feedback.
-    /// </summary>
     private void HideFeedbackIcons()
     {
         if (_buttonFeedbackIcons != null)
@@ -402,7 +453,6 @@ public class DivisionChallenge : MonoBehaviour
         }
     }
     
-    // Métodos auxiliares
     private void ShuffleList<T>(List<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
