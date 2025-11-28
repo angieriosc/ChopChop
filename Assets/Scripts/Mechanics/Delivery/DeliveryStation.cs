@@ -10,7 +10,10 @@ public class DeliveryStation : MonoBehaviour
 {
     [Header("UI y Cámara")]
     [SerializeField] private GameObject _deliveryCanvas;
+    [SerializeField] private GameObject _botonfinalizar;
     [SerializeField] private Camera _stationCamera;
+    [SerializeField] private CustomerManager customerManager;   
+    [SerializeField] private RecipeUIManager _recipeUiManager;
 
     [Header("Sistema de entrega (manager que raycastea y coloca rebanadas)")]
     [SerializeField] private PizzaDeliveryManager _deliveryManager;
@@ -31,7 +34,17 @@ public class DeliveryStation : MonoBehaviour
     {
         if (_deliveryCanvas != null)
             _deliveryCanvas.SetActive(true);
+        if (_botonfinalizar != null)
+        {
+            bool mostrarBoton = false;
 
+            if (_recipeUiManager != null)
+            {
+                mostrarBoton = _recipeUiManager.ActiveRecipe.IsRecipeCompleted();
+            }
+
+            _botonfinalizar.SetActive(mostrarBoton);
+        }
         if (_stationCamera != null)
             _stationCamera.gameObject.SetActive(true);
 

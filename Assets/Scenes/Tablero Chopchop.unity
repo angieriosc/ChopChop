@@ -25799,7 +25799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4987236859520109113, guid: 99e0c6832bc774746be7072d9fe21b3e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 49.300537
+      value: 49.30066
       objectReference: {fileID: 0}
     - target: {fileID: 5231987790379540059, guid: 99e0c6832bc774746be7072d9fe21b3e, type: 3}
       propertyPath: m_fontAsset
@@ -62432,7 +62432,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _deliveryCanvas: {fileID: 361930681}
+  _botonfinalizar: {fileID: 1408038696}
   _stationCamera: {fileID: 1347083918}
+  customerManager: {fileID: 2044219398}
+  _recipeUiManager: {fileID: 63547578}
   _deliveryManager: {fileID: 60687405}
   _playerTag: Player
   _hideCanvasOnExit: 1

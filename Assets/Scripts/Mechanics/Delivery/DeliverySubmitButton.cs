@@ -37,7 +37,6 @@ public class DeliverySubmitButton : MonoBehaviour
                 customerManager.OnOrderDelivered();
             }
 
-            // Agregar, sonido, sumar puntos.....
         }
         else
         {
@@ -47,7 +46,7 @@ public class DeliverySubmitButton : MonoBehaviour
             {
                 customerManager.OnOrderDelivered();
             }
-            // Agregar sonido error, etc.
+            
         }
     }
     public void ShowCorrectFor5Seconds()
