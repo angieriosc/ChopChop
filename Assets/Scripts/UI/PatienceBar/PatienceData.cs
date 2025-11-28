@@ -15,6 +15,7 @@ public class PatienceData : ScriptableObject
     public float wrongCutPenalty = 10f;
     public float wrongPourPenalty = 5f;
     public float genericPenalty = 5f;
+    public float incompletePenalty = 5f;
 
     /// <summary>
     /// Traduce el tipo de error a un valor numérico
@@ -25,6 +26,9 @@ public class PatienceData : ScriptableObject
         {
             case PenaltyType.BurntPizza: return burntPizzaPenalty;
             case PenaltyType.WrongCut: return wrongCutPenalty;
+            case PenaltyType.WrongPour: return wrongPourPenalty;
+            case PenaltyType.Undercooked: return undercookedPenalty;
+            case PenaltyType.Incomplete: return genericPenalty;
             default: return genericPenalty;
         }
     }

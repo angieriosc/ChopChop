@@ -8,5 +8,6 @@ public enum PenaltyType
     BurntPizza,
     Undercooked,
     WrongCut,
-    WrongPour
+    WrongPour,
+    Incomplete
 }

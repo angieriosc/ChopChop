@@ -15,5 +15,8 @@ MonoBehaviour:
   maxPatience: 100
   passiveDecayRate: 0.5
   burntPizzaPenalty: 15
+  undercookedPenalty: 20
   wrongCutPenalty: 10
+  wrongPourPenalty: 5
   genericPenalty: 5
+  incompletePenalty: 5
