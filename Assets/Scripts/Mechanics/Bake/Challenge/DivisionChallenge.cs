@@ -286,6 +286,7 @@ public class DivisionChallenge : MonoBehaviour
         }
         else
         {
+            PatienceManager.Instance.ApplyPenalty(PenaltyType.WrongAnswer);
             HandleIncorrectAnswer(buttonIndex);
         }
     }
