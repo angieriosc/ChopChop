@@ -57,12 +57,23 @@ public class SliceControlsUI : MonoBehaviour
         if (sliceCountField != null)
             sliceCountField.onValueChanged.AddListener(OnInputValueChanged);
 
+        SetButtonsState(true);
+
         if (slicingStation != null)
         {
-            // Inicializa la UI con la cantidad actual de cortes, respetando los límites
             int initialCount = Mathf.Clamp(slicingStation.sliceCount, minSlices, maxSlices);
             UpdateUI(initialCount);
         }
+    }
+
+    private void onEnable()
+    {
+        SetButtonsState(true);
+    }
+
+    public void ResetControls()
+    {
+        SetButtonsState(true);
     }
     
     /// <summary>
@@ -107,6 +118,9 @@ public class SliceControlsUI : MonoBehaviour
     /// </summary>
     private void OnCutButtonPressed()
     {
+        SetButtonsState(false);
+        gameObject.SetActive(false);
+
         if (slicingStation != null)
         {
             slicingStation.SliceObject();
@@ -129,5 +143,16 @@ public class SliceControlsUI : MonoBehaviour
         {
             sliceCountField.text = clampedCount.ToString();
         }
+    }
+
+    /// <summary>
+    /// Habilita o deshabilita los botones y el campo de entrada.
+    /// </summary>
+    private void SetButtonsState(bool isActive)
+    {
+        if (increaseButton != null) increaseButton.interactable = isActive;
+        if (decreaseButton != null) decreaseButton.interactable = isActive;
+        if (cutButton != null) cutButton.interactable = isActive;
+        if (sliceCountField != null) sliceCountField.interactable = isActive;
     }
 }

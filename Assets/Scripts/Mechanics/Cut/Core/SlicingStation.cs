@@ -4,9 +4,6 @@ using UnityEngine;
 
 /// <summary>
 /// Estación de corte Final.
-/// - Maneja la entrada de Bowls (instancia masa) e Ingredientes (se colocan directo).
-/// - Realiza el corte de mallas y aplica una fuerza de separación visual.
-/// - Gestiona la integración con Inventory y DeliveryManager.
 /// </summary>
 [RequireComponent(typeof(BoxCollider))]
 public class SlicingStation : MonoBehaviour
@@ -19,7 +16,8 @@ public class SlicingStation : MonoBehaviour
     [SerializeField] private GameObject doughPrefabToSpawn;
 
     [Header("Player, UI & Camera")]
-    [SerializeField] private GameObject sliceControlsPanel;
+    [SerializeField] private SliceControlsUI sliceControlsUI; 
+    
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private FollowPlayer cameraFollow;
     [SerializeField] private Camera stationCamera;
@@ -48,8 +46,12 @@ public class SlicingStation : MonoBehaviour
         if (playerMovement == null) playerMovement = FindFirstObjectByType<PlayerMovement>();
         if (cameraFollow == null) cameraFollow = FindFirstObjectByType<FollowPlayer>();
         if (cameraController == null) cameraController = FindFirstObjectByType<CameraController>();
+        if (sliceControlsUI == null) sliceControlsUI = FindFirstObjectByType<SliceControlsUI>();
     }
 
+    /// <summary>
+    /// Actualiza cada frame para detectar la entrada del jugador para salir de la estación.
+    /// </summary>
     private void Update()
     {
         if (playerLocked && !isSlicing && Input.GetKeyDown(exitKey))
@@ -58,18 +60,22 @@ public class SlicingStation : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Verifica si la estación de corte está disponible para un nuevo objeto.
+    /// </summary>
     public bool IsAvailable() => objectToCut == null;
 
+    /// <summary>
+    /// Maneja la entrada del jugador para entrar en la estación de corte.
+    /// </summary>
     public void EnterStation()
     {
         if (IsAvailable()) LockPlayer();
     }
 
     /// <summary>
-    /// Asigna un objeto a la estación para cortarlo, diferenciando entre Bowls e Ingredientes.
+    /// Asigna un objeto a la estación de corte para ser cortado.
     /// </summary>
-    /// <param name="itemFromPlayer">El objeto que trae el jugador.</param>
-    /// <returns>True si se asignó correctamente.</returns>
     public bool AssignItemToStation(GameObject itemFromPlayer)
     {
         if (objectToCut != null) return false;
@@ -133,11 +139,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Corrutina principal que maneja el corte, la separación visual y la lógica de inventario.
-    /// </summary>
-    /// <summary>
-    /// Corrutina principal que maneja el corte.
-    /// VERSIÓN LIMPIA: Solo valida penalización si es una PIZZA con corte incorrecto.
+    /// Rutina para cortar el objeto asignado.
     /// </summary>
     private IEnumerator SliceObjectRoutine()
     {
@@ -300,11 +302,16 @@ public class SlicingStation : MonoBehaviour
         currentItemData = null;
         isSlicing = false; 
 
+        if (sliceControlsUI != null)
+        {
+            sliceControlsUI.ResetControls();
+        }
+
         UnlockPlayer();
     }
 
     /// <summary>
-    /// Desactiva colisionadores y renderers del objeto original.
+    /// Desactiva el objeto original después de cortarlo.
     /// </summary>
     private void DisableOriginalObject(GameObject obj)
     {
@@ -316,8 +323,8 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Combina las mallas de los hijos (toppings) en la malla del padre. Solo usado para Pizzas.
-    /// </summary>
+    /// Combina los meshes de los toppings en un solo mesh para optimizar el corte.
+    /// 
     private void CombineToppingsIntoMesh(GameObject parentObj)
     {
         MeshFilter[] filters = parentObj.GetComponentsInChildren<MeshFilter>();
@@ -371,7 +378,7 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Crea un GameObject rebanada con MeshCollider, Rigidbody y congelación de rotación inicial.
+    /// Crea un GameObject para una rebanada con el mesh y materiales dados.
     /// </summary>
     private GameObject CreateSliceGameObject(Mesh sliceMesh, Material[] materials, Transform originalTransform)
     {
@@ -397,14 +404,15 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Bloquea al jugador y cambia la cámara a la estación.
+    /// Bloquea al jugador en la estación de corte.
     /// </summary>
     public void LockPlayer()
     {
         if (playerLocked) return;
         playerLocked = true;
 
-        if (sliceControlsPanel != null) sliceControlsPanel.SetActive(true);
+        if (sliceControlsUI != null) sliceControlsUI.gameObject.SetActive(true);
+        
         if (playerMovement != null) playerMovement.enabled = false;
         if (cameraFollow != null) cameraFollow.enabled = false;
 
@@ -416,8 +424,9 @@ public class SlicingStation : MonoBehaviour
     }
 
     /// <summary>
-    /// Desbloquea al jugador, limpia la estación y maneja el retorno de bowls.
+    /// Desbloquea al jugador de la estación de corte.
     /// </summary>
+
     public void UnlockPlayer()
     {
         if (objectToCut != null)
@@ -440,7 +449,9 @@ public class SlicingStation : MonoBehaviour
         if (!playerLocked) return;
         playerLocked = false;
 
-        if (sliceControlsPanel != null) sliceControlsPanel.SetActive(false);
+        // CAMBIO 3: Usamos la referencia al script para desactivar su GameObject
+        if (sliceControlsUI != null) sliceControlsUI.gameObject.SetActive(false);
+        
         if (playerMovement != null) playerMovement.enabled = true;
         if (cameraFollow != null) cameraFollow.enabled = true;
 
@@ -455,9 +466,6 @@ public class SlicingStation : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Devuelve el objeto (Bowl) al jugador en el siguiente frame.
-    /// </summary>
     private IEnumerator ReturnObjectToPlayerNextFrame(GameObject objectToReturn, PlayerPickup playerPickup)
     {
         yield return null;
