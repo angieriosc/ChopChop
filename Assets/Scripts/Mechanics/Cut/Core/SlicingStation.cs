@@ -135,6 +135,10 @@ public class SlicingStation : MonoBehaviour
     /// <summary>
     /// Corrutina principal que maneja el corte, la separación visual y la lógica de inventario.
     /// </summary>
+    /// <summary>
+    /// Corrutina principal que maneja el corte.
+    /// VERSIÓN LIMPIA: Solo valida penalización si es una PIZZA con corte incorrecto.
+    /// </summary>
     private IEnumerator SliceObjectRoutine()
     {
         isSlicing = true;
@@ -148,6 +152,26 @@ public class SlicingStation : MonoBehaviour
         }
 
         bool isPizza = originalObject.GetComponent<BakeableIngredient>() != null;
+        CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
+
+        if (isPizza && customerManager != null && customerManager.ActiveRecipe != null)
+        {
+            int targetSlices = customerManager.ActiveRecipe.pizzaSlices; 
+
+            if (this.sliceCount != targetSlices)
+            {
+                Debug.Log($"<color=red>¡ERROR DE CORTE!</color> Pizza cortada en {sliceCount}, la receta pedía {targetSlices}.");
+                
+                if (PatienceManager.Instance != null)
+                {
+                    PatienceManager.Instance.ApplyPenalty(PenaltyType.WrongCut);
+                }
+            }
+            else
+            {
+                Debug.Log("<color=green>¡Corte de Pizza Perfecto!</color>");
+            }
+        }
 
         if (isPizza) CombineToppingsIntoMesh(originalObject);
         yield return null; 
@@ -194,24 +218,19 @@ public class SlicingStation : MonoBehaviour
 
         float forceForLowCuts = 130f; 
         float forceForHighCuts = 50f; 
-
         float t = Mathf.InverseLerp(2f, 12f, (float)sliceMeshes.Count);
         float separationPower = Mathf.Lerp(forceForLowCuts, forceForHighCuts, t);
-
         float nudgeDistance = 0.08f; 
         Vector3 explosionCenter = originalObject.transform.position;
 
         foreach (var piece in newPieces)
         {
             if (piece == null) continue;
-            
             piece.SetActive(true);
             Collider col = piece.GetComponent<Collider>();
-            
             Vector3 pieceCenter = col.bounds.center;
             Vector3 direction = (pieceCenter - explosionCenter).normalized;
             if (direction == Vector3.zero) direction = Vector3.up;
-            
             piece.transform.position += direction * nudgeDistance;
         }
 
@@ -220,11 +239,9 @@ public class SlicingStation : MonoBehaviour
         foreach (var piece in newPieces)
         {
             if (piece == null) continue;
-
             Rigidbody rb = piece.GetComponent<Rigidbody>();
             rb.isKinematic = false;
             rb.linearDamping = 8f; 
-            
             rb.AddExplosionForce(separationPower, explosionCenter, 3f, 0f);
         }
 
@@ -236,7 +253,6 @@ public class SlicingStation : MonoBehaviour
             if (piece != null)
             {
                 Rigidbody rb = piece.GetComponent<Rigidbody>();
-                
                 rb.linearVelocity = Vector3.zero; 
                 rb.angularVelocity = Vector3.zero;
                 rb.isKinematic = true;          
@@ -248,7 +264,6 @@ public class SlicingStation : MonoBehaviour
         string recipeKey = "Unknown";
         if (isPizza) 
         {
-            CustomerManager customerManager = FindFirstObjectByType<CustomerManager>();
             if (customerManager != null && customerManager.ActiveRecipe != null)
                 recipeKey = customerManager.ActiveRecipe.name;
         }
