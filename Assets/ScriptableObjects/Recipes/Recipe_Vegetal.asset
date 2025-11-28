@@ -39,21 +39,21 @@ MonoBehaviour:
     cutIconOverride: {fileID: 0}
     isCompleted: 1
   - ingredient:
-      ingredientName: Queso rayado
-      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
-      ingredientSlicedIcon: {fileID: 0}
-    requiresCutting: 0
-    cutPieces: 0
-    cutIconOverride: {fileID: 0}
-    isCompleted: 0
-  - ingredient:
       ingredientName: Pimiento
       ingredientIcon: {fileID: 21300000, guid: b552b1c127bab6b4d82de3fe6dbbc88f, type: 3}
       ingredientSlicedIcon: {fileID: 0}
     requiresCutting: 1
     cutPieces: 6
     cutIconOverride: {fileID: 21300000, guid: f3219da9e55778641bb4031eae505e78, type: 3}
-    isCompleted: 0
+    isCompleted: 1
+  - ingredient:
+      ingredientName: Queso rayado
+      ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
+    isCompleted: 1
   - ingredient:
       ingredientName: Pimiento
       ingredientIcon: {fileID: 21300000, guid: aeb531463590a9f419a2e006f005265d, type: 3}
@@ -61,4 +61,4 @@ MonoBehaviour:
     requiresCutting: 0
     cutPieces: 0
     cutIconOverride: {fileID: 0}
-    isCompleted: 0
+    isCompleted: 1

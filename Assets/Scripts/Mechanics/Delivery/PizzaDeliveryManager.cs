@@ -419,8 +419,6 @@ public class PizzaDeliveryManager : MonoBehaviour
     {
         ResetSlots();
 
-        _currentRoundIndex = 0;
-
         RefreshDeliveryAreasForCurrentRound();
 
         Debug.Log("[PizzaDeliveryManager] Sistema reiniciado para nuevo cliente.");
