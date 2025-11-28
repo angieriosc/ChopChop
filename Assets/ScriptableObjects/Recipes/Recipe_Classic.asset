@@ -39,6 +39,14 @@ MonoBehaviour:
     cutIconOverride: {fileID: 0}
     isCompleted: 1
   - ingredient:
+      ingredientName: Tomate
+      ingredientIcon: {fileID: 21300000, guid: 83cbd318e2ee2c240b7abbc2bfa43d00, type: 3}
+      ingredientSlicedIcon: {fileID: 21300000, guid: 3aa33657e2c6d474e82965ea60d06c40, type: 3}
+    requiresCutting: 1
+    cutPieces: 6
+    cutIconOverride: {fileID: 21300000, guid: 8be5b8d77613da042b7588808a8143d1, type: 3}
+    isCompleted: 1
+  - ingredient:
       ingredientName: Queso Rayado
       ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
       ingredientSlicedIcon: {fileID: 0}
@@ -53,12 +61,4 @@ MonoBehaviour:
     requiresCutting: 0
     cutPieces: 0
     cutIconOverride: {fileID: 0}
-    isCompleted: 1
-  - ingredient:
-      ingredientName: Tomate
-      ingredientIcon: {fileID: 21300000, guid: 4f801d67e97c17048b58801e1f62485f, type: 3}
-      ingredientSlicedIcon: {fileID: 21300000, guid: 3aa33657e2c6d474e82965ea60d06c40, type: 3}
-    requiresCutting: 1
-    cutPieces: 6
-    cutIconOverride: {fileID: 21300000, guid: 8be5b8d77613da042b7588808a8143d1, type: 3}
     isCompleted: 1
