@@ -50,8 +50,14 @@ public class CuttingInventory : MonoBehaviour
         Debug.Log($"[CuttingInventory] Añadido Nuevo: {amount} de '{key}'.");
         if (key == "WedgeSlice")_recipeUiManager.MarkStepCompleted(0);
         if (key == "Recipe_CheeseSimple")_recipeUiManager.MarkStepCompleted(2);
-        if (key == "Recipe_Classic")_recipeUiManager.MarkStepCompleted(3);
-        if (key == "Recipe_Vegetal")_recipeUiManager.MarkStepCompleted(3);
+        if (key == "Recipe_Classic")_recipeUiManager.MarkStepCompleted(4);
+        if (key == "Recipe_Vegetal")_recipeUiManager.MarkStepCompleted(4);
+        var recipe = _recipeUiManager.ActiveRecipe;
+        if (recipe == null)
+            return;
+        string recipeName = recipe.recipeName; 
+        if (recipeName == "Pizza Clásica" && key == "tomatoSlice")_recipeUiManager.MarkStepCompleted(1);
+        if (recipeName == "Pizza Vegetal" && key == "pimiento")_recipeUiManager.MarkStepCompleted(1);
 
     }
 

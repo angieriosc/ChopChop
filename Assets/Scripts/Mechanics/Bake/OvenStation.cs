@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Controla la estación de horno, cocción de ingredientes, barra de progreso y estado del ingrediente.
+/// Controla la estación de horno con sistema de reto de divisiones.
 /// </summary>
 public class OvenStation : MonoBehaviour
 {
-    // 1. Variables públicas y serializadas
     [Header("Configuración del horno")]
     [SerializeField] private float _cookingTime = 10f;
     [SerializeField] private float _burningTime = 15f;
+    [SerializeField] private float _readyToBurnedTime = 5f; // Tiempo fijo de "Cocinado" a "Quemado" (sin bonus)
 
     [Header("Referencias UI")]
     [SerializeField] private GameObject _ovenCanvas;
@@ -32,15 +32,23 @@ public class OvenStation : MonoBehaviour
     [SerializeField] private AudioClip _cookingSound;
     [SerializeField] private AudioClip _readySound;
     [SerializeField] private AudioClip _burnedSound;
+    
+    [Header("Sistema de Reto")]
+    [SerializeField] private DivisionChallenge _divisionChallenge;
+    [SerializeField] private TextMeshProUGUI _bonusIndicator; // Muestra "x3 Speed!" en el horno
 
-    // 2. Variables privadas
     private GameObject _currentIngredient;
     private BakeableIngredient _bakeableData;
     private float _currentTime = 0f;
     private bool _isCooking = false;
+    private bool _isWaitingForChallenge = false;
     private CookingStage _currentStage = CookingStage.Raw;
     private Vector3 _originalPosition;
     private bool _readySoundPlayed = false;
+    private int _currentBonusMultiplier = 1;
+    
+    // Variables temporales para guardar el ingrediente durante el reto
+    private GameObject _pendingIngredient;
 
     private enum CookingStage
     {
@@ -51,17 +59,37 @@ public class OvenStation : MonoBehaviour
         Burned
     }
 
-    // 3. Métodos de Unity
     private void Start()
     {
         if (_ovenCanvas != null) _ovenCanvas.SetActive(false);
         
-        // Crear AudioSource si no existe
         if (_audioSource == null)
         {
             _audioSource = gameObject.AddComponent<AudioSource>();
             _audioSource.playOnAwake = false;
             _audioSource.loop = false;
+        }
+        
+        // Suscribirse a eventos del reto
+        if (_divisionChallenge != null)
+        {
+            _divisionChallenge.OnChallengeCompleted += OnChallengeCompleted;
+            _divisionChallenge.OnChallengeFailed += OnChallengeFailed;
+        }
+        
+        if (_bonusIndicator != null)
+        {
+            _bonusIndicator.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Desuscribirse de eventos
+        if (_divisionChallenge != null)
+        {
+            _divisionChallenge.OnChallengeCompleted -= OnChallengeCompleted;
+            _divisionChallenge.OnChallengeFailed -= OnChallengeFailed;
         }
     }
 
@@ -83,30 +111,32 @@ public class OvenStation : MonoBehaviour
         }
     }
 
-    // 6. Métodos privados auxiliares
-    /// <summary>
-    /// Actualiza el proceso de cocción y la barra de progreso.
-    /// </summary>
     private void UpdateCooking()
     {
         _currentTime += Time.deltaTime;
-        float progress = Mathf.Clamp01(_currentTime / _cookingTime);
+        
+        // Calcular tiempo de cocción ajustado por el bonus
+        float adjustedCookingTime = _cookingTime / _currentBonusMultiplier;
+        
+        // El tiempo de quemado NO se divide por el bonus, siempre es fijo
+        float adjustedBurningTime = adjustedCookingTime + _readyToBurnedTime;
+        
+        float progress = Mathf.Clamp01(_currentTime / adjustedCookingTime);
 
-        if (_currentTime < _cookingTime)
+        if (_currentTime < adjustedCookingTime)
         {
             _currentStage = CookingStage.Cooking;
             _progressBar.fillAmount = progress;
             _progressBar.color = _cookingColor;
-            _stateText.text = $"Cocinando... {Mathf.CeilToInt(_cookingTime - _currentTime)}s";
+            _stateText.text = $"Cocinando... {Mathf.CeilToInt(adjustedCookingTime - _currentTime)}s";
         }
-        else if (_currentTime >= _cookingTime && _currentTime < _burningTime)
+        else if (_currentTime >= adjustedCookingTime && _currentTime < adjustedBurningTime)
         {
             if (_currentStage == CookingStage.Cooking)
             {
                 _currentStage = CookingStage.Ready;
                 ChangeIngredientAppearance(CookingState.Cooked);
                 
-                // Reproducir sonido de listo (una sola vez)
                 if (!_readySoundPlayed)
                 {
                     PlaySound(_readySound);
@@ -116,7 +146,10 @@ public class OvenStation : MonoBehaviour
 
             _progressBar.fillAmount = 1f;
             _progressBar.color = _readyColor;
-            _stateText.text = "Cocinado! Tomalo ahora";
+            
+            // Mostrar cuenta regresiva de cuánto tiempo queda antes de quemarse
+            float timeLeftToburn = adjustedBurningTime - _currentTime;
+            _stateText.text = $"¡Cocinado! Tómalo ahora ({Mathf.CeilToInt(timeLeftToburn)}s)";
         }
         else
         {
@@ -125,15 +158,14 @@ public class OvenStation : MonoBehaviour
                 _currentStage = CookingStage.Burning;
                 _progressBar.fillAmount = 1f;
                 _progressBar.color = _burningColor;
-                _stateText.text = "BURNING!";
+                _stateText.text = "¡QUEMANDO!";
 
-                if (_currentTime >= _burningTime)
+                if (_currentTime >= adjustedBurningTime)
                 {
                     _currentStage = CookingStage.Burned;
                     ChangeIngredientAppearance(CookingState.Burned);
                     _stateText.text = "Quemado";
                     
-                    // Detener sonido de cocción y reproducir sonido de quemado
                     StopCookingSound();
                     PlaySound(_burnedSound);
                 }
@@ -141,13 +173,12 @@ public class OvenStation : MonoBehaviour
         }
     }
 
-    // 5. Métodos públicos
     /// <summary>
-    /// Coloca un ingrediente en el horno y comienza la cocción.
+    /// Intenta poner un ingrediente en el horno (inicia el reto).
     /// </summary>
     public bool PutInOven(GameObject ingredient)
     {
-        if (_isCooking || _currentIngredient != null) return false;
+        if (_isCooking || _currentIngredient != null || _isWaitingForChallenge) return false;
 
         BakeableIngredient bakeable = ingredient.GetComponent<BakeableIngredient>() 
             ?? ingredient.transform.parent?.GetComponent<BakeableIngredient>();
@@ -157,9 +188,58 @@ public class OvenStation : MonoBehaviour
         InteractableObject interactable = bakeable.GetComponent<InteractableObject>();
         if (interactable == null || !interactable.HasCapability(ObjectCapabilities.Bakeable)) return false;
 
-        GameObject realObject = bakeable.gameObject;
-        _originalPosition = realObject.transform.position;
+        // Guardar el ingrediente y preparar para el reto
+        _pendingIngredient = bakeable.gameObject;
+        _originalPosition = _pendingIngredient.transform.position;
+        _isWaitingForChallenge = true;
+        
+        // Iniciar el reto de divisiones
+        if (_divisionChallenge != null)
+        {
+            _divisionChallenge.StartChallenge();
+        }
 
+        return true;
+    }
+
+    /// <summary>
+    /// Llamado cuando el reto se completa exitosamente.
+    /// </summary>
+    private void OnChallengeCompleted(int bonusMultiplier)
+    {
+        _isWaitingForChallenge = false;
+        _currentBonusMultiplier = bonusMultiplier;
+        
+        // Mostrar indicador de bonus
+        if (_bonusIndicator != null && bonusMultiplier > 1)
+        {
+            _bonusIndicator.gameObject.SetActive(true);
+            _bonusIndicator.text = $"x{bonusMultiplier} Velocidad!";
+        }
+        
+        // Ahora sí, poner el ingrediente en el horno
+        StartCooking();
+    }
+
+    /// <summary>
+    /// Llamado cuando el reto falla.
+    /// </summary>
+    private void OnChallengeFailed()
+    {
+        _isWaitingForChallenge = false;
+        _pendingIngredient = null;
+        Debug.Log("Reto fallido. El horno no se activó.");
+    }
+
+    /// <summary>
+    /// Inicia el proceso de cocción después de completar el reto.
+    /// </summary>
+    private void StartCooking()
+    {
+        if (_pendingIngredient == null) return;
+
+        GameObject realObject = _pendingIngredient;
+        
         Rigidbody rb = realObject.GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -175,11 +255,12 @@ public class OvenStation : MonoBehaviour
         if (col != null) col.enabled = false;
 
         _currentIngredient = realObject;
-        _bakeableData = bakeable;
+        _bakeableData = realObject.GetComponent<BakeableIngredient>();
         _isCooking = true;
         _currentTime = 0f;
         _currentStage = CookingStage.Cooking;
         _readySoundPlayed = false;
+        _pendingIngredient = null;
 
         if (_ovenCanvas != null)
         {
@@ -187,15 +268,9 @@ public class OvenStation : MonoBehaviour
             _progressBar.fillAmount = 0f;
         }
 
-        // Reproducir sonido de cocción en loop
         PlayCookingSound();
-
-        return true;
     }
 
-    /// <summary>
-    /// Retira el ingrediente del horno, restaurando su posición y estado.
-    /// </summary>
     public GameObject TakeFromOven()
     {
         if (_currentIngredient == null) return null;
@@ -232,14 +307,13 @@ public class OvenStation : MonoBehaviour
         Rigidbody rb = ingredient.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            Debug.Log("Restoring Rigidbody properties.");
             rb.isKinematic = false;
             rb.useGravity = true;
         }
 
         if (_ovenCanvas != null) _ovenCanvas.SetActive(false);
+        if (_bonusIndicator != null) _bonusIndicator.gameObject.SetActive(false);
 
-        // Detener cualquier sonido que esté reproduciéndose
         StopAllSounds();
 
         _currentIngredient = null;
@@ -248,29 +322,19 @@ public class OvenStation : MonoBehaviour
         _currentTime = 0f;
         _currentStage = CookingStage.Raw;
         _readySoundPlayed = false;
+        _currentBonusMultiplier = 1;
 
         return ingredient;
     }
 
-    /// <summary>
-    /// Retorna si el horno está disponible.
-    /// </summary>
-    public bool IsAvailable() => !_isCooking && _currentIngredient == null;
-
-    /// <summary>
-    /// Retorna si hay un ingrediente actualmente en el horno.
-    /// </summary>
+    public bool IsAvailable() => !_isCooking && _currentIngredient == null && !_isWaitingForChallenge;
     public bool HasIngredient() => _currentIngredient != null;
 
-    // 6. Métodos privados auxiliares
     private void ChangeIngredientAppearance(CookingState newState)
     {
         _bakeableData?.SetState(newState);
     }
 
-    /// <summary>
-    /// Reproduce el sonido de cocción en loop.
-    /// </summary>
     private void PlayCookingSound()
     {
         if (_audioSource != null && _cookingSound != null)
@@ -281,9 +345,6 @@ public class OvenStation : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Detiene el sonido de cocción.
-    /// </summary>
     private void StopCookingSound()
     {
         if (_audioSource != null && _audioSource.isPlaying && _audioSource.clip == _cookingSound)
@@ -293,9 +354,6 @@ public class OvenStation : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Reproduce un sonido específico (one-shot).
-    /// </summary>
     private void PlaySound(AudioClip clip)
     {
         if (_audioSource != null && clip != null)
@@ -304,9 +362,6 @@ public class OvenStation : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Detiene todos los sonidos.
-    /// </summary>
     private void StopAllSounds()
     {
         if (_audioSource != null)

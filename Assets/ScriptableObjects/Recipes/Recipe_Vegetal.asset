@@ -21,7 +21,7 @@ MonoBehaviour:
   - toppingId: 2
     maxQuantity: 8
   - toppingId: 3
-    maxQuantity: 12
+    maxQuantity: 6
   - toppingId: 4
     maxQuantity: 0
   recipeScrollImage: {fileID: 0}
@@ -37,18 +37,10 @@ MonoBehaviour:
     requiresCutting: 0
     cutPieces: 0
     cutIconOverride: {fileID: 0}
-    isCompleted: 0
+    isCompleted: 1
   - ingredient:
       ingredientName: Queso rayado
       ingredientIcon: {fileID: 21300000, guid: bf2040b7ff47cc74f958ed15dd5cf380, type: 3}
-      ingredientSlicedIcon: {fileID: 0}
-    requiresCutting: 0
-    cutPieces: 0
-    cutIconOverride: {fileID: 0}
-    isCompleted: 0
-  - ingredient:
-      ingredientName: Pimiento
-      ingredientIcon: {fileID: 21300000, guid: aeb531463590a9f419a2e006f005265d, type: 3}
       ingredientSlicedIcon: {fileID: 0}
     requiresCutting: 0
     cutPieces: 0
@@ -61,4 +53,12 @@ MonoBehaviour:
     requiresCutting: 1
     cutPieces: 6
     cutIconOverride: {fileID: 21300000, guid: f3219da9e55778641bb4031eae505e78, type: 3}
+    isCompleted: 0
+  - ingredient:
+      ingredientName: Pimiento
+      ingredientIcon: {fileID: 21300000, guid: aeb531463590a9f419a2e006f005265d, type: 3}
+      ingredientSlicedIcon: {fileID: 0}
+    requiresCutting: 0
+    cutPieces: 0
+    cutIconOverride: {fileID: 0}
     isCompleted: 0

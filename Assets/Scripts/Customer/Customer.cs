@@ -49,6 +49,7 @@ public class Customer : MonoBehaviour
    IEnumerator WalkToCounter()
     {
         Debug.Log("Cliente caminando al mostrador");
+        InputLock.IsLocked = true;
 
         if (animator != null)
             animator.CrossFade(walkStateName, crossfadeDuration);
@@ -84,6 +85,7 @@ public class Customer : MonoBehaviour
         Debug.Log("Jugador interactuó con el cliente");
 
         StartCoroutine(DeliverRecipeAndLeave());
+        InputLock.IsLocked=false;
     }
 
     IEnumerator DeliverRecipeAndLeave()
