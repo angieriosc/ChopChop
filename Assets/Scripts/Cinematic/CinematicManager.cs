@@ -1,67 +1,77 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Administra el flujo completo entre una cinemática inicial,
-/// el sistema de diálogos y la visualización de un mensaje final.
-/// 
-/// Flujo:
-/// 1. Inicia una cinemática.
-/// 2. Al terminar la cinemática, inicia un diálogo.
-/// 3. Al finalizar el diálogo, muestra un panel final con un mensaje.
-/// </summary>
 public class CinematicManager : MonoBehaviour
 {
-    /// <summary>
-    /// Referencia a la cinemática que se ejecutará al iniciar la escena.
-    /// </summary>
+    [Header("Characters Movement Before Cinematic")]
+    public List<CubeMover> charactersToMove;
+
+    [Header("Cinematic")]
     public SimpleCinematic cinematic;
 
     [Header("Dialogue")]
-    /// <summary>
-    /// Lista de líneas de diálogo que se mostrarán
-    /// después de que termine la cinemática.
-    /// </summary>
     public DialogueLine[] dialogue;
 
     [Header("Final Message")]
-    /// <summary>
-    /// Panel que se mostrará al finalizar todo el flujo
-    /// (cinemática + diálogo). Puede estar oculto inicialmente.
-    /// </summary>
     public GameObject finalPanel;
-
-    /// <summary>
-    /// Texto dentro del panel final donde se mostrará
-    /// el mensaje de cierre personalizado.
-    /// </summary>
     public TMP_Text finalMessage;
-
-    /// <summary>
-    /// Mensaje final personalizado que se presentará
-    /// cuando concluya el diálogo.
-    /// </summary>
     [TextArea(2, 4)]
     public string customFinalMessage;
 
+    [Header("Next Scene")]
+    public string nextSceneName;
+
+    [Header("Final Button")]
+    public Button finalButton;   // ← Asignar el botón final aquí
+
     /// <summary>
-    /// Inicializa el flujo:
-    /// - Oculta el panel final si existe.
-    /// - Conecta los eventos de fin de cinemática y diálogo
-    ///   con sus respectivos manejadores.
+    /// Inicializa el flujo general:
+    /// - Asigna el listener del botón final.
+    /// - Oculta el panel final.
+    /// - Se suscribe a los eventos de fin de cinemática y diálogo.
+    /// - Mueve personajes previos a la cinemática.
+    /// - Inicia la cinemática.
     /// </summary>
+
     private void Start()
     {
-        if (finalPanel != null) finalPanel.SetActive(false);
+        if (finalButton != null)
+            finalButton.onClick.AddListener(LoadNextScene);
+
+        if (finalPanel != null)
+            finalPanel.SetActive(false);
 
         cinematic.OnCinematicEnd += HandleCinematicEnd;
-        DialogueSystemCinematic.Instance.OnDialogueFinished += 
-            HandleDialogueEnd;
+        DialogueSystemCinematic.Instance.OnDialogueFinished += HandleDialogueEnd;
+
+        MoveCharactersBeforeCinematic();
+        StartCinematic();
     }
 
     /// <summary>
-    /// Manejador ejecutado cuando la cinemática termina.
-    /// Inicia el diálogo configurado.
+    /// Ordena a cada personaje configurado que ejecute su movimiento
+    /// inicial antes de que comience la cinemática.
+    /// </summary>
+    private void MoveCharactersBeforeCinematic()
+    {
+        foreach (CubeMover mover in charactersToMove)
+            mover.MoveTo();
+    }
+
+    /// <summary>
+    /// Inicia la reproducción de la cinemática principal.
+    /// </summary>
+    private void StartCinematic()
+    {
+        cinematic.Play();
+    }
+
+    /// <summary>
+    /// Evento ejecutado cuando la cinemática termina.
+    /// Inicia el sistema de diálogo usando las líneas configuradas.
     /// </summary>
     private void HandleCinematicEnd()
     {
@@ -69,8 +79,8 @@ public class CinematicManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Manejador ejecutado cuando el diálogo termina.
-    /// Si existe un panel final, lo muestra y coloca el mensaje personalizado.
+    /// Evento ejecutado cuando el diálogo finaliza.
+    /// Muestra el panel final y coloca el mensaje personalizado.
     /// </summary>
     private void HandleDialogueEnd()
     {
@@ -78,5 +88,20 @@ public class CinematicManager : MonoBehaviour
 
         finalPanel.SetActive(true);
         finalMessage.text = customFinalMessage;
+    }
+    
+    /// <summary>
+    /// Carga la siguiente escena configurada.
+    /// Valida que el nombre no esté vacío antes de proceder.
+    /// </summary>
+    public void LoadNextScene()
+    {
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.LogWarning("nextSceneName no asignado");
+            return;
+        }
+
+        SceneManager.LoadScene(nextSceneName);
     }
 }

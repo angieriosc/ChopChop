@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6749903987766175674}
   - component: {fileID: 6979938451734589666}
   - component: {fileID: 6874663564240366647}
-  - component: {fileID: 6929882168169430563}
   - component: {fileID: 5808206266121803058}
   m_Layer: 0
   m_Name: Sarten
@@ -134,19 +133,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 43595185863390492, guid: 2fd0bdbd387d30540949a78a5bfda227, type: 2}
---- !u!114 &6929882168169430563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1135628105894673545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a093336313b5f204e8658f8d01dfc2c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  capabilities: 3
 --- !u!54 &5808206266121803058
 Rigidbody:
   m_ObjectHideFlags: 0
