@@ -73793,7 +73793,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   supermarketAmbience: {fileID: 8300000, guid: f6ecb199956f60a4cb5c8f197e82ae17, type: 3}
-  ambienceVolume: 0.7
+  ambienceVolume: 0.5
   pickupItemSound: {fileID: 8300000, guid: 78efa862c8a920649a684dd39947c4b2, type: 3}
   paymentSuccessSound: {fileID: 8300000, guid: dcb76ca8de67402499b76905f722fa9a, type: 3}
   paymentFailSound: {fileID: 8300000, guid: f6c6b4f85bcf1fa41ab4b79a5e887e6e, type: 3}
@@ -92586,6 +92586,10 @@ MonoBehaviour:
   _burningColor: {r: 1, g: 0, b: 0, a: 1}
   _ingredientPoint: {fileID: 4429398814341064797}
   _positionOffset: {x: 0, y: 0, z: 0}
+  _audioSource: {fileID: 0}
+  _cookingSound: {fileID: 0}
+  _readySound: {fileID: 0}
+  _burnedSound: {fileID: 0}
 --- !u!4 &2271908004777525411
 Transform:
   m_ObjectHideFlags: 0
@@ -93848,6 +93852,11 @@ MonoBehaviour:
   mixerBladeTransform: {fileID: 0}
   mixerBladeVisual: {fileID: 0}
   bladeSpeed: 1000
+  audioSource: {fileID: 0}
+  mixingSound: {fileID: 0}
+  completedSound: {fileID: 0}
+  minPitch: 0.8
+  maxPitch: 1.5
 --- !u!1 &3059677578889966166
 GameObject:
   m_ObjectHideFlags: 0

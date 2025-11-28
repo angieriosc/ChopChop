@@ -22,6 +22,9 @@ public class DialogueSequenceRunner : MonoBehaviour
 
     private GameObject currentPointer;
 
+    public AudioSource sfxSource;
+    public AudioClip pressESound;
+
 
     void Start()
     {
@@ -66,6 +69,11 @@ public class DialogueSequenceRunner : MonoBehaviour
     {
         if (waitingForInput && Input.GetKeyDown(KeyCode.E))
         {
+            // 🔊 Play sound on E press
+            if (sfxSource != null && pressESound != null)
+                sfxSource.PlayOneShot(pressESound);
+
+
             waitingForInput = false;
 
             if (continuePanel != null)
