@@ -207,18 +207,55 @@ public class CustomerManager : MonoBehaviour
 
 
     /// <summary>
-    /// Procesa la entrega de la orden y genera el siguiente cliente.
+    /// Procesa la entrega de la orden y decide si spawnear otro o terminar el nivel.
     /// </summary>
     public void OnOrderDelivered()
     {
-        RecordSatisfaction();
+        RecordSatisfaction(); 
 
-        if (recipeUIManager != null)
-            recipeUIManager.HideRecipe();
-
+        if (recipeUIManager != null) recipeUIManager.HideRecipe();
         ClearTableCustomers();
 
-        StartCoroutine(SpawnNextCustomerDelayed());
+        // --- DEBUG DIAGNÓSTICO ---
+        Debug.Log($"[DEBUG] Revisando fin de nivel...");
+        Debug.Log($"[DEBUG] Indice Actual: {currentRecipeIndex} | Total Recetas: {levelRecipes.Count}");
+        Debug.Log($"[DEBUG] ¿Es Random?: {randomOrderInLevel}");
+
+        // Condición de victoria
+        bool isLevelFinished = !randomOrderInLevel && (currentRecipeIndex >= levelRecipes.Count);
+
+        if (isLevelFinished)
+        {
+            Debug.Log("<color=green>[DEBUG] CONDICIÓN DE VICTORIA CUMPLIDA.</color> Buscando UI...");
+            
+            // Buscamos el script en la escena
+            LevelResultsUI resultsUI = FindFirstObjectByType<LevelResultsUI>();
+            
+            if (resultsUI != null)
+            {
+                Debug.Log($"[DEBUG] UI encontrada: {resultsUI.gameObject.name}. Iniciando secuencia...");
+                StartCoroutine(ShowResultsSequence(resultsUI));
+            }
+            else
+            {
+                // ESTE ES EL ERROR MÁS COMÚN
+                Debug.LogError("<color=red>[ERROR CRÍTICO]</color> Unity devolvió NULL al buscar 'LevelResultsUI'.");
+                Debug.LogError("CAUSA PROBABLE: El GameObject que tiene el script 'LevelResultsUI' está apagado (gris) en la jerarquía.");
+                Debug.LogError("SOLUCIÓN: Activa el GameObject padre, el script se encarga de apagar el panel hijo en el Start().");
+            }
+        }
+        else
+        {
+            Debug.Log("[DEBUG] Aún quedan recetas o es modo random. Spawneando siguiente...");
+            StartCoroutine(SpawnNextCustomerDelayed());
+        }
+    }
+
+    // Pequeña pausa dramática antes de mostrar la tabla
+    private IEnumerator ShowResultsSequence(LevelResultsUI ui)
+    {
+        yield return new WaitForSeconds(4f); // Espera un poco tras entregar la última pizza
+        ui.ShowResults(); // Activa el menú
     }
 
     /// <summary>
