@@ -74013,7 +74013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   supermarketAmbience: {fileID: 8300000, guid: f6ecb199956f60a4cb5c8f197e82ae17, type: 3}
-  ambienceVolume: 0.7
+  ambienceVolume: 0.5
   pickupItemSound: {fileID: 8300000, guid: 78efa862c8a920649a684dd39947c4b2, type: 3}
   paymentSuccessSound: {fileID: 8300000, guid: dcb76ca8de67402499b76905f722fa9a, type: 3}
   paymentFailSound: {fileID: 8300000, guid: f6c6b4f85bcf1fa41ab4b79a5e887e6e, type: 3}

@@ -7,6 +7,10 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class PlayerPickup : MonoBehaviour
 {
+    [Header("Audio")]
+    [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioClip grabSound;
+    [SerializeField] private AudioClip dropSound;
     [Header("Configuración")]
     [SerializeField] public Transform handPoint;
 
@@ -299,6 +303,10 @@ public class PlayerPickup : MonoBehaviour
         pickedObject.transform.SetParent(handPoint, true);
         pickedObject.transform.localPosition = Vector3.zero;
         pickedObject.transform.localRotation = Quaternion.identity;
+
+        // 🎵 Play grab sound
+        if (sfxSource != null && grabSound != null)
+            sfxSource.PlayOneShot(grabSound);
     }
 
     /// <summary>
@@ -324,6 +332,11 @@ public class PlayerPickup : MonoBehaviour
         }
 
         pickedObject = null;
+        pickedObject = null;
+
+        // 🎵 Play drop sound
+        if (sfxSource != null && dropSound != null)
+            sfxSource.PlayOneShot(dropSound);
     }
 
     /// <summary>
