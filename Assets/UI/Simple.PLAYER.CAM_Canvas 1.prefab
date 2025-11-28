@@ -1062,7 +1062,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7522050534099648160}
   - component: {fileID: 8315996508913129158}
-  - component: {fileID: 8183091888634097255}
   - component: {fileID: 4205446953650738229}
   - component: {fileID: 7594340888125876588}
   m_Layer: 0
@@ -1144,25 +1143,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &8183091888634097255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5506091840608115997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 191505f92c134a8488214345cf974f1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slider: {fileID: 8315996508913129158}
-  fillImage: {fileID: 8926470715794455886}
-  angryIcon: {fileID: 5052559636570935952}
-  happyIcon: {fileID: 2230003401755185781}
-  hurryUpThreshold: 0.15
-  angryThreshold: 0.4
-  happyThreshold: 0.75
 --- !u!225 &4205446953650738229
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1187,8 +1167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 457aac374a59d4e2193f60c06106c3be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPatience: 100
-  decayRate: 2
+  data: {fileID: 11400000, guid: bff7c601b96c54e98b8da986fefa06c6, type: 2}
   slider: {fileID: 8315996508913129158}
   fillImage: {fileID: 8926470715794455886}
   angryIcon: {fileID: 5052559636570935952}
