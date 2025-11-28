@@ -7746,7 +7746,7 @@ MonoBehaviour:
   customFinalMessage: "\xA1NIVEL COMPLETADO! El Restaurante ChopChop! ha tenido un
     comienzo \nbrillante. \xA1Pero la aventura contin\xFAa!\n\n\xA1Gracias por Jugar
     ChopChop! !"
-  nextSceneName: Tablero Chopchop
+  nextSceneName: 01_MainMenu
   finalButton: {fileID: 185679714}
 --- !u!4 &179913991
 Transform:
@@ -54373,7 +54373,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 1
-  m_Color: {r: 0.36702713, g: 0.38679248, b: 0.36307406, a: 1}
+  m_Color: {r: 0.7169812, g: 0.4732039, b: 0.28746888, a: 1}
   m_Intensity: 1.1
   m_Range: 10
   m_SpotAngle: 30
