@@ -9,8 +9,6 @@ public class PatienceManager : MonoBehaviour
     [Header("ARCHIVO DE DATOS")]
     [Tooltip("Arrastra aquí tu archivo .asset de configuración")]
     public PatienceData data; 
-
-    // Variables internas
     private float currentPatience;
     private bool isGameOver = false;
 
@@ -40,7 +38,6 @@ public class PatienceManager : MonoBehaviour
     {
         if (slider != null) { slider.minValue = 0f; slider.maxValue = 1f; UpdateUI(); }
         
-        // Bloqueo del ratón (Input)
         CanvasGroup cg = GetComponent<CanvasGroup>();
         if (cg == null) cg = gameObject.AddComponent<CanvasGroup>();
         cg.blocksRaycasts = false; cg.interactable = false;
@@ -48,7 +45,7 @@ public class PatienceManager : MonoBehaviour
 
     private void Update()
     {
-        // Desgaste Pasivo leyendo desde 'data'
+        // Desgaste Pasivo
         if (!isGameOver && currentPatience > 0 && data != null && data.passiveDecayRate > 0)
         {
             currentPatience -= data.passiveDecayRate * Time.deltaTime;
@@ -57,7 +54,9 @@ public class PatienceManager : MonoBehaviour
         }
     }
 
-    // FUNCIÓN PÚBLICA PARA RESTAR PUNTOS
+    /// <summary>
+    /// Aplica una penalización específica según el tipo de error cometido
+    /// </summary>
     public void ApplyPenalty(PenaltyType type)
     {
         if (isGameOver || data == null) return;
@@ -70,6 +69,9 @@ public class PatienceManager : MonoBehaviour
         UpdateUI();
     }
 
+    /// <summary>
+    /// Verifica si la paciencia ha llegado a cero para activar el Game Over
+    /// </summary>
     private void CheckGameOver()
     {
         if (currentPatience <= 0)
@@ -83,6 +85,9 @@ public class PatienceManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Actualiza la UI de la barra de paciencia
+    /// </summary>
     private void UpdateUI()
     {
         if (slider == null || data == null) return;
@@ -99,6 +104,9 @@ public class PatienceManager : MonoBehaviour
         UpdateIcons(normalizedValue);
     }
 
+    /// <summary>
+    /// Actualiza los iconos de estado según el valor de paciencia
+    /// </summary>
     private void UpdateIcons(float value)
     {
         if (angryIcon == null || happyIcon == null) return;

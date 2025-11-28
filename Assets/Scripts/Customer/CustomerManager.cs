@@ -221,6 +221,9 @@ public class CustomerManager : MonoBehaviour
         StartCoroutine(SpawnNextCustomerDelayed());
     }
 
+    /// <summary>
+    /// Registra la satisfacción del cliente basado en la paciencia restante.
+    /// </summary>
     private void RecordSatisfaction()
     {
         if (activeRecipe == null) return;
