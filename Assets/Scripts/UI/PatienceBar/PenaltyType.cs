@@ -9,5 +9,5 @@ public enum PenaltyType
     Undercooked,
     WrongCut,
     WrongPour,
-    Incomplete
+    IncompleteDish
 }

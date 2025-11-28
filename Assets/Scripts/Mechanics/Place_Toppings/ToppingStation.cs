@@ -63,6 +63,24 @@ public class ToppingStation : MonoBehaviour
     {
         if (!_hasPizza) return null;
 
+        if (_toppingManager != null)
+        {
+            CustomerManager customer = FindFirstObjectByType<CustomerManager>();
+            
+            if (customer != null && customer.ActiveRecipe != null)
+            {
+                bool isPizzaCorrect = _toppingManager.ValidateRecipe(customer.ActiveRecipe);
+
+                if (!isPizzaCorrect)
+                {
+                    if (PatienceManager.Instance != null)
+                    {
+                        PatienceManager.Instance.ApplyPenalty(PenaltyType.IncompleteDish);
+                    }
+                }
+            }
+        }
+
         GameObject pizzaResult = null;
 
         if (_toppingManager.PizzaRoot != null)

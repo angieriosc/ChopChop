@@ -364,6 +364,31 @@ public class PizzaToppingManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Revisa la receta completa. Se llama SOLO al intentar sacar la pizza.
+    /// </summary>
+    public bool ValidateRecipe(RecipeDataMenu recipe)
+    {
+        if (recipe == null) return true;
+
+        foreach (var limit in recipe.toppingLimits)
+        {
+            int required = limit.maxQuantity;
+
+            if (required > 0)
+            {
+                int placed = GetPlacedForTopping(limit.toppingId);
+
+                if (placed < required)
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true; // Todo coincide
+    }
+
+    /// <summary>
     /// TRADUCTOR: Recibe un ID (ej "3") y devuelve la Key del Inventario (ej "pimiento").
     /// </summary>
     public string GetInventoryKeyById(string id)
