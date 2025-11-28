@@ -6,7 +6,7 @@ public enum PenaltyType
 {
     Generic,
     BurntPizza,
-    RawPizza,
+    Undercooked,
     WrongCut,
     WrongPour
 }

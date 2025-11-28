@@ -11,7 +11,7 @@ public class PatienceData : ScriptableObject
 
     [Header("Tabla de Penalizaciones")]
     public float burntPizzaPenalty = 15f;
-    public float rawPizzaPenalty = 20f;
+    public float undercookedPenalty = 20f;
     public float wrongCutPenalty = 10f;
     public float wrongPourPenalty = 5f;
     public float genericPenalty = 5f;
