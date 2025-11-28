@@ -74,6 +74,8 @@ public class DeliveryStation : MonoBehaviour
     {
         if (!other.CompareTag(_playerTag)) return;
 
+        DeliveryLock.IsLocked =true;
+
         _playerInStation = true;
         ShowCanvas();
 
@@ -85,6 +87,8 @@ public class DeliveryStation : MonoBehaviour
         if (!other.CompareTag(_playerTag)) return;
 
         _playerInStation = false;
+
+        DeliveryLock.IsLocked =false;
 
         if (_hideCanvasOnExit)
             HideCanvas();

@@ -56,6 +56,7 @@ public class DeliverySubmitButton : MonoBehaviour
 
     private IEnumerator ShowCorrectRoutine()
     {
+        DeliveryLock.IsLocked = false;
         Correct.SetActive(true);    
         if (correctAudio != null)
         {
@@ -77,6 +78,7 @@ public class DeliverySubmitButton : MonoBehaviour
     }
     private IEnumerator ShowIncorrectRoutine()
     {
+        DeliveryLock.IsLocked = false;
         Incorrect.SetActive(true);    // Activar
         if (incorrectAudio != null)
         {
